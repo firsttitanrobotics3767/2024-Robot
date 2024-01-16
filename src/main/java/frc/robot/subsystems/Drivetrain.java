@@ -1,9 +1,15 @@
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import swervelib.SwerveController;
@@ -25,10 +31,41 @@ public class Drivetrain extends SubsystemBase{
             throw new RuntimeException(e);
         }
         swerveDrive.setHeadingCorrection(false);
+
+        setupPathPlanner();
     }
 
     @Override
     public void periodic() {}
+
+    /**
+     * Setup AutoBuilder for PathPlanner
+     */
+    public void setupPathPlanner() {
+        AutoBuilder.configureHolonomic(
+            this::getPose, // Robot pose supplier
+            this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getRobotVelocity, // ChassisSpeeds supplier (robot relative)
+            this::driveRobotOriented, // Method that will drive robot given robot relative speeds
+            new HolonomicPathFollowerConfig(
+                new PIDConstants(5.0, 0, 0), // Translation PID
+                new PIDConstants( // Rotation PID
+                    swerveDrive.swerveController.config.headingPIDF.p, 
+                    swerveDrive.swerveController.config.headingPIDF.i, 
+                    swerveDrive.swerveController.config.headingPIDF.d), 
+                5.15, // Max module speed in m/s
+                swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(), // Drive base radius in meters
+                new ReplanningConfig() // Default replanning config, see docs for options
+            ),
+            () -> {
+                // Boolean supplier that controls when the path will be mirrored for the red alliance
+                // This will flip the path being followed to the red side of the field.
+                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                var alliance = DriverStation.getAlliance();
+                return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+            },
+            this);
+    }
 
     /**
      * The primary method for controlling the drivebase.  Takes a {@link Translation2d} and a rotation rate, and
