@@ -23,10 +23,19 @@ public class Drivetrain extends SubsystemBase{
 
     private final SwerveDrive swerveDrive;
 
+    private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
+    private final double angleConversionFactor = Constants.Swerve.angleConversionFactor;
+
     public Drivetrain() {
+        System.out.println("\"conversionFactor\": {");
+        System.out.println("\t\"angle\": " + angleConversionFactor + ",");
+        System.out.println("\t\"drive\": " + driveConversionFactor);
+        System.out.println("}");
+
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+
         try {
-            swerveDrive = new SwerveParser(Constants.Swerve.directory).createSwerveDrive(maxSpeed, Constants.Swerve.angleConversionFactor, Constants.Swerve.driveConversionFactor);
+            swerveDrive = new SwerveParser(Constants.Swerve.directory).createSwerveDrive(maxSpeed, angleConversionFactor, driveConversionFactor);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
