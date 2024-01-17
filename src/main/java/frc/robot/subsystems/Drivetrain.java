@@ -39,7 +39,7 @@ public class Drivetrain extends SubsystemBase{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        swerveDrive.setHeadingCorrection(false);
+        swerveDrive.setHeadingCorrection(true);
 
         setupPathPlanner();
     }

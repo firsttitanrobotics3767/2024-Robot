@@ -6,7 +6,9 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -27,13 +29,14 @@ public class RobotContainer {
 
     drivetrain.setDefaultCommand(new TeleopDrive(
       drivetrain,
-      () -> driver.getRawAxis(IO.driveXAxis),
-      () -> -driver.getRawAxis(IO.driveYAxis),
-      () -> driver.getRawAxis(IO.driveOmegaAxis),
-      () -> driver.button(IO.driveModeButton).getAsBoolean()));
+      () -> MathUtil.applyDeadband(driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
+      () -> MathUtil.applyDeadband(driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
+      () -> MathUtil.applyDeadband(driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
+      () -> !driver.button(IO.driveModeButton).getAsBoolean()));
     
 
     autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
 
