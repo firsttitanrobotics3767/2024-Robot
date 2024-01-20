@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.photonvision.PhotonCamera;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
@@ -26,6 +28,10 @@ public class Drivetrain extends SubsystemBase{
     private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
     private final double angleConversionFactor = Constants.Swerve.angleConversionFactor;
 
+    // vision
+
+    private final PhotonCamera camera = new PhotonCamera("Arducam_OV9281_USB_Camera");
+
     public Drivetrain() {
         System.out.println("\"conversionFactor\": {");
         System.out.println("\t\"angle\": " + angleConversionFactor + ",");
@@ -45,7 +51,11 @@ public class Drivetrain extends SubsystemBase{
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+
+
+
+    }
 
     /**
      * Setup AutoBuilder for PathPlanner
