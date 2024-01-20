@@ -1,17 +1,26 @@
 package frc.robot.subsystems;
 
+import java.util.List;
+
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import swervelib.SwerveController;
@@ -31,6 +40,17 @@ public class Drivetrain extends SubsystemBase{
     // vision
 
     private final PhotonCamera camera = new PhotonCamera("Arducam_OV9281_USB_Camera");
+
+    PhotonTrackedTarget target;
+    int targetID;
+    double poseAmbiguity;
+
+    private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+
+    Transform3d aprilTagCamTransform = new Transform3d(-5.75, 2.25, 27.75, null);
+
+    Pose3d tagPose;
+    Pose3d cameraPose;
 
     public Drivetrain() {
         System.out.println("\"conversionFactor\": {");
@@ -53,7 +73,20 @@ public class Drivetrain extends SubsystemBase{
     @Override
     public void periodic() {
 
+        var result = camera.getLatestResult();
+        boolean hasTargets = result.hasTargets();
 
+        if (hasTargets) {
+            target = result.getBestTarget();
+
+            System.out.println(targetID);
+
+            tagPose = aprilTagFieldLayout.getTagPose(targetID).get();
+            cameraPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose, aprilTagCamTransform);
+
+            swerveDrive.addVisionMeasurement(cameraPose.toPose2d(), Timer.getFPGATimestamp());
+
+        }
 
     }
 
