@@ -16,9 +16,11 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -47,12 +49,16 @@ public class Drivetrain extends SubsystemBase{
 
     private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
-    Transform3d aprilTagCamTransform = new Transform3d(-5.75, 2.25, 27.75, null);
+    Transform3d aprilTagCamTransform = new Transform3d(Units.inchesToMeters(-5.75), Units.inchesToMeters(2.25), Units.inchesToMeters(27.75), new Rotation3d(0, 0, 0));
 
     Pose3d tagPose;
     Pose3d cameraPose;
 
+    Timer timer = new Timer();
+
     public Drivetrain() {
+        timer.start();
+
         System.out.println("\"conversionFactor\": {");
         System.out.println("\t\"angle\": " + angleConversionFactor + ",");
         System.out.println("\t\"drive\": " + driveConversionFactor);
@@ -79,12 +85,16 @@ public class Drivetrain extends SubsystemBase{
         if (hasTargets) {
             target = result.getBestTarget();
 
+            targetID = target.getFiducialId();
+
             System.out.println(targetID);
 
             tagPose = aprilTagFieldLayout.getTagPose(targetID).get();
             cameraPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose, aprilTagCamTransform);
 
             swerveDrive.addVisionMeasurement(cameraPose.toPose2d(), Timer.getFPGATimestamp());
+
+            System.out.println(swerveDrive.getPose()); 
 
         }
 
