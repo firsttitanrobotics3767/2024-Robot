@@ -46,6 +46,7 @@ public class Drivetrain extends SubsystemBase{
             throw new RuntimeException(e);
         }
         swerveDrive.setHeadingCorrection(true);
+        swerveDrive.invertOdometry = true;
 
         setupPathPlanner();
     }
