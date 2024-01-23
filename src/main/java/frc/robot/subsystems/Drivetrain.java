@@ -94,9 +94,11 @@ public class Drivetrain extends SubsystemBase{
 
             swerveDrive.addVisionMeasurement(cameraPose.toPose2d(), Timer.getFPGATimestamp());
 
-            System.out.println(swerveDrive.getPose()); 
+            System.out.println("updating odometry");
 
         }
+
+        System.out.println("swerve estimated" + swerveDrive.getPose());
 
     }
 
