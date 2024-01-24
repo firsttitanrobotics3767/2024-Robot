@@ -46,14 +46,13 @@ public class Drivetrain extends SubsystemBase{
             throw new RuntimeException(e);
         }
         swerveDrive.setHeadingCorrection(true);
-        swerveDrive.invertOdometry = true;
+        // swerveDrive.invertOdometry = true;
 
         setupPathPlanner();
     }
 
     @Override
     public void periodic() {
-
 
 
     }
@@ -68,7 +67,7 @@ public class Drivetrain extends SubsystemBase{
             this::getRobotVelocity, // ChassisSpeeds supplier (robot relative)
             this::driveRobotOriented, // Method that will drive robot given robot relative speeds
             new HolonomicPathFollowerConfig(
-                new PIDConstants(5.0, 0, 0), // Translation PID
+                new PIDConstants(0.8, 0, 0), // Translation PID
                 new PIDConstants( // Rotation PID
                     swerveDrive.swerveController.config.headingPIDF.p, 
                     swerveDrive.swerveController.config.headingPIDF.i, 
