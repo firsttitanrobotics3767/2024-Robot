@@ -57,6 +57,8 @@ void setup() {
   }
 }
 
+int orange = 0;
+
 // The commented out code in loop is example of getRawData with clear value.
 // Processing example colorview.pde can work with this kind of data too, but It requires manual conversion to 
 // [0-255] RGB value. You can still uncomments parts of colorview.pde and play with clear value.
@@ -71,9 +73,18 @@ void loop() {
   
   tcs.setInterrupt(true);  // turn off LED
 
-  Serial.print("R:\t"); Serial.print(int(red)); 
-  Serial.print("\tG:\t"); Serial.print(int(green)); 
-  Serial.print("\tB:\t"); Serial.print(int(blue));
+// this if statmentakes sure the sensor is seeing orange and not seeing white
+
+  if (red > 100 && green < 80 && blue < 65 && red - 20 > green && red - 20 > blue) {
+    orange = 127;
+  } else {
+    orange = 0;
+  }
+
+  Serial.print("IsOrange:"); Serial.print(int(orange)); Serial.print(",");
+  Serial.print("blue:"); Serial.print(int(blue)); Serial.print(",");
+  Serial.print("red:"); Serial.print(int(red)); Serial.print(",");
+  Serial.print("green:"); Serial.println(int(green));
 
 //  Serial.print("\t");
 //  Serial.print((int)red, HEX); Serial.print((int)green, HEX); Serial.print((int)blue, HEX);
