@@ -1,8 +1,11 @@
 package frc.robot.subsystems;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -42,6 +45,8 @@ public class Drivetrain extends SubsystemBase{
     // vision
 
     private final PhotonCamera camera = new PhotonCamera("Arducam_OV9281_USB_Camera");
+
+    PhotonPoseEstimator photonPoseEstimator;
 
     PhotonTrackedTarget target;
     int targetID;
@@ -83,23 +88,38 @@ public class Drivetrain extends SubsystemBase{
         boolean hasTargets = result.hasTargets();
 
         if (hasTargets) {
-            target = result.getBestTarget();
+            // target = result.getBestTarget();
 
-            targetID = target.getFiducialId();
+            // targetID = target.getFiducialId();
 
-            System.out.println(targetID);
+            // System.out.println(targetID);
 
-            tagPose = aprilTagFieldLayout.getTagPose(targetID).get();
-            cameraPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose, aprilTagCamTransform);
+            // tagPose = aprilTagFieldLayout.getTagPose(targetID).get();
+            // cameraPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose, aprilTagCamTransform);
 
-            swerveDrive.addVisionMeasurement(cameraPose.toPose2d(), Timer.getFPGATimestamp());
+            // swerveDrive.addVisionMeasurement(cameraPose.toPose2d(), Timer.getFPGATimestamp());
 
-            System.out.println("updating odometry");
+            Optional<EstimatedRobotPose> estimatedPose = getEstimatedGlobalPose(getPose());
 
+            if(estimatedPose.isPresent()) {
+                Pose3d robotPose = estimatedPose.get().estimatedPose;
+                Pose2d robotPose2d = estimatedPose.get().estimatedPose.toPose2d();
+
+
+            swerveDrive.addVisionMeasurement(robotPose2d, Timer.getFPGATimestamp());
+            swerveDrive.setGyroOffset(robotPose.getRotation());
+            }
         }
+
+        swerveDrive.updateOdometry();
 
         System.out.println("swerve estimated" + swerveDrive.getPose());
 
+    }
+
+     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+        photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+        return photonPoseEstimator.update();
     }
 
     /**
