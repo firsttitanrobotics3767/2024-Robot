@@ -22,6 +22,8 @@ public class RobotContainer {
 
   CommandJoystick driver = new CommandJoystick(0);
 
+  
+
   SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
@@ -29,8 +31,8 @@ public class RobotContainer {
 
     drivetrain.setDefaultCommand(new TeleopDrive(
       drivetrain,
-      () -> MathUtil.applyDeadband(driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
-      () -> MathUtil.applyDeadband(driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
+      () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
+      () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
       () -> !driver.button(IO.driveModeButton).getAsBoolean()));
     

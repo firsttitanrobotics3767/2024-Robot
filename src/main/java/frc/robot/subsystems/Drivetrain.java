@@ -7,6 +7,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -79,6 +80,8 @@ public class Drivetrain extends SubsystemBase{
         swerveDrive.setHeadingCorrection(true);
 
         setupPathPlanner();
+
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PhotonPoseEstimator.PoseStrategy.CLOSEST_TO_REFERENCE_POSE, camera, aprilTagCamTransform);
     }
 
     @Override
@@ -88,14 +91,16 @@ public class Drivetrain extends SubsystemBase{
         boolean hasTargets = result.hasTargets();
 
         if (hasTargets) {
-            // target = result.getBestTarget();
+            target = result.getBestTarget();
 
-            // targetID = target.getFiducialId();
+            targetID = target.getFiducialId();
 
-            // System.out.println(targetID);
+            System.out.println(targetID);
 
-            // tagPose = aprilTagFieldLayout.getTagPose(targetID).get();
-            // cameraPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose, aprilTagCamTransform);
+            tagPose = aprilTagFieldLayout.getTagPose(targetID).get();
+            //cameraPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose, aprilTagCamTransform);
+
+            
 
             // swerveDrive.addVisionMeasurement(cameraPose.toPose2d(), Timer.getFPGATimestamp());
 
@@ -110,9 +115,7 @@ public class Drivetrain extends SubsystemBase{
             swerveDrive.setGyroOffset(robotPose.getRotation());
             }
         }
-
-        swerveDrive.updateOdometry();
-
+        
         System.out.println("swerve estimated" + swerveDrive.getPose());
 
     }
