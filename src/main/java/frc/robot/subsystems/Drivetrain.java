@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import org.photonvision.PhotonCamera;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -11,7 +12,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import swervelib.SwerveController;
@@ -27,6 +31,11 @@ public class Drivetrain extends SubsystemBase{
 
     private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
     private final double angleConversionFactor = Constants.Swerve.angleConversionFactor;
+
+    private double kP = SmartDashboard.getNumber("kP", 5);
+    private double kI = SmartDashboard.getNumber("kI", 0);
+    private double kD = SmartDashboard.getNumber("kD", 0);
+
 
     // vision
 
@@ -54,6 +63,7 @@ public class Drivetrain extends SubsystemBase{
     @Override
     public void periodic() {
 
+        
 
     }
 
@@ -67,7 +77,7 @@ public class Drivetrain extends SubsystemBase{
             this::getRobotVelocity, // ChassisSpeeds supplier (robot relative)
             this::driveRobotOriented, // Method that will drive robot given robot relative speeds
             new HolonomicPathFollowerConfig(
-                new PIDConstants(0.8, 0, 0), // Translation PID
+                new PIDConstants(6.9, 0.241, 0), // Translation PID
                 new PIDConstants( // Rotation PID
                     swerveDrive.swerveController.config.headingPIDF.p, 
                     swerveDrive.swerveController.config.headingPIDF.i, 
@@ -85,6 +95,43 @@ public class Drivetrain extends SubsystemBase{
             },
             this);
     }
+
+    public Command driveToPose(Pose2d pose)
+    {
+        // Create the constraints to use while pathfinding
+        PathConstraints constraints = new PathConstraints(
+            swerveDrive.getMaximumVelocity(), 4.0,
+            swerveDrive.getMaximumAngularVelocity(), Units.degreesToRadians(720));
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        return AutoBuilder.pathfindToPose(
+            pose,
+            constraints,
+            0.0, // Goal end velocity in meters/sec
+            0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
+                                     );
+    }
+
+  public void setPIDValues(double kP, double kI, double kD) {
+    this.kP = kP;
+    this.kI = kI;
+    this.kD =kD;
+  }
+
+  public double getPIDValue(String PID) {
+    if (PID.equals("P")) {
+        return kP;
+    }
+    else if(PID.equals("I")) {
+        return kI;
+    }
+    else if(PID.equals("D")) {
+        return kD;
+    }
+    else {
+        return 0;
+    }
+  }
 
     /**
      * The primary method for controlling the drivebase.  Takes a {@link Translation2d} and a rotation rate, and
