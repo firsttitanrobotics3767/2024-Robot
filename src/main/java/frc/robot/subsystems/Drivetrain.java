@@ -11,6 +11,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -27,6 +28,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import swervelib.SwerveController;
@@ -172,6 +174,22 @@ public class Drivetrain extends SubsystemBase{
         swerveDrive.drive(translation, rotation, fieldRelative, false);
     }
 
+    public Command driveToPose(Pose2d pose)
+    {
+// Create the constraints to use while pathfinding
+        PathConstraints constraints = new PathConstraints(
+            swerveDrive.getMaximumVelocity(), 4.0,
+            swerveDrive.getMaximumAngularVelocity(), Units.degreesToRadians(720));
+
+// Since AutoBuilder is configured, we can use it to build pathfinding commands
+        return AutoBuilder.pathfindToPose(
+            pose,
+            constraints,
+            0.0, // Goal end velocity in meters/sec
+        0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
+                                     );
+  }
+
     /**
      * Drive the robot given a chassis field oriented velocity.
      *
@@ -223,7 +241,7 @@ public class Drivetrain extends SubsystemBase{
      * @return The yaw angle
      */    
     public Rotation2d getHeading() {
-        return swerveDrive.getYaw();
+        return swerveDrive.getOdometryHeading();
     }
 
     /**
