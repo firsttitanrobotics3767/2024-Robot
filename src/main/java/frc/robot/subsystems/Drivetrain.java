@@ -112,27 +112,6 @@ public class Drivetrain extends SubsystemBase{
                                      );
     }
 
-  public void setPIDValues(double kP, double kI, double kD) {
-    this.kP = kP;
-    this.kI = kI;
-    this.kD =kD;
-  }
-
-  public double getPIDValue(String PID) {
-    if (PID.equals("P")) {
-        return kP;
-    }
-    else if(PID.equals("I")) {
-        return kI;
-    }
-    else if(PID.equals("D")) {
-        return kD;
-    }
-    else {
-        return 0;
-    }
-  }
-
     /**
      * The primary method for controlling the drivebase.  Takes a {@link Translation2d} and a rotation rate, and
      * calculates and commands module states accordingly.  Can use either open-loop or closed-loop velocity control for
