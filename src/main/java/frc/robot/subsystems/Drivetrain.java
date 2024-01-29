@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -48,6 +49,7 @@ public class Drivetrain extends SubsystemBase{
     // vision
 
     private final PhotonCamera camera = new PhotonCamera("Arducam_OV9281_USB_Camera");
+    private final PhotonCamera ringCam = new PhotonCamera("HD_USB_CAMERA");
 
     PhotonPoseEstimator photonPoseEstimator;
 
@@ -62,10 +64,10 @@ public class Drivetrain extends SubsystemBase{
     Pose3d tagPose;
     Pose3d cameraPose;
 
-    Timer timer = new Timer();
+    Transform2d ringTransform;
+    PhotonTrackedTarget ringTarget;
 
     public Drivetrain() {
-        timer.start();
 
         System.out.println("\"conversionFactor\": {");
         System.out.println("\t\"angle\": " + angleConversionFactor + ",");
@@ -113,8 +115,8 @@ public class Drivetrain extends SubsystemBase{
                 Pose2d robotPose2d = estimatedPose.get().estimatedPose.toPose2d();
 
 
-            swerveDrive.addVisionMeasurement(robotPose2d, Timer.getFPGATimestamp());
-            swerveDrive.setGyroOffset(robotPose.getRotation());
+                swerveDrive.addVisionMeasurement(robotPose2d, Timer.getFPGATimestamp());
+                swerveDrive.setGyroOffset(robotPose.getRotation());
             }
         }
         
@@ -154,6 +156,27 @@ public class Drivetrain extends SubsystemBase{
                 return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
             },
             this);
+    }
+
+    /**
+     * returns a {@link Transform2D} of the nearest ring to the robot
+     */
+    public Transform2d updateRingTransform() {
+        var ringResult = ringCam.getLatestResult();
+        if (ringResult.hasTargets()) {
+            ringTarget = ringResult.getBestTarget();
+            ringTarget.
+        } else {
+            return null;
+        }
+    }
+
+    public boolean ringExists() {
+        if (ringTransform != null) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
