@@ -1,14 +1,16 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.Dashboard.Entry;
 
 public class Shooter extends SubsystemBase{
     private final TalonFX leftMotor = new TalonFX(6);
     private final TalonFX rightMotor = new TalonFX(7);
+    private final Entry<Double> speedControl = Entry.getDoubleEntry("Shooter Speed", 0);
+    private double targetSpeed = 0;
 
     public Shooter() {
         leftMotor.getConfigurator().apply(new TalonFXConfiguration());
@@ -17,8 +19,17 @@ public class Shooter extends SubsystemBase{
         rightMotor.setInverted(false);
     }
 
-    public void set(double speed) {
-        leftMotor.set(speed * 0.5);
-        rightMotor.set(speed);
+    @Override
+    public void periodic() {
+        leftMotor.set(targetSpeed);
+        rightMotor.set(targetSpeed);
+    }
+
+    public void on() {
+        targetSpeed = speedControl.get();
+    }
+
+    public void off() {
+        targetSpeed = 0;
     }
 }

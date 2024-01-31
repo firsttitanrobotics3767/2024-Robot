@@ -9,23 +9,22 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.IO;
 import frc.robot.commands.Drivetrain.TeleopDrive;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
 
   private final Drivetrain drivetrain = new Drivetrain();
-  Shooter shooter = new Shooter();
+  private final Intake intake = new Intake();
+  private final Shooter shooter = new Shooter();
 
   CommandJoystick driver = new CommandJoystick(0);
-  CommandJoystick operator = new CommandJoystick(1);
 
   SendableChooser<Command> autoChooser;
 
@@ -38,16 +37,13 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
       () -> !driver.button(IO.driveModeButton).getAsBoolean()));
-    
-
-    // autoChooser = AutoBuilder.buildAutoChooser();
-    // SmartDashboard.putData("Auto Chooser", autoChooser);
-    shooter.setDefaultCommand(new RunCommand(() -> shooter.set(MathUtil.applyDeadband(operator.getRawAxis(1), 0.05)), shooter));
   }
 
 
   private void configureBindings() {
     driver.button(IO.resetGyroButton).onTrue(new InstantCommand(drivetrain::zeroGyro));
+    driver.button(IO.intakeButton).whileTrue(new InstantCommand(() -> intake.on())).onFalse(new InstantCommand(() -> intake.off()));
+    driver.button(IO.shooterButton).whileTrue(new InstantCommand(() -> shooter.on())).onFalse(new InstantCommand(() -> shooter.off()));
   }
 
   public Command getAutonomousCommand() {
