@@ -12,16 +12,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.IO;
 import frc.robot.commands.Drivetrain.TeleopDrive;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
 
   private final Drivetrain drivetrain = new Drivetrain();
+  Shooter shooter = new Shooter();
 
   CommandJoystick driver = new CommandJoystick(0);
+  CommandJoystick operator = new CommandJoystick(1);
 
   SendableChooser<Command> autoChooser;
 
@@ -38,6 +42,7 @@ public class RobotContainer {
 
     // autoChooser = AutoBuilder.buildAutoChooser();
     // SmartDashboard.putData("Auto Chooser", autoChooser);
+    shooter.setDefaultCommand(new RunCommand(() -> shooter.set(MathUtil.applyDeadband(operator.getRawAxis(1), 0.05)), shooter));
   }
 
 
