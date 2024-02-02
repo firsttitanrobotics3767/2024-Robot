@@ -12,6 +12,8 @@
 
 Adafruit_VEML7700 veml = Adafruit_VEML7700();
 
+bool detected;
+
 void setup() {
   Serial.begin(115200);
   while (!Serial) { delay(10); }
@@ -27,18 +29,27 @@ void setup() {
 void loop() {
   // to read lux using automatic method, specify VEML_LUX_AUTO
   float lux = veml.readLux(VEML_LUX_AUTO);
-  Serial.println(" ");
+  // Serial.println(" ");
   //Serial.println("------------------------------------");
-  Serial.print("Lux = "); 
+  // Serial.print("Lux = "); 
   Serial.println(lux);
   //Serial.println("Settings used for reading:");
-  Serial.print(" ");
-  Serial.print(F("Gain: "));
-  switch (veml.getGain()) {
-    case VEML7700_GAIN_1: Serial.println("1"); break;
-    case VEML7700_GAIN_2: Serial.println("2"); break;
-    case VEML7700_GAIN_1_4: Serial.println("1/4"); break;
-    case VEML7700_GAIN_1_8: Serial.println("1/8"); break;
+  // Serial.print(" ");
+  // Serial.print(F("Gain: "));
+  // switch (veml.getGain()) {
+  //   case VEML7700_GAIN_1: Serial.println("1"); break;
+  //   case VEML7700_GAIN_2: Serial.println("2"); break;
+  //   case VEML7700_GAIN_1_4: Serial.println("1/4"); break;
+  //   case VEML7700_GAIN_1_8: Serial.println("1/8"); break;
+
+    if (lux < 150) {
+      detected = true;
+    } else {
+      detected = false;
+    }
+
+    Serial.println(detected);
+
   }
   //Serial.print(F("Integration Time (ms): "));
   // switch (veml.getIntegrationTime()) {
@@ -50,5 +61,4 @@ void loop() {
   //   case VEML7700_IT_800MS: Serial.println("800"); break;
   // }
 
-  delay(0);
-}
+
