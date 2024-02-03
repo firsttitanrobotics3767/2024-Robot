@@ -63,7 +63,7 @@ public class Drivetrain extends SubsystemBase{
     @Override
     public void periodic() {
 
-        
+        SmartDashboard.putNumber("heading", swerveDrive.getOdometryHeading().getDegrees());
 
     }
 
