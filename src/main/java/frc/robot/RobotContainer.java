@@ -11,7 +11,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,8 +42,8 @@ public class RobotContainer {
       () -> !driver.button(IO.driveModeButton).getAsBoolean()));
     
 
-    // autoChooser = AutoBuilder.buildAutoChooser();
-    // SmartDashboard.putData("Auto Chooser", autoChooser);
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
 
@@ -57,8 +56,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    // //return autoChooser.getSelected();
-                        
-    return new PathPlannerAuto("Tuning Auto");
+    return autoChooser.getSelected();
   }
 }
