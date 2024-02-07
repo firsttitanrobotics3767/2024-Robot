@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -49,7 +50,8 @@ public class RobotContainer {
 
   private void configureBindings() {
     driver.button(IO.resetGyroButton).onTrue(new InstantCommand(drivetrain::zeroGyro));
-    driver.button(3).whileTrue(drivetrain.driveToPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))));
+    driver.button(3).onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
+    driver.button(8).whileTrue(drivetrain.driveToPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))));
     driver.povUp().whileTrue(new SupplyElevator(() -> -0.3, elevator));
     driver.povDown().whileTrue(new SupplyElevator(() -> 0.3, elevator));
   }
@@ -57,6 +59,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // //return autoChooser.getSelected();
                         
-    return new PathPlannerAuto("straight auto");
+    return new PathPlannerAuto("Tuning Auto");
   }
 }

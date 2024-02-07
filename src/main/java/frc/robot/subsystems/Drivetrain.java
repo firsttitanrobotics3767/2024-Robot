@@ -54,7 +54,7 @@ public class Drivetrain extends SubsystemBase{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        swerveDrive.setHeadingCorrection(true);
+        swerveDrive.setHeadingCorrection(false);
         // swerveDrive.invertOdometry = true;
 
         setupPathPlanner();
@@ -77,11 +77,11 @@ public class Drivetrain extends SubsystemBase{
             this::getRobotVelocity, // ChassisSpeeds supplier (robot relative)
             this::driveRobotOriented, // Method that will drive robot given robot relative speeds
             new HolonomicPathFollowerConfig(
-                new PIDConstants(2.8555, 0, 0), // Translation PID
+                new PIDConstants(5, 0, 0), // Translation PID
                 new PIDConstants( // Rotation PID
-                    swerveDrive.swerveController.config.headingPIDF.p, 
-                    swerveDrive.swerveController.config.headingPIDF.i, 
-                    swerveDrive.swerveController.config.headingPIDF.d), 
+                    10.0, 
+                    0.0, 
+                    0.0), 
                 5.15, // Max module speed in m/s
                 swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(), // Drive base radius in meters
                 new ReplanningConfig() // Default replanning config, see docs for options
@@ -91,7 +91,7 @@ public class Drivetrain extends SubsystemBase{
                 // This will flip the path being followed to the red side of the field.
                 // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
                 var alliance = DriverStation.getAlliance();
-                return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Blue : false;
+                return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
             },
             this);
     }
