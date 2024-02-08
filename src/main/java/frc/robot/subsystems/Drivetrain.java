@@ -54,7 +54,7 @@ public class Drivetrain extends SubsystemBase{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        swerveDrive.setHeadingCorrection(false);
+        // swerveDrive.setHeadingCorrection(false);
         // swerveDrive.invertOdometry = true;
 
         setupPathPlanner();
@@ -77,7 +77,7 @@ public class Drivetrain extends SubsystemBase{
             this::getRobotVelocity, // ChassisSpeeds supplier (robot relative)
             this::driveRobotOriented, // Method that will drive robot given robot relative speeds
             new HolonomicPathFollowerConfig(
-                new PIDConstants(7.95, 0, 0), // Translation PID
+                new PIDConstants(7.9, 0, 0), // Translation PID
                 new PIDConstants( // Rotation PID
                     8.65, 
                     0.0, 
@@ -94,6 +94,10 @@ public class Drivetrain extends SubsystemBase{
                 return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
             },
             this);
+    }
+
+    public void setHeadingCorrection(boolean headingCorrection) {
+        swerveDrive.setHeadingCorrection(headingCorrection);
     }
 
     public Command driveToPose(Pose2d pose)
