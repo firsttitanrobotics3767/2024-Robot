@@ -24,4 +24,12 @@ public class Constants {
         public static final double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 6.12, 1);
         public static final double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(21.4285714285714, 1);
     }
+
+    public static class Elevator {}
+
+    public static class Intake {}
+
+    public static class Shooter {}
+
+    public static class Climber {}
 }

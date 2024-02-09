@@ -10,40 +10,25 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase{
-    
-    private final CANSparkMax leftMotor, rightMotor;
-    private final RelativeEncoder leftEncoder, rightEncoder;
-    private double targetVolts = 0.0;
-
-    private final double maxHeightMeters = 1;
-    private final double minHeightMeters = 0.1;
+    private final CANSparkMax elevatorMotor;
+    private final RelativeEncoder elevatorEncoder;
+    private double targetPosition = 0;
 
     public Elevator() {
         // Left motor setup
-        leftMotor = new CANSparkMax(5, MotorType.kBrushless);
-        leftMotor.restoreFactoryDefaults();
-        leftMotor.setIdleMode(com.revrobotics.CANSparkBase.IdleMode.kBrake);
-        leftMotor.setInverted(true);
-
-        // Right motor setup
-        rightMotor = new CANSparkMax(51, MotorType.kBrushless);
-        rightMotor.restoreFactoryDefaults();
-        rightMotor.setIdleMode(IdleMode.kBrake);
-        rightMotor.follow(leftMotor, true);
+        elevatorMotor = new CANSparkMax(5, MotorType.kBrushless);
+        elevatorMotor.restoreFactoryDefaults();
+        elevatorMotor.setIdleMode(com.revrobotics.CANSparkBase.IdleMode.kBrake);
+        elevatorMotor.setInverted(true);
         
 
         // Encoder setup
-        leftEncoder = leftMotor.getEncoder();
-        rightEncoder = rightMotor.getEncoder();
+        elevatorEncoder = elevatorMotor.getEncoder();
 
     }
 
     @Override
-    public void periodic() {
-        leftMotor.set(targetVolts);
-    }
+    public void periodic() {}
 
-    public void setVolts(double volts) {
-        targetVolts = volts;
-    }
+    public void set(double speed) {}
 }

@@ -5,29 +5,20 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.Dashboard.Entry;
 
 public class Intake extends SubsystemBase {
-    private final CANSparkMax intakeMotor;
-    private final Entry<Double> speedControl = Entry.getDoubleEntry("Intake Speed", 0);
-    private double targetSpeed = 0;
+    private final CANSparkMax positionMotor;
 
     public Intake() {
-        intakeMotor = new CANSparkMax(8, MotorType.kBrushless);
-        intakeMotor.setInverted(false);
-        intakeMotor.setIdleMode(IdleMode.kBrake);
+        positionMotor = new CANSparkMax(13, MotorType.kBrushless);
+        positionMotor.setInverted(false);
+        positionMotor.setIdleMode(IdleMode.kBrake);
     }
 
     @Override
-    public void periodic() {
-        intakeMotor.set(targetSpeed);
-    }
+    public void periodic() {}
 
-    public void on() {
-        targetSpeed = speedControl.get();
-    }
-
-    public void off() {
-        targetSpeed = 0;
+    public void set(double speed) {
+        positionMotor.set(speed);
     }
 }

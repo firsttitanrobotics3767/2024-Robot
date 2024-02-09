@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.IO;
 import frc.robot.commands.Drivetrain.SupplyElevator;
@@ -30,6 +31,7 @@ public class RobotContainer {
   private final Shooter shooter = new Shooter();
 
   CommandJoystick driver = new CommandJoystick(0);
+  CommandJoystick operator = new CommandJoystick(1);
 
   SendableChooser<Command> autoChooser;
 
@@ -43,16 +45,16 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
       () -> !driver.button(IO.driveModeButton).getAsBoolean()));
     
-
+    intake.setDefaultCommand(new RunCommand(() -> intake.set(operator.getRawAxis(1)), intake));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
+
   }
 
 
   private void configureBindings() {
     driver.button(IO.resetGyroButton).onTrue(new InstantCommand(drivetrain::zeroGyro));
-    driver.button(IO.intakeButton).whileTrue(new InstantCommand(() -> intake.on())).onFalse(new InstantCommand(() -> intake.off()));
-    driver.button(IO.shooterButton).whileTrue(new InstantCommand(() -> shooter.on())).onFalse(new InstantCommand(() -> shooter.off()));
     driver.button(3).onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
     driver.button(8).whileTrue(drivetrain.driveToPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))));
   }
