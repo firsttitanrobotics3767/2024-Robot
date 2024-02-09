@@ -10,7 +10,7 @@ public class Shooter extends SubsystemBase{
      * Set the rotational position of the shooter
      * @param position double of the anglular position
      */
-    public void setRotationalPos(double position) {
+    public void setPos(double position) {
         //Code
     }
 
