@@ -1,49 +1,62 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Elevator extends SubsystemBase{
+    private static Elevator instance = null;
     
-    private final CANSparkMax leftMotor, rightMotor;
-    private final RelativeEncoder leftEncoder, rightEncoder;
-    private double targetVolts = 0.0;
+    private final CANSparkMax elevatorMotor;
+    private final RelativeEncoder elevatorEncoder;
+    private final SparkPIDController pidController;
 
-    private final double maxHeightMeters = 1;
-    private final double minHeightMeters = 0.1;
+    private double targetPos = Constants.Elevator.defaultPosition;
 
+    public static Elevator getInstance() {
+        if (instance == null) {
+            instance = new Elevator();
+        }
+
+        return instance;
+    }
+    
     public Elevator() {
         // Left motor setup
-        leftMotor = new CANSparkMax(5, MotorType.kBrushless);
-        leftMotor.restoreFactoryDefaults();
-        leftMotor.setIdleMode(com.revrobotics.CANSparkBase.IdleMode.kBrake);
-        leftMotor.setInverted(true);
+        elevatorMotor = new CANSparkMax(Constants.Elevator.motorID, MotorType.kBrushless);
+        elevatorMotor.restoreFactoryDefaults();
+        elevatorMotor.setIdleMode(com.revrobotics.CANSparkBase.IdleMode.kBrake);
+        elevatorMotor.setInverted(true);
 
-        // Right motor setup
-        rightMotor = new CANSparkMax(51, MotorType.kBrushless);
-        rightMotor.restoreFactoryDefaults();
-        rightMotor.setIdleMode(IdleMode.kBrake);
-        rightMotor.follow(leftMotor, true);
-        
+        elevatorEncoder = elevatorMotor.getEncoder();
+        elevatorEncoder.setPositionConversionFactor(Constants.Elevator.conversionFactor);
+        elevatorEncoder.setVelocityConversionFactor(Constants.Elevator.conversionFactor);
 
-        // Encoder setup
-        leftEncoder = leftMotor.getEncoder();
-        rightEncoder = rightMotor.getEncoder();
+        pidController = elevatorMotor.getPIDController();
+        pidController.setP(Constants.Elevator.kP);
+        pidController.setI(Constants.Elevator.kI);
+        pidController.setD(Constants.Elevator.kD);
+        pidController.setSmartMotionMaxAccel(Constants.Elevator.maxAccel, 0);
+        pidController.setSmartMotionMaxVelocity(Constants.Elevator.maxVel, 0);
 
     }
 
     @Override
     public void periodic() {
-        leftMotor.set(targetVolts);
+        SmartDashboard.putNumber("elevator/targetPos", targetPos);
+        SmartDashboard.putNumber("elevator/measuredPos", elevatorEncoder.getPosition());
+        SmartDashboard.putNumber("elevator/velocity", elevatorEncoder.getVelocity());
+
+        pidController.setReference(targetPos, ControlType.kSmartMotion, 0, Constants.Elevator.gravityFFVolts);
     }
 
-    public void setVolts(double volts) {
-        targetVolts = volts;
+    public void setPos(double pos) {
+        targetPos = pos;
     }
 }
