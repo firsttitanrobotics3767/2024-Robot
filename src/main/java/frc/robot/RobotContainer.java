@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.IO;
-import frc.robot.commands.Drivetrain.SupplyElevator;
 import frc.robot.commands.Drivetrain.TeleopDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
@@ -25,7 +24,7 @@ import frc.robot.subsystems.Elevator;
 public class RobotContainer {
 
   public final Drivetrain drivetrain = new Drivetrain();
-  private final Elevator elevator = new Elevator();
+  private final Elevator elevator = Elevator.getInstance();
 
   CommandJoystick driver = new CommandJoystick(0);
 
@@ -51,8 +50,6 @@ public class RobotContainer {
     driver.button(IO.resetGyroButton).onTrue(new InstantCommand(drivetrain::zeroGyro));
     driver.button(3).onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
     driver.button(8).whileTrue(drivetrain.driveToPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))));
-    driver.povUp().whileTrue(new SupplyElevator(() -> -0.3, elevator));
-    driver.povDown().whileTrue(new SupplyElevator(() -> 0.3, elevator));
   }
 
   public Command getAutonomousCommand() {
