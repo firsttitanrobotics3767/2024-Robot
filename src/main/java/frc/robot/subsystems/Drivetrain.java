@@ -24,7 +24,9 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-public class Drivetrain extends SubsystemBase{
+public class Drivetrain extends SubsystemBase {
+    private static Drivetrain instance = null;
+
     public final double maxSpeed = Constants.Swerve.maxVelocity;
 
     private final SwerveDrive swerveDrive;
@@ -40,6 +42,14 @@ public class Drivetrain extends SubsystemBase{
     // vision
 
     private final PhotonCamera camera = new PhotonCamera("Arducam_OV9281_USB_Camera");
+
+    public static Drivetrain getInstance() {
+        if (instance == null) {
+            instance = new Drivetrain();
+        }
+
+        return instance;
+    }
 
     public Drivetrain() {
         System.out.println("\"conversionFactor\": {");
