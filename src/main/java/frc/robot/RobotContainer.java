@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.IO;
-import frc.robot.commands.Drivetrain.SupplyElevator;
 import frc.robot.commands.Drivetrain.TeleopDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
@@ -45,7 +44,7 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
       () -> !driver.button(IO.driveModeButton).getAsBoolean()));
     
-    intake.setDefaultCommand(new RunCommand(() -> intake.set(operator.getRawAxis(1)), intake));
+    intake.setDefaultCommand(new RunCommand(() -> intake.set(operator.getRawAxis(1), operator.getRawAxis(2)), intake));
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
