@@ -16,7 +16,7 @@ public class Intake extends SubsystemBase{
 
     /**
      * Set the position of the intake
-     * @param position double of the intake position
+     * @param position double of the rotational position
      */
     public void setPos(double position) {
         //Code
