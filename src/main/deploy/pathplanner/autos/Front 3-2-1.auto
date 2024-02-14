@@ -14,19 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Path 1"
+            "pathName": "Front-3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Path 2"
+            "pathName": "3-2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Auton Path 3"
+            "pathName": "2-1"
           }
         }
       ]
