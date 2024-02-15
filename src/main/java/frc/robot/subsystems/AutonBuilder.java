@@ -3,11 +3,16 @@ package frc.robot.subsystems;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AutonBuilder extends SubsystemBase{
+
+    Field2d autoPreview = new Field2d();
     
     SendableChooser<String> StartingQuestion = new SendableChooser<String>();
     SendableChooser<String> question1 = new SendableChooser<String>();
@@ -71,11 +78,11 @@ public class AutonBuilder extends SubsystemBase{
             System.out.println(pathList.get(i));
         }
         return new SequentialCommandGroup(
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(0))),
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(1))),
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(2))),
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(3))),
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(4)))
+            pathList.get(0) != null ? AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(0))) : new InstantCommand(),
+            pathList.get(1) != null ? AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(1))) : new InstantCommand(),
+            pathList.get(2) != null ? AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(2))) : new InstantCommand(),
+            pathList.get(3) != null ? AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(3))) : new InstantCommand(),
+            pathList.get(4) != null ? AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathList.get(4))) : new InstantCommand()
         );
     }
 
@@ -91,6 +98,11 @@ public class AutonBuilder extends SubsystemBase{
         for (int i = 1; i < 6; i++) {
             notes.add("C" + String.valueOf(i));
         }
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putData("Auto Preview", autoPreview);
     }
 
 }
