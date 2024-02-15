@@ -1,9 +1,12 @@
 package frc.robot.subsystems;
 
+import java.util.List;
+
 import org.photonvision.PhotonCamera;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -14,10 +17,12 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utils.PathBuilder;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -26,21 +31,12 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class Drivetrain extends SubsystemBase {
     private static Drivetrain instance = null;
-
-    public final double maxSpeed = Constants.Swerve.maxVelocity;
-
     private final SwerveDrive swerveDrive;
 
+    public final double maxSpeed = Constants.Swerve.maxVelocity;
     private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
     private final double angleConversionFactor = Constants.Swerve.angleConversionFactor;
-
-    private double kP = SmartDashboard.getNumber("kP", 5);
-    private double kI = SmartDashboard.getNumber("kI", 0);
-    private double kD = SmartDashboard.getNumber("kD", 0);
-
-
-    // vision
-
+    
     private final PhotonCamera camera = new PhotonCamera("Arducam_OV9281_USB_Camera");
 
     public static Drivetrain getInstance() {
@@ -57,7 +53,7 @@ public class Drivetrain extends SubsystemBase {
         System.out.println("\t\"drive\": " + driveConversionFactor);
         System.out.println("}");
 
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
 
         try {
             swerveDrive = new SwerveParser(Constants.Swerve.directory).createSwerveDrive(maxSpeed, angleConversionFactor, driveConversionFactor);
@@ -72,9 +68,7 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
-
         SmartDashboard.putNumber("heading", swerveDrive.getOdometryHeading().getDegrees());
-
     }
 
     /**

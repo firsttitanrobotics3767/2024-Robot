@@ -18,9 +18,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.IO;
 import frc.robot.commands.Drivetrain.TeleopDrive;
-import frc.robot.subsystems.AutonBuilder;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.utils.PathBuilder;
 
 public class RobotContainer {
 
@@ -28,8 +28,6 @@ public class RobotContainer {
   private final Elevator elevator = Elevator.getInstance();
 
   CommandJoystick driver = new CommandJoystick(0);
-
-  AutonBuilder autonBuilder = new AutonBuilder();
 
   SendableChooser<Command> autoChooser;
 
@@ -45,6 +43,8 @@ public class RobotContainer {
     
 
     autoChooser = AutoBuilder.buildAutoChooser();
+
+    PathBuilder.setupQuestions();
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
@@ -57,6 +57,6 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     // return autoChooser.getSelected();
-    return autonBuilder.buildAuto();
+    return PathBuilder.getFullPathCommand();
   }
 }
