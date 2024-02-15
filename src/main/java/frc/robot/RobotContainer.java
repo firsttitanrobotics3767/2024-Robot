@@ -56,6 +56,8 @@ public class RobotContainer {
     driver.button(IO.resetGyroButton).onTrue(new InstantCommand(drivetrain::zeroGyro));
     driver.button(3).onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
     driver.button(8).whileTrue(drivetrain.driveToPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))));
+    driver.pov(0).onTrue(new InstantCommand(() -> shooter.on()));
+    driver.pov(180).onTrue(new InstantCommand(() -> shooter.off()));
   }
 
   public Command getAutonomousCommand() {
