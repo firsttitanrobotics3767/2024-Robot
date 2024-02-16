@@ -1,14 +1,15 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFXPIDSetConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.utility.PhoenixPIDController;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -29,27 +30,28 @@ public class Intake extends SubsystemBase{
 
     // Rollers
     private final TalonFX intakeMotor;
-    private final PhoenixPIDController rollerPID;
+    // private final PhoenixPIDController rollerPID;
 
     // Pivot
     private final CANSparkMax positionMotor;
-    private final RelativeEncoder positionEncoder;
+    private final AbsoluteEncoder positionEncoder;
     private final SparkPIDController positionController;
 
     public Intake() {
-        intakeMotor = new TalonFX(14);
+        intakeMotor = new TalonFX(Constants.Intake.rollerCANID);
         intakeMotor.setNeutralMode(NeutralModeValue.Brake);
 
-        positionMotor = new CANSparkMax(13, MotorType.kBrushless);
+        positionMotor = new CANSparkMax(Constants.Intake.positionCANID, MotorType.kBrushless);
         positionMotor.restoreFactoryDefaults();
         positionMotor.setIdleMode(IdleMode.kBrake);
         positionMotor.setInverted(false);
         
-        positionEncoder = positionMotor.getEncoder();
+        positionEncoder = positionMotor.getAbsoluteEncoder(Type.kDutyCycle);
         positionEncoder.setPositionConversionFactor(Constants.Intake.conversionFactor);
         positionEncoder.setVelocityConversionFactor(Constants.Intake.conversionFactor);
 
         positionController = positionMotor.getPIDController();
+        positionController.setFeedbackDevice(positionEncoder);
         positionController.setP(Constants.Intake.kP);
         positionController.setI(Constants.Intake.kI);
         positionController.setD(Constants.Intake.kD);
