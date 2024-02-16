@@ -2,13 +2,14 @@ package frc.robot.commands.Drivetrain;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Drivetrain.FieldLocation;
 import swervelib.SwerveController;
-import swervelib.math.SwerveMath;
 
 public class TeleopDrive extends Command{
     private final Drivetrain drivetrain;
@@ -17,14 +18,23 @@ public class TeleopDrive extends Command{
     private final DoubleSupplier omega;
     private final BooleanSupplier driveMode;
     private final SwerveController controller;
+    private final Supplier<FieldLocation> faceLocation;
 
-    public TeleopDrive(Drivetrain drivetrain, DoubleSupplier vX, DoubleSupplier vY, DoubleSupplier omega, BooleanSupplier driveMode) {
+    public TeleopDrive(
+        Drivetrain drivetrain,
+        DoubleSupplier vX,
+        DoubleSupplier vY,
+        DoubleSupplier omega,
+        BooleanSupplier driveMode,
+        Supplier<FieldLocation> faceLocation
+    ) {
         this.drivetrain = drivetrain;
         this.vX = vX;
         this.vY = vY;
         this.omega = omega;
         this.driveMode = driveMode;
         this.controller = drivetrain.getSwerveController();
+        this.faceLocation = faceLocation;
 
         addRequirements(drivetrain);
     }
@@ -41,9 +51,22 @@ public class TeleopDrive extends Command{
         SmartDashboard.putNumber("vY", yVelocity);
         SmartDashboard.putNumber("omega", angVelocity);
 
-        drivetrain.drive(new Translation2d(xVelocity * drivetrain.maxSpeed, yVelocity * drivetrain.maxSpeed),
+        if (faceLocation.get() == FieldLocation.NONE) {
+            drivetrain.drive(new Translation2d(xVelocity * drivetrain.maxSpeed, yVelocity * drivetrain.maxSpeed),
                          angVelocity * controller.config.maxAngularVelocity,
                          driveMode.getAsBoolean());
+        } else {
+            double faceLocationHeading = Math.atan2(
+                faceLocation.get().xPos - drivetrain.getPose().getX(),
+                faceLocation.get().yPos - drivetrain.getPose().getY()
+            );
+            drivetrain.driveFieldOriented(drivetrain.getTargetSpeeds(
+                xVelocity,
+                yVelocity,
+                Math.sin(faceLocationHeading),
+                Math.cos(faceLocationHeading)
+            ));
+        }
     }
 
     @Override

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -31,6 +33,8 @@ public class RobotContainer {
 
   SendableChooser<Command> autoChooser;
 
+  Drivetrain.FieldLocation faceLocation = Drivetrain.FieldLocation.NONE;
+
   public RobotContainer() {
     configureBindings();
 
@@ -39,7 +43,9 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
-      () -> !driver.button(IO.driveModeButton).getAsBoolean()));
+      () -> !driver.button(IO.driveModeButton).getAsBoolean(),
+      () -> faceLocation
+    ));
     
 
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -51,8 +57,9 @@ public class RobotContainer {
 
   private void configureBindings() {
     driver.button(IO.resetGyroButton).onTrue(new InstantCommand(drivetrain::zeroGyro));
-    driver.button(3).onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
-    driver.button(8).whileTrue(drivetrain.driveToPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))));
+    driver.button(IO.resetOdometryButton).onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
+    driver.button(IO.faceSpeakerButton).onTrue(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.SPEAKER));
+    driver.button(IO.faceSpeakerButton).onFalse(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.NONE));
   }
 
   public Command getAutonomousCommand() {

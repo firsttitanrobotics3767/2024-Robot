@@ -13,7 +13,9 @@ public class Constants {
         public static final int driveYAxis = 0;
         public static final int driveOmegaAxis = 2;
         public static final int resetGyroButton = 2;
+        public static final int resetOdometryButton = 3;
         public static final int driveModeButton = 7;
+        public static final int faceSpeakerButton = 8;
     }
 
     public static class Swerve {

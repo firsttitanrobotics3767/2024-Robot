@@ -1,12 +1,9 @@
 package frc.robot.subsystems;
 
-import java.util.List;
-
 import org.photonvision.PhotonCamera;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -17,12 +14,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.utils.PathBuilder;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -234,5 +229,21 @@ public class Drivetrain extends SubsystemBase {
      */
     public void lock() {
         swerveDrive.lockPose();
+    }
+
+    public enum FieldLocation {
+        //none of these are correct yet
+        NONE(0, 0),
+        SPEAKER(0, 0),
+        AMP(1, 1),
+        SOURCE(10, 0);
+
+        public double xPos;
+        public double yPos;
+
+        private FieldLocation(double xPos, double yPos) {
+            this.xPos = xPos;
+            this.yPos = yPos;
+        }
     }
 }
