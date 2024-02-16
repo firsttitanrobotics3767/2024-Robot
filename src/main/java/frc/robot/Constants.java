@@ -22,4 +22,35 @@ public class Constants {
         public static final double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 6.12, 1);
         public static final double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(21.4285714285714, 1);
     }
+
+    public static class Shooter {
+        public static final int feederCANID = 18;
+        public static final int topCANID = 17;
+        public static final int bottomCANID = 16;
+        public static final int rotationCANID = 15;
+
+
+        public static final double topP = 0;
+        public static final double topI = 0;
+        public static final double topD = 0;
+        public static final double topFF = 0;
+
+        public static final double bottomP = 0;
+        public static final double bottomI = 0;
+        public static final double bottomD = 0;
+        public static final double bottomFF = 0;
+        
+        public static final double rotationP = 0;
+        public static final double rotationI = 0;
+        public static final double rotationD = 0;
+        public static final double rotationFF = 0;
+        public static final double conversionFactor = 1;
+        public static final double maxVel = 1;
+        public static final double maxAcc = 1;
+
+        public static final double feederP = 0;
+        public static final double feederI = 0;
+        public static final double feederD = 0;
+        public static final double feederFF = 0;
+    }
 }
