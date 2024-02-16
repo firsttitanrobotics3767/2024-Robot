@@ -28,7 +28,6 @@ public class Elevator extends SubsystemBase{
     }
     
     public Elevator() {
-        // Left motor setup
         elevatorMotor = new CANSparkMax(Constants.Elevator.motorID, MotorType.kBrushless);
         elevatorMotor.restoreFactoryDefaults();
         elevatorMotor.setIdleMode(com.revrobotics.CANSparkBase.IdleMode.kBrake);
@@ -56,7 +55,7 @@ public class Elevator extends SubsystemBase{
         pidController.setReference(targetPos, ControlType.kSmartMotion, 0, Constants.Elevator.gravityFFVolts);
     }
 
-    public void setPos(double pos) {
+    public void moveTo(double pos) {
         targetPos = pos;
     }
 }

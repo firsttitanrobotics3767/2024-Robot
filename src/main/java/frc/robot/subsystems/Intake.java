@@ -7,6 +7,7 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
@@ -19,6 +20,9 @@ import frc.robot.Constants;
  */
 public class Intake extends SubsystemBase{
     private static Intake instance = null;
+    private boolean openLoopControl = true;
+    private double targetPos = Superstructure.IntakeState.IDLE.pos;
+    private double targetOpenLoopOutput;
     
     public static Intake getInstance() {
         if (instance == null) {
@@ -59,19 +63,32 @@ public class Intake extends SubsystemBase{
         positionController.setSmartMotionMaxVelocity(Constants.Intake.maxVel, 0);
     }
 
+    @Override
+    public void periodic() {
+        if (!openLoopControl) {
+            positionController.setReference(targetPos, ControlType.kSmartMotion);
+        } else {
+            intakeMotor.set(targetOpenLoopOutput);
+        }
+    }
+
     /**
      * Set the velocity of the intake
      * @param speed double of the velocity
      */
     public void setIntakeSpeed(double speed) {
-        intakeMotor.set(speed);
+        targetOpenLoopOutput = speed;
     }
 
     /**
      * Set the position of the intake
      * @param position double of the rotational position
      */
-    public void setPos(double position) {
-        //Code
+    public void moveTo(double position) {
+        targetPos = position;
+    }
+
+    public boolean atGoal() {
+        return true; //check if the intake pid is within acceptable range
     }
 }
