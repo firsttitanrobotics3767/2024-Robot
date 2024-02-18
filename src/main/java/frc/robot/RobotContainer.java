@@ -24,13 +24,15 @@ import frc.robot.commands.Drivetrain.TeleopDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.utils.PathBuilder;
 
 public class RobotContainer {
 
   public final Drivetrain drivetrain = new Drivetrain();
-  private final Elevator elevator = Elevator.getInstance();
   private final Intake intake = new Intake();
+  private final Elevator elevator = Elevator.getInstance();
+  private final Shooter shooter = Shooter.getInstance();
 
   CommandJoystick driver = new CommandJoystick(0);
   CommandJoystick operator = new CommandJoystick(1);
@@ -52,6 +54,7 @@ public class RobotContainer {
     // ));
     
     intake.setDefaultCommand(new RunCommand(() -> intake.setIntakeSpeed(operator.getRawAxis(1)), intake));
+    shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(5)), shooter));
 
     autoChooser = AutoBuilder.buildAutoChooser();
 
@@ -65,6 +68,13 @@ public class RobotContainer {
     driver.button(IO.resetOdometryButton).onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
     driver.button(IO.faceSpeakerButton).onTrue(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.SPEAKER));
     driver.button(IO.faceSpeakerButton).onFalse(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.NONE));
+
+    operator.button(IO.resetIntakePosition).onTrue(new InstantCommand(() -> intake.setPosition(0)));
+    operator.button(IO.testIntakePosition).onTrue(new InstantCommand(() -> {intake.moveTo(0.02); intake.setOpenLoopControl(false);}));
+    // operator.button(IO.testIntakePosition).onFalse(new InstantCommand(() -> {intake.setOpenLoopControl(true);}));
+    operator.button(IO.testStowPosition).onTrue(new InstantCommand(() -> {intake.moveTo(0.25); intake.setOpenLoopControl(false);}));
+    // operator.button(IO.testStowPosition).onFalse(new InstantCommand(() -> {intake.setOpenLoopControl(true);}));
+    operator.button(1).onTrue(new InstantCommand(() -> intake.setOpenLoopControl(true)));
   }
 
   public Command getAutonomousCommand() {

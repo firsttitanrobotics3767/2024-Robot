@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.mechanisms.swerve.utility.PhoenixPIDController;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
@@ -12,6 +12,8 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -33,43 +35,53 @@ public class Intake extends SubsystemBase{
     }
 
     // Rollers
-    private final TalonFX intakeMotor;
+    private final TalonFX rollerMotor;
+    private final TalonFXConfiguration rollerConfig;
     // private final PhoenixPIDController rollerPID;
 
     // Pivot
     private final CANSparkMax positionMotor;
-    private final AbsoluteEncoder positionEncoder;
+    private final RelativeEncoder positionEncoder;
     private final SparkPIDController positionController;
 
     public Intake() {
-        intakeMotor = new TalonFX(Constants.Intake.rollerCANID);
-        intakeMotor.setNeutralMode(NeutralModeValue.Brake);
+        rollerMotor = new TalonFX(Constants.Intake.rollerCANID);
+        rollerMotor.setNeutralMode(NeutralModeValue.Brake);
+
+        rollerConfig = new TalonFXConfiguration();
+
+        rollerConfig.Slot0.kP = 0;
 
         positionMotor = new CANSparkMax(Constants.Intake.positionCANID, MotorType.kBrushless);
         positionMotor.restoreFactoryDefaults();
         positionMotor.setIdleMode(IdleMode.kBrake);
         positionMotor.setInverted(false);
         
-        positionEncoder = positionMotor.getAbsoluteEncoder(Type.kDutyCycle);
+        positionEncoder = positionMotor.getEncoder();
         positionEncoder.setPositionConversionFactor(Constants.Intake.conversionFactor);
         positionEncoder.setVelocityConversionFactor(Constants.Intake.conversionFactor);
 
         positionController = positionMotor.getPIDController();
         positionController.setFeedbackDevice(positionEncoder);
-        positionController.setP(Constants.Intake.kP);
-        positionController.setI(Constants.Intake.kI);
-        positionController.setD(Constants.Intake.kD);
+        positionController.setP(Constants.Intake.positionP);
+        positionController.setI(Constants.Intake.positionI);
+        positionController.setD(Constants.Intake.positionD);
         positionController.setSmartMotionMaxAccel(Constants.Intake.maxAccel, 0);
         positionController.setSmartMotionMaxVelocity(Constants.Intake.maxVel, 0);
+
+        
     }
 
     @Override
     public void periodic() {
         if (!openLoopControl) {
-            positionController.setReference(targetPos, ControlType.kSmartMotion);
+            positionController.setReference(targetPos, ControlType.kSmartMotion, 0, 
+                Math.cos(getPosition() * Math.PI * 2.0) * Constants.Intake.positionGravityFF);
         } else {
             positionMotor.set(targetOpenLoopOutput);
         }
+        SmartDashboard.putNumber("Intake/measuredPosition", getPosition());
+        SmartDashboard.putNumber("Intake/measuredVelocity", positionEncoder.getVelocity());
     }
 
     /**
@@ -90,5 +102,17 @@ public class Intake extends SubsystemBase{
 
     public boolean atGoal() {
         return true; //check if the intake pid is within acceptable range
+    }
+
+    public void setOpenLoopControl(boolean controlType) {
+        openLoopControl = controlType;
+    }
+
+    public double getPosition() {
+        return positionEncoder.getPosition();
+    }
+
+    public void setPosition(double position) {
+        positionEncoder.setPosition(position);
     }
 }

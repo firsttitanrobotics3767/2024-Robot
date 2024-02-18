@@ -16,6 +16,10 @@ public class Constants {
         public static final int resetOdometryButton = 3;
         public static final int driveModeButton = 7;
         public static final int faceSpeakerButton = 8;
+
+        public static final int resetIntakePosition = 2;
+        public static final int testIntakePosition = 8;
+        public static final int testStowPosition = 7;
     }
 
     public static class Swerve {
@@ -29,13 +33,15 @@ public class Constants {
         public static final int positionCANID = 13;
         public static final int rollerCANID = 14;
 
-        public static final double conversionFactor = 1;
-        public static final double kP = 0;
-        public static final double kI = 0;
-        public static final double kD = 0;
-        public static final double gravityFFVolts = 0;
-        public static final double maxVel = 1;
-        public static final double maxAccel = 1;
+        public static final double conversionFactor = 0.04;
+        public static final double positionP = 0.01;
+        public static final double positionI = 0;
+        public static final double positionD = 0;
+        public static final double positionGravityFF = 0.96;
+        public static final double maxVel = 20;
+        public static final double maxAccel = 40;
+
+        public static final double rollerP = 0;
 
         public static final double defaultPosition = 1;
     }
@@ -54,10 +60,10 @@ public class Constants {
     }
 
     public static class Shooter {
-        public static final int feederCANID = 18;
-        public static final int topCANID = 17;
-        public static final int bottomCANID = 16;
-        public static final int rotationCANID = 15;
+        public static final int feederCANID = 17;
+        public static final int topCANID = 19;
+        public static final int bottomCANID = 18;
+        public static final int rotationCANID = 16;
 
 
         public static final double topP = 0;
@@ -69,7 +75,7 @@ public class Constants {
         public static final double bottomI = 0;
         public static final double bottomD = 0;
         public static final double bottomFF = 0;
-        
+
         public static final double rotationP = 0;
         public static final double rotationI = 0;
         public static final double rotationD = 0;
