@@ -5,26 +5,43 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.IO;
 import frc.robot.commands.Drivetrain.TeleopDrive;
+import frc.robot.subsystems.NetworkTables;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+  // final DoubleSubscriber dataSub;
+  DoublePublisher data1;
+  DoublePublisher data2;
+  double x = 0;
+  double y = 0;
+  
 
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    NetworkTable table = inst.getTable("sensorData");
+    // dataSub = sensorData.getDoubleTopics("y").subcribe(0.0);
+    data1 = table.getDoubleTopic("data1").publish();
+    data2 = table.getDoubleTopic("data2").publish();
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
   }
 
   @Override
@@ -60,7 +77,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    data1.set(x);
+    data2.set(y);
+    x += 0.05;
+    y += 1;
+  }
 
   @Override
   public void teleopExit() {}
