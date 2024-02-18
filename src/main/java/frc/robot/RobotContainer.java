@@ -25,14 +25,18 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.SystemState;
 import frc.robot.utils.PathBuilder;
 
 public class RobotContainer {
 
-  public final Drivetrain drivetrain = new Drivetrain();
-  private final Intake intake = new Intake();
+  public final Drivetrain drivetrain = Drivetrain.getInstance();
+  private final Intake intake = Intake.getInstance();
   private final Elevator elevator = Elevator.getInstance();
   private final Shooter shooter = Shooter.getInstance();
+
+  private final Superstructure superstructure = new Superstructure();
 
   CommandJoystick driver = new CommandJoystick(0);
   CommandJoystick operator = new CommandJoystick(1);
@@ -53,7 +57,7 @@ public class RobotContainer {
     //   () -> faceLocation
     // ));
     
-    intake.setDefaultCommand(new RunCommand(() -> intake.setIntakeSpeed(operator.getRawAxis(1)), intake));
+    intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
     shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(5)), shooter));
 
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -69,13 +73,14 @@ public class RobotContainer {
     driver.button(IO.faceSpeakerButton).onTrue(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.SPEAKER));
     driver.button(IO.faceSpeakerButton).onFalse(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.NONE));
 
-    operator.button(IO.resetIntakePosition).onTrue(new InstantCommand(() -> intake.setPosition(0)));
-    operator.button(IO.testIntakePosition).onTrue(new InstantCommand(() -> {intake.moveTo(0.02); intake.setOpenLoopControl(false);}));
-    // operator.button(IO.testIntakePosition).onFalse(new InstantCommand(() -> {intake.setOpenLoopControl(true);}));
-    operator.button(IO.testStowPosition).onTrue(new InstantCommand(() -> {intake.moveTo(0.25); intake.setOpenLoopControl(false);}));
-    // operator.button(IO.testStowPosition).onFalse(new InstantCommand(() -> {intake.setOpenLoopControl(true);}));
-    operator.button(1).onTrue(new InstantCommand(() -> intake.setOpenLoopControl(true)));
+    operator.button(IO.resetIntakePositionButton).onTrue(new InstantCommand(() -> {intake.resetPosition(0); shooter.resetPosition(0);}));
+    operator.button(IO.intakeButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.INTAKE))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
+    operator.button(IO.handoffButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.PREPARE_SHOOT))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
+    operator.button(1).onTrue(new InstantCommand(() -> {shooter.setOpenLoopControl(true); intake.setOpenLoopControl(true);}));
+    operator.button(3).onTrue(new InstantCommand(() -> {shooter.setOpenLoopControl(false); intake.setOpenLoopControl(false);}));
+    
   }
+
 
   public Command getAutonomousCommand() {
     // return autoChooser.getSelected();

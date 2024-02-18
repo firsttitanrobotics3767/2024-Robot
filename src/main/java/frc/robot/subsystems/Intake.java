@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
@@ -9,6 +10,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
@@ -22,9 +24,10 @@ import frc.robot.Constants;
  */
 public class Intake extends SubsystemBase{
     private static Intake instance = null;
-    private boolean openLoopControl = true;
+    private boolean openLoopControl = false;
+    private double targetOpenLoopOutput = 0;
     private double targetPos = Superstructure.IntakeState.IDLE.pos;
-    private double targetOpenLoopOutput;
+    private double rollerTargetSpeed = 0;
     
     public static Intake getInstance() {
         if (instance == null) {
@@ -37,7 +40,6 @@ public class Intake extends SubsystemBase{
     // Rollers
     private final TalonFX rollerMotor;
     private final TalonFXConfiguration rollerConfig;
-    // private final PhoenixPIDController rollerPID;
 
     // Pivot
     private final CANSparkMax positionMotor;
@@ -50,12 +52,17 @@ public class Intake extends SubsystemBase{
 
         rollerConfig = new TalonFXConfiguration();
 
-        rollerConfig.Slot0.kP = 0;
+        rollerMotor.getConfigurator().apply(rollerConfig);
 
         positionMotor = new CANSparkMax(Constants.Intake.positionCANID, MotorType.kBrushless);
         positionMotor.restoreFactoryDefaults();
         positionMotor.setIdleMode(IdleMode.kBrake);
         positionMotor.setInverted(false);
+        positionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+        positionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.25);
+        positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.01);
+        positionMotor.setOpenLoopRampRate(Constants.Intake.openLoopRampRate);
         
         positionEncoder = positionMotor.getEncoder();
         positionEncoder.setPositionConversionFactor(Constants.Intake.conversionFactor);
@@ -80,16 +87,29 @@ public class Intake extends SubsystemBase{
         } else {
             positionMotor.set(targetOpenLoopOutput);
         }
+
+        rollerMotor.set(rollerTargetSpeed);
+
         SmartDashboard.putNumber("Intake/measuredPosition", getPosition());
-        SmartDashboard.putNumber("Intake/measuredVelocity", positionEncoder.getVelocity());
+        SmartDashboard.putNumber("Intake/measuredRotationVelocity", positionEncoder.getVelocity());
+        SmartDashboard.putNumber("Intake/measuredRollerVelocity", rollerMotor.getVelocity().getValueAsDouble());
     }
 
     /**
-     * Set the velocity of the intake
+     * Set the velocity of the intake deploy arms
      * @param speed double of the velocity
      */
-    public void setIntakeSpeed(double speed) {
-        targetOpenLoopOutput = speed;
+    public void setPositionSpeed(double speed) {
+        targetOpenLoopOutput = speed * 0.2;
+    }
+
+    /**
+     * Set the velocity of the intake rollers
+     * @param speed double of the velocity
+     */
+    public void setRollerSpeed(double speed) {
+        rollerTargetSpeed = speed;
+        SmartDashboard.putNumber("Intake/Target Roller Speed", speed);
     }
 
     /**
@@ -112,7 +132,7 @@ public class Intake extends SubsystemBase{
         return positionEncoder.getPosition();
     }
 
-    public void setPosition(double position) {
+    public void resetPosition(double position) {
         positionEncoder.setPosition(position);
     }
 }

@@ -17,9 +17,9 @@ public class Constants {
         public static final int driveModeButton = 7;
         public static final int faceSpeakerButton = 8;
 
-        public static final int resetIntakePosition = 2;
-        public static final int testIntakePosition = 8;
-        public static final int testStowPosition = 7;
+        public static final int resetIntakePositionButton = 10;
+        public static final int intakeButton = 8;
+        public static final int handoffButton = 6;
     }
 
     public static class Swerve {
@@ -37,11 +37,10 @@ public class Constants {
         public static final double positionP = 0.01;
         public static final double positionI = 0;
         public static final double positionD = 0;
-        public static final double positionGravityFF = 0.96;
-        public static final double maxVel = 20;
-        public static final double maxAccel = 40;
-
-        public static final double rollerP = 0;
+        public static final double positionGravityFF = 1;
+        public static final double maxVel = 60;
+        public static final double maxAccel = 90;
+        public static final double openLoopRampRate = .5;
 
         public static final double defaultPosition = 1;
     }
@@ -76,13 +75,13 @@ public class Constants {
         public static final double bottomD = 0;
         public static final double bottomFF = 0;
 
-        public static final double rotationP = 0;
-        public static final double rotationI = 0;
-        public static final double rotationD = 0;
-        public static final double rotationFF = 0;
-        public static final double conversionFactor = 1;
-        public static final double maxVel = 1;
-        public static final double maxAcc = 1;
+        public static final double positionP = 0.004;
+        public static final double positionI = 0;
+        public static final double positionD = 0.01;
+        public static final double positionFF = 0.75;
+        public static final double conversionFactor = 0.04;
+        public static final double maxVel = 120;
+        public static final double maxAcc = 240;
 
         public static final double feederP = 0;
         public static final double feederI = 0;

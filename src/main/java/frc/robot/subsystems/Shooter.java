@@ -6,13 +6,16 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -21,8 +24,9 @@ import frc.robot.Constants;
  */
 public class Shooter extends SubsystemBase{
     private static Shooter instance = null;
-    private boolean positionOpenLoopControl = true;
-    private double positionOpenLoopOutput;
+    private boolean positionOpenLoopControl = false;
+    private double positionOpenLoopOutput = 0;
+    private double targetPosition = Superstructure.ShooterState.IDLE.pos;
 
     private final TalonFX shooterTop;
     private final TalonFX shooterBottom;
@@ -37,7 +41,7 @@ public class Shooter extends SubsystemBase{
     private final VelocityVoltage feederVelocityVolt;
 
     private final CANSparkMax positionMotor;
-    private final AbsoluteEncoder positionEncoder;
+    private final RelativeEncoder positionEncoder;
     private final SparkPIDController positionController;
 
     public static Shooter getInstance() {
@@ -88,19 +92,22 @@ public class Shooter extends SubsystemBase{
         positionMotor = new CANSparkMax(Constants.Shooter.rotationCANID, MotorType.kBrushless);
         positionMotor.restoreFactoryDefaults();
         positionMotor.setIdleMode(IdleMode.kBrake);
-        positionMotor.setInverted(false);
+        positionMotor.setInverted(true);
 
-        positionEncoder = positionMotor.getAbsoluteEncoder(Type.kDutyCycle);
+        positionEncoder = positionMotor.getEncoder();
         positionEncoder.setPositionConversionFactor(Constants.Shooter.conversionFactor);
         positionEncoder.setVelocityConversionFactor(Constants.Shooter.conversionFactor);
 
         positionController = positionMotor.getPIDController();
-        positionController.setP(Constants.Shooter.rotationP);
-        positionController.setI(Constants.Shooter.rotationI);
-        positionController.setD(Constants.Shooter.rotationD);
-        positionController.setFF(Constants.Shooter.rotationFF);
+        positionController.setP(Constants.Shooter.positionP);
+        positionController.setI(Constants.Shooter.positionI);
+        positionController.setD(Constants.Shooter.positionD);
         positionController.setSmartMotionMaxAccel(Constants.Shooter.maxAcc, 0);
         positionController.setSmartMotionMaxVelocity(Constants.Shooter.maxVel, 0);
+        positionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+        positionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.3);
+        positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.01);
 
 
     }
@@ -108,20 +115,21 @@ public class Shooter extends SubsystemBase{
     @Override
     public void periodic() {
         if (!positionOpenLoopControl) {
-            // rotationController.setReference(targetPos, ControlType.kSmartMotion);
+            positionController.setReference(targetPosition, ControlType.kSmartMotion, 0,
+                Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
         } else {
             positionMotor.set(positionOpenLoopOutput);
         }
+
+        SmartDashboard.putNumber("Shooter/measuredPosition", getPosition());
     }
 
     /**
      * Set the rotational position of the shooter
      * @param position double of the anglular position
      */
-    public void setPos(double position) {
-        if (isPoseValid(position)) {
-            positionController.setReference(Units.degreesToRotations(position), ControlType.kSmartMotion);
-        }
+    public void moveTo(double position) {
+        targetPosition = position;
     }
 
     /**
@@ -146,6 +154,18 @@ public class Shooter extends SubsystemBase{
     }
 
     public void setPositionSpeed(double speed) {
-        positionOpenLoopOutput = speed;
+        positionOpenLoopOutput = speed * 0.2;
+    }
+
+    public void resetPosition(double newPosition) {
+        positionEncoder.setPosition(newPosition);
+    }
+
+    public double getPosition() {
+        return positionEncoder.getPosition();
+    }
+
+    public void setOpenLoopControl(boolean controlMode) {
+        this.positionOpenLoopControl = controlMode;
     }
 }
