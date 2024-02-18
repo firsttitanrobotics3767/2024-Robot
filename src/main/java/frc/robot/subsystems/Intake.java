@@ -68,7 +68,7 @@ public class Intake extends SubsystemBase{
         if (!openLoopControl) {
             positionController.setReference(targetPos, ControlType.kSmartMotion);
         } else {
-            intakeMotor.set(targetOpenLoopOutput);
+            positionMotor.set(targetOpenLoopOutput);
         }
     }
 

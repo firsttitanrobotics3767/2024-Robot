@@ -56,10 +56,10 @@ public class TeleopDrive extends Command{
                          angVelocity * controller.config.maxAngularVelocity,
                          driveMode.getAsBoolean());
         } else {
-            double faceLocationHeading = Math.atan2(
+            double faceLocationHeading = -Math.atan2(
                 faceLocation.get().xPos - drivetrain.getPose().getX(),
                 faceLocation.get().yPos - drivetrain.getPose().getY()
-            );
+            ) - 90;
             drivetrain.driveFieldOriented(drivetrain.getTargetSpeeds(
                 xVelocity,
                 yVelocity,
