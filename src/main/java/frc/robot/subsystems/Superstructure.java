@@ -34,9 +34,9 @@ public class Superstructure extends SubsystemBase {
 
     public enum IntakeState {
         GROUND(0.02),
-        IDLE(0.24),
+        IDLE(0.25),
         STOW(0.25),
-        HANDOFF(0.25), 
+        HANDOFF(0.26), 
         CLIMB(0.05), 
         CLIMB_LOCK(.25); 
 
@@ -77,6 +77,8 @@ public class Superstructure extends SubsystemBase {
         // } else {
             intake.moveTo(goalState.intakeState.pos);
             if (goalState == SystemState.INTAKE) {
+                intake.setRollerSpeed(-0.2);
+            } else if (goalState == SystemState.PREPARE_SHOOT) {
                 intake.setRollerSpeed(-0.2);
             } else {
                 intake.setRollerSpeed(0);

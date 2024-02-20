@@ -43,19 +43,19 @@ public class RobotContainer {
 
   SendableChooser<Command> autoChooser;
 
-  Drivetrain.FieldLocation faceLocation = Drivetrain.FieldLocation.SPEAKER;
+  Drivetrain.FieldLocation faceLocation = Drivetrain.FieldLocation.NONE;
 
   public RobotContainer() {
     configureBindings();
 
-    // drivetrain.setDefaultCommand(new TeleopDrive(
-    //   drivetrain,
-    //   () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
-    //   () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
-    //   () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
-    //   () -> !driver.button(IO.driveModeButton).getAsBoolean(),
-    //   () -> faceLocation
-    // ));
+    drivetrain.setDefaultCommand(new TeleopDrive(
+      drivetrain,
+      () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
+      () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
+      () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
+      () -> !driver.button(IO.driveModeButton).getAsBoolean(),
+      () -> faceLocation
+    ));
     
     intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
     shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(5)), shooter));
@@ -70,12 +70,12 @@ public class RobotContainer {
   private void configureBindings() {
     driver.button(IO.resetGyroButton).onTrue(new InstantCommand(drivetrain::zeroGyro));
     driver.button(IO.resetOdometryButton).onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
-    driver.button(IO.faceSpeakerButton).onTrue(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.SPEAKER));
-    driver.button(IO.faceSpeakerButton).onFalse(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.NONE));
+    // driver.button(IO.faceSpeakerButton).onTrue(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.SPEAKER));
+    // driver.button(IO.faceSpeakerButton).onFalse(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.NONE));
 
-    operator.button(IO.resetIntakePositionButton).onTrue(new InstantCommand(() -> {intake.resetPosition(0); shooter.resetPosition(0);}));
-    operator.button(IO.intakeButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.INTAKE))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
-    operator.button(IO.handoffButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.PREPARE_SHOOT))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
+    operator.button(IO.resetIntakePositionButton).onTrue(new InstantCommand(() -> {shooter.resetPosition(0); intake.resetPosition(0);}));
+    driver.button(IO.intakeButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.INTAKE))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
+    driver.button(IO.handoffButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.PREPARE_SHOOT))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
     operator.button(1).onTrue(new InstantCommand(() -> {shooter.setOpenLoopControl(true); intake.setOpenLoopControl(true);}));
     operator.button(3).onTrue(new InstantCommand(() -> {shooter.setOpenLoopControl(false); intake.setOpenLoopControl(false);}));
     

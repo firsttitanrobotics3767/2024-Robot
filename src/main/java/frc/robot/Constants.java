@@ -2,6 +2,9 @@ package frc.robot;
 
 import java.io.File;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.math.SwerveMath;
@@ -87,5 +90,9 @@ public class Constants {
         public static final double feederI = 0;
         public static final double feederD = 0;
         public static final double feederFF = 0;
+    }
+
+    public static class Sensors {
+        public static final Transform3d cameraToRobot = new Transform3d(new Translation3d(-.298, 0, -.205), new Rotation3d(0.0, 45.0, 0.0));
     }
 }

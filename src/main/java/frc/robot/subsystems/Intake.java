@@ -24,7 +24,7 @@ import frc.robot.Constants;
  */
 public class Intake extends SubsystemBase{
     private static Intake instance = null;
-    private boolean openLoopControl = false;
+    private boolean openLoopControl = true;
     private double targetOpenLoopOutput = 0;
     private double targetPos = Superstructure.IntakeState.IDLE.pos;
     private double rollerTargetSpeed = 0;
@@ -60,7 +60,7 @@ public class Intake extends SubsystemBase{
         positionMotor.setInverted(false);
         positionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         positionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-        positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.25);
+        positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.26);
         positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.01);
         positionMotor.setOpenLoopRampRate(Constants.Intake.openLoopRampRate);
         

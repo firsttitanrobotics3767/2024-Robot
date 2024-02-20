@@ -24,7 +24,7 @@ import frc.robot.Constants;
  */
 public class Shooter extends SubsystemBase{
     private static Shooter instance = null;
-    private boolean positionOpenLoopControl = false;
+    private boolean positionOpenLoopControl = true;
     private double positionOpenLoopOutput = 0;
     private double targetPosition = Superstructure.ShooterState.IDLE.pos;
 
