@@ -21,21 +21,12 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-  // final DoubleSubscriber dataSub;
-  DoublePublisher data1;
-  DoublePublisher data2;
-  double x = 0;
-  double y = 0;
+  NetworkTables networkTables = new NetworkTables();
   
 
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
-    NetworkTableInstance inst = NetworkTableInstance.getDefault();
-    NetworkTable table = inst.getTable("sensorData");
-    // dataSub = sensorData.getDoubleTopics("y").subcribe(0.0);
-    data1 = table.getDoubleTopic("data1").publish();
-    data2 = table.getDoubleTopic("data2").publish();
   }
 
   @Override
@@ -78,10 +69,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    data1.set(x);
-    data2.set(y);
-    x += 0.05;
-    y += 1;
+    networkTables.publish();
   }
 
   @Override
