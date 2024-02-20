@@ -95,4 +95,18 @@ public class Constants {
     public static class Sensors {
         public static final Transform3d cameraToRobot = new Transform3d(new Translation3d(-.298, 0, -.205), new Rotation3d(0.0, 45.0, 0.0));
     }
+
+    public static class Climber {
+        public static final int leftMotorCANID = 19;
+        public static final int rightMotorCANID = 20;
+
+        public static final double kP = 0;
+        public static final double kI = 0;
+        public static final double kD = 0;
+        public static final double conversionfactor = 1;
+        public static final double maxVel = 1;
+        public static final double maxAccel = 1;
+
+        public static final int defaultPosition = 1;
+    }
 }
