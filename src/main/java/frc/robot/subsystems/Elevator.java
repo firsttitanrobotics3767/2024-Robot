@@ -8,7 +8,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.utils.Constants;
 
 public class Elevator extends SubsystemBase{
     private static Elevator instance = null;
@@ -52,10 +52,14 @@ public class Elevator extends SubsystemBase{
         SmartDashboard.putNumber("elevator/measuredPos", elevatorEncoder.getPosition());
         SmartDashboard.putNumber("elevator/velocity", elevatorEncoder.getVelocity());
 
-        pidController.setReference(targetPos, ControlType.kSmartMotion, 0, Constants.Elevator.gravityFFVolts);
+        // pidController.setReference(targetPos, ControlType.kSmartMotion, 0, Constants.Elevator.gravityFFVolts);
     }
 
     public void moveTo(double pos) {
         targetPos = pos;
+    }
+
+    public void setSpeed(double speed) {
+        elevatorMotor.set(speed);
     }
 }

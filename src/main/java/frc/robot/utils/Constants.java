@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.utils;
 
 import java.io.File;
 
@@ -37,12 +37,13 @@ public class Constants {
         public static final int rollerCANID = 14;
 
         public static final double conversionFactor = 0.04;
+        public static final double absoluteConversionFactor = 1.333;
         public static final double positionP = 0.01;
         public static final double positionI = 0;
         public static final double positionD = 0;
         public static final double positionGravityFF = 1;
-        public static final double maxVel = 60;
-        public static final double maxAccel = 90;
+        public static final double maxVel = 40;
+        public static final double maxAccel = 40;
         public static final double openLoopRampRate = .5;
 
         public static final double defaultPosition = 1;
@@ -97,8 +98,8 @@ public class Constants {
     }
 
     public static class Climber {
-        public static final int leftMotorCANID = 19;
-        public static final int rightMotorCANID = 20;
+        public static final int leaderID = 20;
+        public static final int followerID = 21;
 
         public static final double kP = 0;
         public static final double kI = 0;
@@ -106,7 +107,7 @@ public class Constants {
         public static final double conversionfactor = 1;
         public static final double maxVel = 1;
         public static final double maxAccel = 1;
-
-        public static final int defaultPosition = 1;
     }
+
+    public static final boolean defaultControlMode = true;
 }

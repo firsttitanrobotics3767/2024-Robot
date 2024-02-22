@@ -11,17 +11,19 @@ public class Superstructure extends SubsystemBase {
     private final Intake intake = Intake.getInstance();
     private final Elevator elevator = Elevator.getInstance();
     private final Shooter shooter = Shooter.getInstance();
+    private final Climber climber = Climber.getInstance();
 
 
     public enum SystemState {
-        IDLE(IntakeState.IDLE, ShooterState.IDLE),
+        // IDLE(IntakeState.IDLE, ShooterState.HANDOFF),
+        IDLE(IntakeState.GROUND, ShooterState.AMP),
         PREPARE_SHOOT(IntakeState.HANDOFF, ShooterState.HANDOFF),
         PREPARE_AMP(IntakeState.IDLE, ShooterState.AMP),
-        SCORE(IntakeState.IDLE, ShooterState.SHOOT),
-        INTAKE(IntakeState.GROUND, ShooterState.IDLE),
+        SCORE(IntakeState.IDLE, ShooterState.HANDOFF),
+        INTAKE(IntakeState.GROUND, ShooterState.HANDOFF),
         STOW(IntakeState.STOW, ShooterState.IDLE),
         PREPARE_CLIMB(IntakeState.CLIMB, ShooterState.AMP),
-        CLIMB(IntakeState.CLIMB, ShooterState.AMP),
+        CLIMB(IntakeState.GROUND, ShooterState.AMP),
         SCORE_TRAP(IntakeState.CLIMB_LOCK, ShooterState.AMP);
 
         public IntakeState intakeState;
@@ -49,8 +51,8 @@ public class Superstructure extends SubsystemBase {
     public enum ShooterState {
         IDLE(0.05),
         SHOOT(0.3),
-        AMP(0.3),
-        HANDOFF(0.12);
+        AMP(0.35),
+        HANDOFF(0.17);
 
         public double pos;
         private ShooterState(double pos) {
@@ -80,7 +82,14 @@ public class Superstructure extends SubsystemBase {
                 intake.setRollerSpeed(-0.2);
             } else if (goalState == SystemState.PREPARE_SHOOT) {
                 intake.setRollerSpeed(-0.2);
+                shooter.setFeederSpeed(-0.2);
+                shooter.setShootSpeed(1);
+            } else if (goalState == SystemState.SCORE) {
+                shooter.setFeederSpeed(0);
+                shooter.setShootSpeed(1);
             } else {
+                shooter.setShootSpeed(0);
+                shooter.setFeederSpeed(0);
                 intake.setRollerSpeed(0);
             }
             

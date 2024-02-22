@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
@@ -14,17 +13,16 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.utils.Constants;
 
 /**
  * Intake class
  */
 public class Intake extends SubsystemBase{
     private static Intake instance = null;
-    private boolean openLoopControl = true;
+    private boolean openLoopControl = Constants.defaultControlMode;
     private double targetOpenLoopOutput = 0;
     private double targetPos = Superstructure.IntakeState.IDLE.pos;
     private double rollerTargetSpeed = 0;
@@ -44,6 +42,7 @@ public class Intake extends SubsystemBase{
     // Pivot
     private final CANSparkMax positionMotor;
     private final RelativeEncoder positionEncoder;
+    private final AbsoluteEncoder absoluteEncoder;
     private final SparkPIDController positionController;
 
     public Intake() {
@@ -68,6 +67,11 @@ public class Intake extends SubsystemBase{
         positionEncoder.setPositionConversionFactor(Constants.Intake.conversionFactor);
         positionEncoder.setVelocityConversionFactor(Constants.Intake.conversionFactor);
 
+        absoluteEncoder = positionMotor.getAbsoluteEncoder(Type.kDutyCycle);
+        absoluteEncoder.setPositionConversionFactor(Constants.Intake.absoluteConversionFactor);
+        absoluteEncoder.setVelocityConversionFactor(Constants.Intake.absoluteConversionFactor);
+        absoluteEncoder.setZeroOffset(0.60);
+
         positionController = positionMotor.getPIDController();
         positionController.setFeedbackDevice(positionEncoder);
         positionController.setP(Constants.Intake.positionP);
@@ -91,6 +95,7 @@ public class Intake extends SubsystemBase{
         rollerMotor.set(rollerTargetSpeed);
 
         SmartDashboard.putNumber("Intake/measuredPosition", getPosition());
+        SmartDashboard.putNumber("Intake/Absolute Position", absoluteEncoder.getPosition());
         SmartDashboard.putNumber("Intake/measuredRotationVelocity", positionEncoder.getVelocity());
         SmartDashboard.putNumber("Intake/measuredRollerVelocity", rollerMotor.getVelocity().getValueAsDouble());
     }
@@ -133,6 +138,7 @@ public class Intake extends SubsystemBase{
     }
 
     public void resetPosition(double position) {
-        positionEncoder.setPosition(position);
+        // positionEncoder.setPosition(position);
+        positionEncoder.setPosition(absoluteEncoder.getPosition());
     }
 }

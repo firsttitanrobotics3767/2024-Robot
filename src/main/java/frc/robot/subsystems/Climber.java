@@ -2,42 +2,59 @@ package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
-import frc.robot.Constants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.Constants;
 
 public class Climber extends SubsystemBase{
-    
-    private final CANSparkMax leftMotor;
-    private final CANSparkMax rightMotor;
+    private static Climber instance = null;
+    private boolean openLoopControl = Constants.defaultControlMode;
+    private double targetOpenLoopOutput = 0;
+    // private double targetPos = Superstructure.ClimberState.STOW.pos;
+    private double targetPos = 0;
 
-    private final AbsoluteEncoder encoder;
+    public static Climber getInstance() {
+        if (instance == null) {
+            instance = new Climber();
+        }
+
+        return instance;
+    }
+    
+    private final CANSparkMax leader;
+    private final CANSparkMax follower;
+
+    private final AbsoluteEncoder absoluteEncoder;
+    private final RelativeEncoder encoder;
 
     private final SparkPIDController pidController;
 
     public Climber() {
-        leftMotor = new CANSparkMax(Constants.Climber.leftMotorCANID, MotorType.kBrushless);
-        leftMotor.restoreFactoryDefaults();
-        leftMotor.setIdleMode(IdleMode.kBrake);
-        leftMotor.setInverted(false);
+        leader = new CANSparkMax(Constants.Climber.leaderID, MotorType.kBrushless);
+        leader.restoreFactoryDefaults();
+        leader.setIdleMode(IdleMode.kBrake);
+        leader.setInverted(false);
 
-        rightMotor = new CANSparkMax(Constants.Climber.rightMotorCANID, MotorType.kBrushless);
-        rightMotor.restoreFactoryDefaults();
-        rightMotor.setIdleMode(IdleMode.kBrake);
-        rightMotor.setInverted(true);
-        rightMotor.follow(leftMotor);
+        follower = new CANSparkMax(Constants.Climber.followerID, MotorType.kBrushless);
+        follower.restoreFactoryDefaults();
+        follower.setIdleMode(IdleMode.kBrake);
+        follower.setInverted(false);
+        follower.follow(leader);
 
-        encoder = leftMotor.getAbsoluteEncoder(Type.kDutyCycle);
+        absoluteEncoder = leader.getAbsoluteEncoder(Type.kDutyCycle);
+
+        encoder = leader.getEncoder();
         encoder.setPositionConversionFactor(Constants.Climber.conversionfactor);
-        encoder.setVelocityConversionFactor(Constants.Climber.conversionfactor);
+        encoder.setPosition(absoluteEncoder.getPosition());
 
-        pidController = leftMotor.getPIDController();
-        pidController.setFeedbackDevice(encoder);
+        pidController = leader.getPIDController();
+        pidController.setFeedbackDevice(absoluteEncoder);
         pidController.setP(Constants.Climber.kP);
         pidController.setI(Constants.Climber.kI);
         pidController.setD(Constants.Climber.kD);
@@ -46,8 +63,29 @@ public class Climber extends SubsystemBase{
 
     }
 
-    public void setPosition(double position) {
-        pidController.setReference(position, ControlType.kSmartMotion);
+    @Override
+    public void periodic() {
+        if (!openLoopControl) {
+            pidController.setReference(targetPos, ControlType.kSmartMotion);
+        } else {
+            leader.set(targetOpenLoopOutput);
+        }
+    } 
+
+    public void moveTo(double position) {
+        targetPos = position;
+    }
+
+    public void setOpenLoopControl(boolean controlType) {
+        openLoopControl = controlType;
+    }
+
+    public void setArmSpeed(double speed) {
+        targetOpenLoopOutput = speed;
+    }
+
+    public double getPosition() {
+        return absoluteEncoder.getPosition();
     }
 
 }

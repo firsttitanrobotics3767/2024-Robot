@@ -17,14 +17,14 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.utils.Constants;
 
 /**
  * Shooter class
  */
 public class Shooter extends SubsystemBase{
     private static Shooter instance = null;
-    private boolean positionOpenLoopControl = true;
+    private boolean positionOpenLoopControl = Constants.defaultControlMode;
     private double positionOpenLoopOutput = 0;
     private double targetPosition = Superstructure.ShooterState.IDLE.pos;
 
@@ -42,6 +42,7 @@ public class Shooter extends SubsystemBase{
 
     private final CANSparkMax positionMotor;
     private final RelativeEncoder positionEncoder;
+    // private final AbsoluteEncoder absoluteEncoder;
     private final SparkPIDController positionController;
 
     public static Shooter getInstance() {
@@ -55,9 +56,11 @@ public class Shooter extends SubsystemBase{
     public Shooter() {
         shooterTop = new TalonFX(Constants.Shooter.topCANID);
         shooterTop.setNeutralMode(NeutralModeValue.Coast);
+        shooterTop.setInverted(true);
         
         shooterBottom = new TalonFX(Constants.Shooter.bottomCANID);
         shooterBottom.setNeutralMode(NeutralModeValue.Coast);
+        shooterBottom.setInverted(true);
 
         feeder = new TalonFX(Constants.Shooter.feederCANID);
         feeder.setNeutralMode(NeutralModeValue.Coast);
@@ -137,8 +140,10 @@ public class Shooter extends SubsystemBase{
      * @param speed double of the velocity
      */
     public void setShootSpeed(double speed) {
-        shooterBottom.setControl(shooterBottomVelocityVolt.withVelocity(speed));
-        shooterTop.setControl(shooterTopVelocityVolt.withVelocity(speed));
+        // shooterBottom.setControl(shooterBottomVelocityVolt.withVelocity(speed));
+        // shooterTop.setControl(shooterTopVelocityVolt.withVelocity(speed));
+        shooterBottom.set(speed);
+        shooterTop.set(speed);
     }
 
     /**
@@ -146,7 +151,8 @@ public class Shooter extends SubsystemBase{
      * @param speed double of the velocity
      */
     public void setFeederSpeed(double speed) {
-        feeder.setControl(feederVelocityVolt.withVelocity(speed));
+        // feeder.setControl(feederVelocityVolt.withVelocity(speed));
+        feeder.set(speed);
     }
 
     private boolean isPoseValid(double position) {

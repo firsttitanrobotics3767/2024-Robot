@@ -19,15 +19,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-import frc.robot.Constants.IO;
 import frc.robot.commands.Drivetrain.TeleopDrive;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SystemState;
+import frc.robot.utils.Constants;
 import frc.robot.utils.PathBuilder;
+import frc.robot.utils.Constants.IO;
 
 public class RobotContainer {
 
@@ -35,6 +37,7 @@ public class RobotContainer {
   private final Intake intake = Intake.getInstance();
   private final Elevator elevator = Elevator.getInstance();
   private final Shooter shooter = Shooter.getInstance();
+  private final Climber climber = Climber.getInstance();
 
   private final Superstructure superstructure = new Superstructure();
 
@@ -57,9 +60,10 @@ public class RobotContainer {
       () -> faceLocation
     ));
     
-    intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
-    shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(5)), shooter));
-
+    // intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
+    // shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(5)), shooter));
+    // climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(operator.getRawAxis(2)), climber));
+    elevator.setDefaultCommand(new RunCommand(() -> elevator.setSpeed(operator.getRawAxis(2)), elevator));
     autoChooser = AutoBuilder.buildAutoChooser();
 
     PathBuilder.setupQuestions();
@@ -78,6 +82,7 @@ public class RobotContainer {
     driver.button(IO.handoffButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.PREPARE_SHOOT))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
     operator.button(1).onTrue(new InstantCommand(() -> {shooter.setOpenLoopControl(true); intake.setOpenLoopControl(true);}));
     operator.button(3).onTrue(new InstantCommand(() -> {shooter.setOpenLoopControl(false); intake.setOpenLoopControl(false);}));
+    driver.button(5).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.SCORE))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
     
   }
 
