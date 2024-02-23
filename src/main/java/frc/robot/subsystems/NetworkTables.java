@@ -31,6 +31,7 @@ public class NetworkTables extends SubsystemBase {
     y += 1;
     SmartDashboard.putNumber("data1", x);
     SmartDashboard.putNumber("data2", y);
+    SmartDashboard.getNumber("test_distance", x);
   }
 
 }
