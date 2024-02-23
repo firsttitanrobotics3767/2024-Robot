@@ -37,9 +37,8 @@ public class NetworkTables extends SubsystemBase {
     SmartDashboard.putNumber("data2", y);
     read1 = SmartDashboard.getNumber("data1", read1);
     read2 = SmartDashboard.getNumber("data2", read2);
-    System.out.println("read1 = " + read1);
-    System.out.println("read2 = " + read2);
-    System.out.println("");
+    SmartDashboard.putNumber("read1", read1);
+    SmartDashboard.putNumber("read2", read2);
   }
 
 }
