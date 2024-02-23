@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import com.reduxrobotics.sensors.canandcolor.CanandcolorProximityConfig.SamplingPeriod;
+
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
@@ -16,6 +18,8 @@ public class NetworkTables extends SubsystemBase {
 //   DoublePublisher data2;
   double x;
   double y;
+  double read1;
+  double read2;
 
   public NetworkTables() {
     // NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -31,7 +35,11 @@ public class NetworkTables extends SubsystemBase {
     y += 1;
     SmartDashboard.putNumber("data1", x);
     SmartDashboard.putNumber("data2", y);
-    SmartDashboard.getNumber("test_distance", x);
+    read1 = SmartDashboard.getNumber("data1", read1);
+    read2 = SmartDashboard.getNumber("data2", read2);
+    System.out.println("read1 = " + read1);
+    System.out.println("read2 = " + read2);
+    System.out.println("");
   }
 
 }
