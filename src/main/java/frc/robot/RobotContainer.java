@@ -21,6 +21,7 @@ import frc.robot.commands.Drivetrain.SupplyElevator;
 import frc.robot.commands.Drivetrain.TeleopDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.NetworkTables;
 
 public class RobotContainer {
 
@@ -33,6 +34,8 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureBindings();
+    // networktables
+    // NetworkTables networkTables = new NetworkTables();
 
     drivetrain.setDefaultCommand(new TeleopDrive(
       drivetrain,
