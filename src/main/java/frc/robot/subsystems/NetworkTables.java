@@ -13,48 +13,47 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
 public class NetworkTables extends SubsystemBase {
-
-//   DoublePublisher data1;
-//   DoublePublisher data2;
-  // double x;
-  // double y;
+  // test variables
+  double x;
+  double y;
+  // needed variables
   double intake;
   double shooter;
-  Boolean intakeDetect;
-  // Boolean shooterDitect
+  // topic name variables
+  String intakeTopic = "RING IN INTAKE";
+  String shooterTopic = "RING IN SHOOTER";
 
-  public NetworkTables() {
-    // NetworkTableInstance inst = NetworkTableInstance.getDefault();
-    // NetworkTable table = inst.getTable("sensorData");
-    // data1 = table.getDoubleTopic("data1").publish();
-    // data2 = table.getDoubleTopic("data2").publish();
-  }
+  public NetworkTables() {}
 
   public void reader() {
-    // data1.set(x);
-    // data2.set(y);
-    intake += 0.05;
-    shooter += 1;
+    // testing
+    x += 1;
+    y += 1;
+    //
+
+    // reading values
     
-    // SmartDashboard.putNumber("intake", x);
-    // SmartDashboard.putNumber("shooter", y);
+    SmartDashboard.putNumber("intake", x);
+    SmartDashboard.putNumber("shooter", y);
     intake = SmartDashboard.getNumber("intake", intake);
     shooter = SmartDashboard.getNumber("shooter", shooter);
+
     // determening if ring is in intke
+
     if (intake <= 20) {
-      SmartDashboard.putBoolean("RING IN INTAKE", true);
+      SmartDashboard.putBoolean(intakeTopic, true);
     } else {
-      SmartDashboard.putBoolean("RING IN INTAKE ", false);
+      SmartDashboard.putBoolean(intakeTopic, false);
     }
 
     if (shooter <= 20) {
-      SmartDashboard.putBoolean("RING IN SHOOTER", true);
+      SmartDashboard.putBoolean(shooterTopic, true);
     } else {
-      SmartDashboard.putBoolean("RING IN SHOOTER", false);
+      SmartDashboard.putBoolean(shooterTopic, false);
     }
 
-    // SmartDashboard.putNumber("read1", read1);
-    // SmartDashboard.putNumber("read2", read2);
+    //
+
   }
 
 }
