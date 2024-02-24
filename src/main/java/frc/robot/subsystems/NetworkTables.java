@@ -19,13 +19,12 @@ public class NetworkTables extends SubsystemBase {
   double intake;
   double shooter;
   // heartbeat variables
-  double heartbeat1;
-  double heartbeat2;
+
   // topic name variables
   String intakeTopic = "READY TO FIRE";
   String shooterTopic = "HAS RING";
 
-  public NetworkTables() {}
+  public NetworkTables () {}
 
   public void reader() {
     // testing
@@ -39,8 +38,8 @@ public class NetworkTables extends SubsystemBase {
     
     // reading values
     // teasing
-    SmartDashboard.putNumber("intake", x);
-    SmartDashboard.putNumber("shooter", y);
+    // SmartDashboard.putNumber("intake", x);
+    // SmartDashboard.putNumber("shooter", y);
     //
 
     // reading the intake and shooter
@@ -83,10 +82,5 @@ public class NetworkTables extends SubsystemBase {
     //
 
   }
-  // @Override
-  // public void periodic() {
-  //   // SmartDashboard.getNumber("orangepi_heartbet", heartbeat1);
-  //   // SmartDashboard.getNumber("orangepi_heartbeat", heartbeat2);
-  // }
 
 }
