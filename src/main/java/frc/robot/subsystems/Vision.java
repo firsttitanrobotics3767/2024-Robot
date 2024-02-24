@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Vision extends SubsystemBase{
@@ -27,14 +28,15 @@ public class Vision extends SubsystemBase{
     private final PhotonPoseEstimator photonPoseEstimator;
     Optional<EstimatedRobotPose> estimatedPose;
     
-    public Vision(Drivetrain drivetrain) {
+    public Vision() {
 
-        this.drivetrain = drivetrain;
+        this.drivetrain = Drivetrain.getInstance();
 
-        aprilTagCam = new PhotonCamera("camera");
-        Transform3d robotToCam = new Transform3d(new Translation3d(-0.298, 0, 0.205), new Rotation3d(0, Units.degreesToRadians(45), 0));
+        aprilTagCam = new PhotonCamera("Arducam_OV9281_USB_Camera");
+        //Transform3d robotToCam = new Transform3d(new Translation3d(-0.298, 0, 0.205), new Rotation3d(0, Units.degreesToRadians(45), 0));
+        Transform3d robotToCamNeptune = new Transform3d(new Translation3d(-Units.inchesToMeters(26.5), 0, Units.inchesToMeters(5)), new Rotation3d(0, Units.degreesToRadians(3.5), Units.degreesToRadians(180)));
 
-        photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, aprilTagCam, robotToCam);
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, aprilTagCam, robotToCamNeptune);
 
     }
 
@@ -45,6 +47,7 @@ public class Vision extends SubsystemBase{
 
         if (hasTargets) {
             estimatedPose = getEstimatedGlobalPose(drivetrain.getPose());
+            System.out.println(estimatedPose);
 
             if (estimatedPose.isPresent()) {
                 drivetrain.addVisionMeasurement(estimatedPose.get().estimatedPose);

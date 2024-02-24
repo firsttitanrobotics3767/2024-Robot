@@ -22,11 +22,13 @@ import frc.robot.Constants.IO;
 import frc.robot.commands.Drivetrain.TeleopDrive;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Vision;
 import frc.robot.utils.PathBuilder;
 
 public class RobotContainer {
 
-  public final Drivetrain drivetrain = new Drivetrain();
+  public final Drivetrain drivetrain = Drivetrain.getInstance();
+  public final Vision vision = new Vision();
   private final Elevator elevator = Elevator.getInstance();
 
   CommandJoystick driver = new CommandJoystick(0);
