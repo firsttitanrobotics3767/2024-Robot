@@ -28,12 +28,12 @@ public class NetworkTables extends SubsystemBase {
 
   public void reader() {
     // testing
-    x += 1;
-    y += 1;
-    if (intake >= 20 && shooter >= 20) {
-      x = 0;
-      y = 0;
-    }
+    // x += 1;
+    // y += 1;
+    // if (intake >= 20 && shooter >= 20) {
+    //   x = 0;
+    //   y = 0;
+    // }
     //
     
     // reading values
@@ -68,13 +68,13 @@ public class NetworkTables extends SubsystemBase {
     // determening if ring is in intke
     // intake
 
-    if (intake <= 10) {
+    if (intake <= 30 && intake != 0) {
       SmartDashboard.putBoolean(intakeTopic, true);
     } else {
       SmartDashboard.putBoolean(intakeTopic, false);
     }
     // shooter
-    if (shooter <= 10) {
+    if (shooter <= 30 && shooter != 0) {
       SmartDashboard.putBoolean(shooterTopic, true);
     } else {
       SmartDashboard.putBoolean(shooterTopic, false);
