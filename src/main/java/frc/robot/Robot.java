@@ -71,7 +71,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    networkTables.publish();
+    networkTables.reader();
   }
 
   @Override

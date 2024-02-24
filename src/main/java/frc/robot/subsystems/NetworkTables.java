@@ -16,10 +16,12 @@ public class NetworkTables extends SubsystemBase {
 
 //   DoublePublisher data1;
 //   DoublePublisher data2;
-  double x;
-  double y;
-  double read1;
-  double read2;
+  // double x;
+  // double y;
+  double intake;
+  double shooter;
+  Boolean intakeDetect;
+  // Boolean shooterDitect
 
   public NetworkTables() {
     // NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -28,17 +30,31 @@ public class NetworkTables extends SubsystemBase {
     // data2 = table.getDoubleTopic("data2").publish();
   }
 
-  public void publish() {
+  public void reader() {
     // data1.set(x);
     // data2.set(y);
-    x += 0.05;
-    y += 1;
-    SmartDashboard.putNumber("data1", x);
-    SmartDashboard.putNumber("data2", y);
-    read1 = SmartDashboard.getNumber("data1", read1);
-    read2 = SmartDashboard.getNumber("data2", read2);
-    SmartDashboard.putNumber("read1", read1);
-    SmartDashboard.putNumber("read2", read2);
+    intake += 0.05;
+    shooter += 1;
+    
+    // SmartDashboard.putNumber("intake", x);
+    // SmartDashboard.putNumber("shooter", y);
+    intake = SmartDashboard.getNumber("intake", intake);
+    shooter = SmartDashboard.getNumber("shooter", shooter);
+    // determening if ring is in intke
+    if (intake <= 20) {
+      SmartDashboard.putBoolean("RING IN INTAKE", true);
+    } else {
+      SmartDashboard.putBoolean("RING IN INTAKE ", false);
+    }
+
+    if (shooter <= 20) {
+      SmartDashboard.putBoolean("RING IN SHOOTER", true);
+    } else {
+      SmartDashboard.putBoolean("RING IN SHOOTER", false);
+    }
+
+    // SmartDashboard.putNumber("read1", read1);
+    // SmartDashboard.putNumber("read2", read2);
   }
 
 }
