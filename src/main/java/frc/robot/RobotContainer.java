@@ -44,8 +44,7 @@ public class RobotContainer {
 
   CommandJoystick driver = new CommandJoystick(0);
   CommandJoystick operator = new CommandJoystick(1);
-
-  // NetworkTables networkTables = new NetworkTables(1, 0);
+  NetworkTables networkTables = new NetworkTables();
 
   SendableChooser<Command> autoChooser;
 
@@ -53,6 +52,8 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureBindings();
+    networkTables.reader();
+    // networkTables.heartbeatReader();
 
     drivetrain.setDefaultCommand(new TeleopDrive(
       drivetrain,
@@ -71,7 +72,6 @@ public class RobotContainer {
 
     PathBuilder.setupQuestions();
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    // networkTables.reader();
   }
 
 

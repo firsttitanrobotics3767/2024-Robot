@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
 
 
   private RobotContainer m_robotContainer;
-  NetworkTables networkTables = new NetworkTables();
+  // NetworkTables networkTables = new NetworkTables();
   
 
   @Override
@@ -75,8 +75,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    networkTables.reader();
-    networkTables.heartbeatReader();
+    // networkTables.reader();
+    // networkTables.heartbeatReader();
   }
 
   @Override
