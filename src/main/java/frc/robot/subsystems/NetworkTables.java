@@ -1,23 +1,16 @@
 package frc.robot.subsystems;
 
-import com.reduxrobotics.sensors.canandcolor.CanandcolorProximityConfig.SamplingPeriod;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.util.sendable.Sendable;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 
 public class NetworkTables extends SubsystemBase {
   // test variables
   double x;
   double y;
   // needed variables
-  double intake;
-  double shooter;
+  double intakeDistance = 0;
+  double shooterDistance = 0;
   // heartbeat variables
   double heartbeat1 = 1;
   double heartbeat2;
@@ -44,8 +37,8 @@ public class NetworkTables extends SubsystemBase {
     //
 
     // reading the intake and shooter
-    intake = SmartDashboard.getNumber("intake", intake);
-    shooter = SmartDashboard.getNumber("shooter", shooter);
+    intakeDistance = SmartDashboard.getNumber("Intake/sensorDistance", intakeDistance);
+    shooterDistance = SmartDashboard.getNumber("Shooter/sensorDistance", shooterDistance);
 
     // reading heartbeat
     // SmartDashboard.getNumber("orangepi_heartbet", heartbeat1);
@@ -69,13 +62,13 @@ public class NetworkTables extends SubsystemBase {
     // determening if ring is in intke
     // intake
 
-    if (intake <= 30 && intake != 0) {
+    if (intakeDistance <= 30 && intakeDistance != 0) {
       SmartDashboard.putBoolean(intakeTopic, true);
     } else {
       SmartDashboard.putBoolean(intakeTopic, false);
     }
     // shooter
-    if (shooter <= 30 && shooter != 0) {
+    if (shooterDistance <= 30 && shooterDistance != 0) {
       SmartDashboard.putBoolean(shooterTopic, true);
     } else {
       SmartDashboard.putBoolean(shooterTopic, false);
@@ -92,6 +85,14 @@ public class NetworkTables extends SubsystemBase {
     } else {
       SmartDashboard.putBoolean("ORANGE PI IS ALIVE", false);
     }
+  }
+
+  public double getIntakeDistance() {
+    return intakeDistance;
+  }
+
+  public double getShooterDistance() {
+    return shooterDistance;
   }
 
 }
