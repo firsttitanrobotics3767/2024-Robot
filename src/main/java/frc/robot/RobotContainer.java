@@ -30,6 +30,7 @@ import frc.robot.subsystems.Superstructure.SystemState;
 import frc.robot.utils.Constants;
 import frc.robot.utils.PathBuilder;
 import frc.robot.utils.Constants.IO;
+import frc.robot.subsystems.NetworkTables;
 
 public class RobotContainer {
 
@@ -43,6 +44,8 @@ public class RobotContainer {
 
   CommandJoystick driver = new CommandJoystick(0);
   CommandJoystick operator = new CommandJoystick(1);
+
+  // NetworkTables networkTables = new NetworkTables(1, 0);
 
   SendableChooser<Command> autoChooser;
 
@@ -68,6 +71,7 @@ public class RobotContainer {
 
     PathBuilder.setupQuestions();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    // networkTables.reader();
   }
 
 
