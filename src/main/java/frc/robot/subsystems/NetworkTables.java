@@ -20,7 +20,7 @@ public class NetworkTables extends SubsystemBase {
   double shooter;
   // heartbeat variables
   double heartbeat1 = 1;
-  double heartbeat2;
+  double heartbeat2 = 0;
   // topic name variables
   String intakeTopic = "READY TO FIRE";
   String shooterTopic = "HAS RING";
@@ -84,14 +84,25 @@ public class NetworkTables extends SubsystemBase {
 
   }
 
-  public void heartbeatReader() {
-    heartbeat2 = heartbeat1;
-    SmartDashboard.getNumber("orangepi_heartbeat", heartbeat1);
-    if (heartbeat1 != heartbeat2 && heartbeat1 > 600) {
-      SmartDashboard.putBoolean("ORANGE PI IS ALIVE", true);
-    } else {
-      SmartDashboard.putBoolean("ORANGE PI IS ALIVE", false);
+  // public void heartbeatReader() {
+  //   heartbeat2 = heartbeat1;
+  //   SmartDashboard.getNumber("orangepi_heartbeat", heartbeat1);
+  //   if (heartbeat1 != heartbeat2 && heartbeat1 > 600) {
+  //     SmartDashboard.putBoolean("ORANGE PI IS ALIVE", true);
+  //   } else {
+  //     SmartDashboard.putBoolean("ORANGE PI IS ALIVE", false);
+  //   }
+  // }
+
+    @Override
+    public void periodic() {
+      heartbeat2 = heartbeat1;
+      heartbeat1 = SmartDashboard.getNumber("orangepi_heartbeat", heartbeat1);
+      if (heartbeat1 != heartbeat2 && heartbeat1 > 600) {
+        SmartDashboard.putBoolean("ORANGE PI IS ALIVE", true);
+      } else {
+        SmartDashboard.putBoolean("ORANGE PI IS ALIVE", false);
+      }
     }
-  }
 
 }
