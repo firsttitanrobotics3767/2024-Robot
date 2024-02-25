@@ -77,12 +77,15 @@ public class RobotContainer {
     // driver.button(IO.faceSpeakerButton).onTrue(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.SPEAKER));
     // driver.button(IO.faceSpeakerButton).onFalse(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.NONE));
 
-    operator.button(IO.resetIntakePositionButton).onTrue(new InstantCommand(() -> {shooter.resetPosition(0); intake.resetPosition(0);}));
-    driver.button(IO.intakeButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.INTAKE))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
-    driver.button(IO.handoffButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.PREPARE_SHOOT))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
-    operator.button(1).onTrue(new InstantCommand(() -> {shooter.setOpenLoopControl(true); intake.setOpenLoopControl(true);}));
-    operator.button(3).onTrue(new InstantCommand(() -> {shooter.setOpenLoopControl(false); intake.setOpenLoopControl(false);}));
-    driver.button(5).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.SCORE))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.IDLE)));
+    driver.button(IO.resetIntakePositionButton).onTrue(new InstantCommand(() -> {shooter.resetPosition(0); intake.resetPosition(0);}));
+    driver.button(IO.intakeButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.INTAKE))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.STOW)));
+    driver.button(5).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.PREPARE_SPEAKER))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.STOW)));
+    operator.button(1).onTrue(new InstantCommand(() -> {shooter.setControlState(Shooter.ControlState.MANUAL); intake.setControlState(Intake.ControlState.MANUAL);}));
+    operator.button(3).onTrue(new InstantCommand(() -> {shooter.setControlState(Shooter.ControlState.AUTOMATIC); intake.setControlState(Intake.ControlState.AUTOMATIC);}));
+    driver.button(9).whileTrue(new InstantCommand(() -> {shooter.setFeederSpeed(0);})).onFalse(new InstantCommand(() -> {shooter.setFeederSpeed(0.0);}));
+    driver.button(14).whileTrue(new InstantCommand(() -> {shooter.setFeederSpeed(0.3); shooter.setShootSpeed(80);})).onFalse(new InstantCommand(() -> {shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0);}));
+    driver.button(6).onTrue(new InstantCommand(() -> {intake.startHandoff(); shooter.startHandoff();}));
+    driver.button(10).onTrue(new InstantCommand(() -> superstructure.reset()));
     
   }
 

@@ -38,15 +38,18 @@ public class Constants {
 
         public static final double conversionFactor = 0.04;
         public static final double absoluteConversionFactor = 1.333;
-        public static final double positionP = 0.01;
+        public static final double absoluteOffset = 0.95;
+        public static final double positionP = 0.005;
         public static final double positionI = 0;
         public static final double positionD = 0;
         public static final double positionGravityFF = 1;
         public static final double maxVel = 40;
-        public static final double maxAccel = 40;
+        public static final double maxAccel = 80;
         public static final double openLoopRampRate = .5;
 
         public static final double defaultPosition = 1;
+
+        public static final double sensorThreshhold = 20;
     }
 
     public static class Elevator {
@@ -74,11 +77,12 @@ public class Constants {
         public static final double topD = 0;
         public static final double topFF = 0;
 
-        public static final double bottomP = 0;
+        public static final double bottomP = 0.0;
         public static final double bottomI = 0;
         public static final double bottomD = 0;
-        public static final double bottomFF = 0;
+        public static final double bottomFF = 0.117;
 
+        // public static final double positionP = 0.004;
         public static final double positionP = 0.004;
         public static final double positionI = 0;
         public static final double positionD = 0.01;
@@ -86,6 +90,8 @@ public class Constants {
         public static final double conversionFactor = 0.04;
         public static final double maxVel = 120;
         public static final double maxAcc = 240;
+        // public static final double absoluteOffset = 0.49;
+        public static final double absoluteOffset = 0.52;
 
         public static final double feederP = 0;
         public static final double feederI = 0;
@@ -109,5 +115,5 @@ public class Constants {
         public static final double maxAccel = 1;
     }
 
-    public static final boolean defaultControlMode = true;
+    public static final boolean defaultControlMode = false;
 }

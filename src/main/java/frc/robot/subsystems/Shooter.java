@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Constants;
@@ -23,10 +24,42 @@ import frc.robot.utils.Constants;
  * Shooter class
  */
 public class Shooter extends SubsystemBase{
+    public enum ControlState {
+        AUTOMATIC,
+        MANUAL;
+    }
+
+    public enum PositionState {
+        IDLE(0.19),
+        SHOOT(0.11),
+        AMP(0.35),
+        HANDOFF(0.17);
+
+        public double pos;
+        private PositionState(double pos) {
+            this.pos = pos;
+        }
+    }
+
+    public enum MovementState {
+        MOVING,
+        AT_GOAL;
+    }
+
     private static Shooter instance = null;
-    private boolean positionOpenLoopControl = Constants.defaultControlMode;
-    private double positionOpenLoopOutput = 0;
-    private double targetPosition = Superstructure.ShooterState.IDLE.pos;
+    private ControlState controlState = ControlState.AUTOMATIC;
+    private MovementState movementState = MovementState.MOVING;
+    private PositionState lastState = PositionState.IDLE;
+    private PositionState goalState = PositionState.IDLE;
+    private PositionState lastGoalState = PositionState.IDLE;
+    private double targetOpenLoopOutput = 0;
+    private double targetSpeed = 0;
+    private double targetFeederSpeed = 0;
+    private boolean hasGamePiece = false;
+    private boolean ready = false;
+    private double startTime = 0;
+    private double travelTime = 1;
+    private double feederBackOffTime = 0.75;
 
     private final TalonFX shooterTop;
     private final TalonFX shooterBottom;
@@ -42,7 +75,7 @@ public class Shooter extends SubsystemBase{
 
     private final CANSparkMax positionMotor;
     private final RelativeEncoder positionEncoder;
-    // private final AbsoluteEncoder absoluteEncoder;
+    private final AbsoluteEncoder absoluteEncoder;
     private final SparkPIDController positionController;
 
     public static Shooter getInstance() {
@@ -55,15 +88,16 @@ public class Shooter extends SubsystemBase{
 
     public Shooter() {
         shooterTop = new TalonFX(Constants.Shooter.topCANID);
-        shooterTop.setNeutralMode(NeutralModeValue.Coast);
+        shooterTop.setNeutralMode(NeutralModeValue.Brake);
         shooterTop.setInverted(true);
         
         shooterBottom = new TalonFX(Constants.Shooter.bottomCANID);
-        shooterBottom.setNeutralMode(NeutralModeValue.Coast);
+        shooterBottom.setNeutralMode(NeutralModeValue.Brake);
         shooterBottom.setInverted(true);
 
         feeder = new TalonFX(Constants.Shooter.feederCANID);
         feeder.setNeutralMode(NeutralModeValue.Coast);
+        feeder.setInverted(true);
 
         shooterTopConfig = new TalonFXConfiguration();
         shooterBottomConfig = new TalonFXConfiguration();
@@ -96,12 +130,20 @@ public class Shooter extends SubsystemBase{
         positionMotor.restoreFactoryDefaults();
         positionMotor.setIdleMode(IdleMode.kBrake);
         positionMotor.setInverted(true);
+        positionMotor.setSmartCurrentLimit(40);
 
+        absoluteEncoder = positionMotor.getAbsoluteEncoder(Type.kDutyCycle);
+        absoluteEncoder.setZeroOffset(Constants.Shooter.absoluteOffset);
+        absoluteEncoder.setInverted(true);
+        
         positionEncoder = positionMotor.getEncoder();
         positionEncoder.setPositionConversionFactor(Constants.Shooter.conversionFactor);
         positionEncoder.setVelocityConversionFactor(Constants.Shooter.conversionFactor);
+        resetPosition(absoluteEncoder.getPosition());
+
 
         positionController = positionMotor.getPIDController();
+        positionController.setFeedbackDevice(absoluteEncoder);
         positionController.setP(Constants.Shooter.positionP);
         positionController.setI(Constants.Shooter.positionI);
         positionController.setD(Constants.Shooter.positionD);
@@ -117,33 +159,64 @@ public class Shooter extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if (!positionOpenLoopControl) {
-            positionController.setReference(targetPosition, ControlType.kSmartMotion, 0,
-                Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
-        } else {
-            positionMotor.set(positionOpenLoopOutput);
+        if (lastState == PositionState.HANDOFF && hasGamePiece) {
+            setFeederSpeed(0.1);
+        } else if (lastState == PositionState.HANDOFF && !hasGamePiece) {
+            setFeederSpeed(0);
+        } else if (goalState == PositionState.SHOOT && (Timer.getFPGATimestamp() < startTime + feederBackOffTime)) {
+            setFeederSpeed(-0.2);
+            setShootSpeed(-5);
+        } else if (goalState == PositionState.SHOOT && (Timer.getFPGATimestamp() > startTime + feederBackOffTime) && !ready) {
+            setFeederSpeed(0);
+            setShootSpeed(80);
+            ready = true;
+        } else if (!(goalState == PositionState.SHOOT)){
+            // setShootSpeed(0);
         }
 
+        if (goalState == PositionState.SHOOT && lastGoalState == PositionState.HANDOFF) {
+            startTime = Timer.getFPGATimestamp();
+            ready = false;
+        }
+
+        hasGamePiece = hasGamePiece();
+
+        if (controlState == ControlState.AUTOMATIC) {
+            positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0,
+                Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
+        } else {
+            positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
+        }
+        feeder.set(targetFeederSpeed);
+
+        movementState = atGoal() ? MovementState.AT_GOAL : MovementState.MOVING;
+        lastState = atGoal() ? goalState : lastState;
+        lastGoalState = goalState;
+
         SmartDashboard.putNumber("Shooter/measuredPosition", getPosition());
+        SmartDashboard.putNumber("Shooter/absolute Position", absoluteEncoder.getPosition());
+        SmartDashboard.putNumber("Shooter/position temp", positionMotor.getMotorTemperature());
+        SmartDashboard.putNumber("Shooter/positionCurrent", positionMotor.getOutputCurrent());
+        SmartDashboard.putBoolean("Shooter/atGoal", atGoal());
+        SmartDashboard.putString("Shooter/goalState", goalState.toString());
+        SmartDashboard.putString("Shooter/lastState", lastState.toString());
+        SmartDashboard.putBoolean("Shooter/hasGamePiece", hasGamePiece);
+        SmartDashboard.putNumber("Shooter/voltage", shooterBottom.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
+        SmartDashboard.putBoolean("Shooter/ready", ready);
     }
-
-    /**
-     * Set the rotational position of the shooter
-     * @param position double of the anglular position
-     */
-    public void moveTo(double position) {
-        targetPosition = position;
-    }
-
+    
     /**
      * Set the velocity of the shooter
      * @param speed double of the velocity
      */
     public void setShootSpeed(double speed) {
-        // shooterBottom.setControl(shooterBottomVelocityVolt.withVelocity(speed));
-        // shooterTop.setControl(shooterTopVelocityVolt.withVelocity(speed));
-        shooterBottom.set(speed);
-        shooterTop.set(speed);
+        this.targetSpeed = speed;
+        shooterBottom.setControl(shooterBottomVelocityVolt.withVelocity(speed));
+        shooterTop.setControl(shooterTopVelocityVolt.withVelocity(speed));
+        // shooterBottom.setVoltage(speed * 12);
+        // shooterTop.setVoltage(speed * 12);
     }
 
     /**
@@ -152,26 +225,62 @@ public class Shooter extends SubsystemBase{
      */
     public void setFeederSpeed(double speed) {
         // feeder.setControl(feederVelocityVolt.withVelocity(speed));
-        feeder.set(speed);
-    }
-
-    private boolean isPoseValid(double position) {
-        return true;
+        targetFeederSpeed = speed;
     }
 
     public void setPositionSpeed(double speed) {
-        positionOpenLoopOutput = speed * 0.2;
+        targetOpenLoopOutput = speed * 0.2;
     }
 
-    public void resetPosition(double newPosition) {
-        positionEncoder.setPosition(newPosition);
+    /**
+     * Set the rotational position of the shooter
+     * @param position double of the anglular position
+     */
+    public void moveTo(PositionState positionState) {
+        goalState = positionState;
     }
 
+    public void setControlState(ControlState controlState) {
+        this.controlState = controlState;
+    }
+
+    public boolean atGoal() {
+        return ((getAbsolutePosition() > (goalState.pos - 0.005)) && (getAbsolutePosition() < (goalState.pos + 0.005)));
+    }
+
+    public MovementState getMovementState() {
+        return movementState;
+    }
+    
     public double getPosition() {
         return positionEncoder.getPosition();
     }
 
-    public void setOpenLoopControl(boolean controlMode) {
-        this.positionOpenLoopControl = controlMode;
+    public double getAbsolutePosition() {
+        return absoluteEncoder.getPosition();
+    }
+
+    public void resetPosition(double newPosition) {
+        positionEncoder.setPosition(absoluteEncoder.getPosition());
+    }
+
+    public void startHandoff() {
+        startTime = Timer.getFPGATimestamp();
+        hasGamePiece = true;
+    }
+
+    public boolean hasGamePiece() {
+        // return false;
+        if (Timer.getFPGATimestamp() > startTime + travelTime) {
+            return false;
+        }
+        return true;
+    }
+
+    public void reset() {
+        goalState = PositionState.IDLE;
+        lastGoalState = PositionState.IDLE;
+        lastState = PositionState.IDLE;
+        movementState = MovementState.MOVING;
     }
 }
