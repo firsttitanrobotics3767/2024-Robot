@@ -1,11 +1,13 @@
 package frc.robot.subsystems;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -34,9 +36,9 @@ public class Vision extends SubsystemBase{
 
         aprilTagCam = new PhotonCamera("Arducam_OV9281_USB_Camera");
         //Transform3d robotToCam = new Transform3d(new Translation3d(-0.298, 0, 0.205), new Rotation3d(0, Units.degreesToRadians(45), 0));
-        Transform3d robotToCamNeptune = new Transform3d(new Translation3d(-Units.inchesToMeters(26.5), 0, Units.inchesToMeters(5)), new Rotation3d(0, Units.degreesToRadians(3.5), Units.degreesToRadians(180)));
+        Transform3d robotToCamNeptune = new Transform3d(new Translation3d(-Units.inchesToMeters(13.25), 0, Units.inchesToMeters(5)), new Rotation3d(0, Units.degreesToRadians(3.5), Units.degreesToRadians(180)));
 
-        photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, aprilTagCam, robotToCamNeptune);
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.AVERAGE_BEST_TARGETS, aprilTagCam, robotToCamNeptune);
 
     }
 
@@ -46,12 +48,21 @@ public class Vision extends SubsystemBase{
         hasTargets = result.hasTargets();
 
         if (hasTargets) {
-            estimatedPose = getEstimatedGlobalPose(drivetrain.getPose());
-            System.out.println(estimatedPose);
-
-            if (estimatedPose.isPresent()) {
-                drivetrain.addVisionMeasurement(estimatedPose.get().estimatedPose);
+            List<PhotonTrackedTarget> targets = result.targets;
+            for (PhotonTrackedTarget target : targets) {
+                if (target.getPoseAmbiguity() >= 0.08) {
+                    System.out.println("not estimating");
+                    break;
+                } else {
+                    estimatedPose = getEstimatedGlobalPose(drivetrain.getPose());
+                    System.out.println(estimatedPose.get().estimatedPose);
+        
+                    if (estimatedPose.isPresent()) {
+                        drivetrain.addVisionMeasurement(estimatedPose.get().estimatedPose);
+                    }
+                }
             }
+
         }
 
     }   
