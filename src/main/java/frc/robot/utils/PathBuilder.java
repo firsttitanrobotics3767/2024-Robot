@@ -6,10 +6,15 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.Drivetrain;
 
 public class PathBuilder {
     private static final SendableChooser<String> StartingQuestion = new SendableChooser<String>();
@@ -18,6 +23,8 @@ public class PathBuilder {
     private static final SendableChooser<String> question3 = new SendableChooser<String>();
     private static final SendableChooser<String> question4 = new SendableChooser<String>();
     private static final SendableChooser<String> question5 = new SendableChooser<String>();
+
+    private static final Drivetrain drivetrain = Drivetrain.getInstance();
 
     public static List<PathPlannerPath> getPathList() {
         ArrayList<String> autoPoses = new ArrayList<String>();
@@ -49,6 +56,13 @@ public class PathBuilder {
 
     public static Command getFullPathCommand() {
         SequentialCommandGroup commandGroup = new SequentialCommandGroup();
+        if (StartingQuestion.getSelected() == "Front") {
+            drivetrain.resetOdometry(new Pose2d(new Translation2d(1.30, 5.5), new Rotation2d(0)));
+        } else if (StartingQuestion.getSelected() == "S1") {
+            drivetrain.resetOdometry(new Pose2d(new Translation2d(0.75, 4.5), new Rotation2d(Units.degreesToRadians(-60))));
+        } else if (StartingQuestion.getSelected() == "S2") {
+            drivetrain.resetOdometry(new Pose2d(new Translation2d(0.75, 6.6), new Rotation2d(Units.degreesToRadians(60))));
+        }
         for (PathPlannerPath path : getPathList()) {
             commandGroup.addCommands(AutoBuilder.followPath(path));
         }

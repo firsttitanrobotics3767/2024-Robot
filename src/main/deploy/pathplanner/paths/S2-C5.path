@@ -45,7 +45,7 @@
   "reversed": false,
   "folder": "S2-Cx",
   "previewStartingState": {
-    "rotation": -120.0,
+    "rotation": 60.0,
     "velocity": 0
   },
   "useDefaultConstraints": true
