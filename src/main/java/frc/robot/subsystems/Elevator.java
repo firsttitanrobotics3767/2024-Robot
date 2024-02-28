@@ -52,7 +52,7 @@ public class Elevator extends SubsystemBase{
         SmartDashboard.putNumber("elevator/measuredPos", elevatorEncoder.getPosition());
         SmartDashboard.putNumber("elevator/velocity", elevatorEncoder.getVelocity());
 
-        // pidController.setReference(targetPos, ControlType.kSmartMotion, 0, Constants.Elevator.gravityFFVolts);
+        pidController.setReference(targetPos, ControlType.kSmartMotion);
     }
 
     public void moveTo(double pos) {

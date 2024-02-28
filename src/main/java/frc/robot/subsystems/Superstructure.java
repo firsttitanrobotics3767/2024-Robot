@@ -4,10 +4,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Superstructure extends SubsystemBase {
+    private static Superstructure instance = null;
+    public static Superstructure getInstance() {
+        if (instance == null) {
+            instance = new Superstructure();
+        }
+
+        return instance;
+    }
 
     private SystemState lastGoalState = SystemState.STOW;
     private SystemState lastState = SystemState.STOW;
     private SystemState goalState = SystemState.STOW;
+
+    public static boolean hasGamePiece = false;
 
     private final Drivetrain drivetrain = Drivetrain.getInstance();
     private final Intake intake = Intake.getInstance();

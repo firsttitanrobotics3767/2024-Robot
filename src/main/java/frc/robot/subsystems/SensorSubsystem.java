@@ -4,7 +4,17 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class NetworkTables extends SubsystemBase {
+public class SensorSubsystem extends SubsystemBase {
+  private static SensorSubsystem instance = null;
+  public static SensorSubsystem getInstance() {
+    if (instance == null) {
+      instance = new SensorSubsystem();
+    }
+
+    return instance;
+  }
+
+
   // test variables
   double x;
   double y;
@@ -18,7 +28,7 @@ public class NetworkTables extends SubsystemBase {
   String intakeTopic = "READY TO FIRE";
   String shooterTopic = "HAS RING";
 
-  public NetworkTables () {}
+  public SensorSubsystem () {}
 
   public void reader() {
     // testing
@@ -87,16 +97,19 @@ public class NetworkTables extends SubsystemBase {
   //   }
   // }
 
-    @Override
-    public void periodic() {
-      heartbeat2 = heartbeat1;
-      heartbeat1 = SmartDashboard.getNumber("orangepi_heartbeat", heartbeat1);
-      if (heartbeat1 != heartbeat2 && heartbeat1 > 600) {
-        SmartDashboard.putBoolean("ORANGE PI IS ALIVE", true);
-      } else {
-        SmartDashboard.putBoolean("ORANGE PI IS ALIVE", false);
-      }
+  @Override
+  public void periodic() {
+    intakeDistance = SmartDashboard.getNumber("Intake/sensorDistance", intakeDistance);
+    shooterDistance = SmartDashboard.getNumber("Shooter/sensorDistance", shooterDistance);
+    
+    heartbeat2 = heartbeat1;
+    heartbeat1 = SmartDashboard.getNumber("orangepi_heartbeat", heartbeat1);
+    if (heartbeat1 != heartbeat2 && heartbeat1 > 600) {
+      SmartDashboard.putBoolean("ORANGE PI IS ALIVE", true);
+    } else {
+      SmartDashboard.putBoolean("ORANGE PI IS ALIVE", false);
     }
+  }
 
   public double getIntakeDistance() {
     return intakeDistance;

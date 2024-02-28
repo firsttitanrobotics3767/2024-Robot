@@ -14,7 +14,6 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,7 +32,7 @@ public class Shooter extends SubsystemBase{
         IDLE(0.19),
         SHOOT(0.11),
         AMP(0.35),
-        HANDOFF(0.17);
+        HANDOFF(0.165);
 
         public double pos;
         private PositionState(double pos) {
@@ -55,11 +54,13 @@ public class Shooter extends SubsystemBase{
     private double targetOpenLoopOutput = 0;
     private double targetSpeed = 0;
     private double targetFeederSpeed = 0;
-    private boolean hasGamePiece = false;
+    public static boolean hasGamePiece = false;
     private boolean ready = false;
     private double startTime = 0;
     private double travelTime = 1;
     private double feederBackOffTime = 0.75;
+    private double sensorDistance = 0;
+    private boolean auton = false;
 
     private final TalonFX shooterTop;
     private final TalonFX shooterBottom;
@@ -96,7 +97,7 @@ public class Shooter extends SubsystemBase{
         shooterBottom.setInverted(true);
 
         feeder = new TalonFX(Constants.Shooter.feederCANID);
-        feeder.setNeutralMode(NeutralModeValue.Coast);
+        feeder.setNeutralMode(NeutralModeValue.Brake);
         feeder.setInverted(true);
 
         shooterTopConfig = new TalonFXConfiguration();
@@ -159,25 +160,25 @@ public class Shooter extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if (lastState == PositionState.HANDOFF && hasGamePiece) {
-            setFeederSpeed(0.1);
-        } else if (lastState == PositionState.HANDOFF && !hasGamePiece) {
-            setFeederSpeed(0);
-        } else if (goalState == PositionState.SHOOT && (Timer.getFPGATimestamp() < startTime + feederBackOffTime)) {
-            setFeederSpeed(-0.2);
-            setShootSpeed(-5);
-        } else if (goalState == PositionState.SHOOT && (Timer.getFPGATimestamp() > startTime + feederBackOffTime) && !ready) {
-            setFeederSpeed(0);
-            setShootSpeed(80);
-            ready = true;
-        } else if (!(goalState == PositionState.SHOOT)){
-            // setShootSpeed(0);
-        }
-
-        if (goalState == PositionState.SHOOT && lastGoalState == PositionState.HANDOFF) {
-            startTime = Timer.getFPGATimestamp();
-            ready = false;
-        }
+        sensorDistance = SmartDashboard.getNumber("Shooter/sensorDistance", 0);
+        // if (!auton) {
+        //     if (lastState == PositionState.HANDOFF && !hasGamePiece && Superstructure.hasGamePiece) {
+        //         setFeederSpeed(0.1);
+        //     } else if (lastState == PositionState.HANDOFF && hasGamePiece) {
+        //         setFeederSpeed(0);
+        //     // } else if (goalState == PositionState.SHOOT && (Timer.getFPGATimestamp() < startTime + feederBackOffTime)) {
+        //     //     setFeederSpeed(-0.2);
+        //     //     setShootSpeed(-5);
+        //     // } else if (goalState == PositionState.SHOOT && (Timer.getFPGATimestamp() > startTime + feederBackOffTime) && !ready) {
+        //     //     setFeederSpeed(0);
+        //     //     setShootSpeed(80);
+        //     //     ready = true;
+        //     } else if (goalState == PositionState.SHOOT) {
+        //         setShootSpeed(80);
+        //     } else if (!(goalState == PositionState.SHOOT)){
+        //         setShootSpeed(0);
+        //     }
+        // }
 
         hasGamePiece = hasGamePiece();
 
@@ -187,6 +188,7 @@ public class Shooter extends SubsystemBase{
         } else {
             positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
         }
+
         feeder.set(targetFeederSpeed);
 
         movementState = atGoal() ? MovementState.AT_GOAL : MovementState.MOVING;
@@ -205,6 +207,7 @@ public class Shooter extends SubsystemBase{
         SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
         SmartDashboard.putBoolean("Shooter/ready", ready);
+        SmartDashboard.putNumber("Shooter/torque", feeder.getTorqueCurrent().getValueAsDouble());
     }
     
     /**
@@ -215,8 +218,6 @@ public class Shooter extends SubsystemBase{
         this.targetSpeed = speed;
         shooterBottom.setControl(shooterBottomVelocityVolt.withVelocity(speed));
         shooterTop.setControl(shooterTopVelocityVolt.withVelocity(speed));
-        // shooterBottom.setVoltage(speed * 12);
-        // shooterTop.setVoltage(speed * 12);
     }
 
     /**
@@ -224,7 +225,6 @@ public class Shooter extends SubsystemBase{
      * @param speed double of the velocity
      */
     public void setFeederSpeed(double speed) {
-        // feeder.setControl(feederVelocityVolt.withVelocity(speed));
         targetFeederSpeed = speed;
     }
 
@@ -270,11 +270,14 @@ public class Shooter extends SubsystemBase{
     }
 
     public boolean hasGamePiece() {
-        // return false;
-        if (Timer.getFPGATimestamp() > startTime + travelTime) {
-            return false;
-        }
-        return true;
+        // if (Timer.getFPGATimestamp() > startTime + travelTime) {
+        //     return false;
+        // }
+        // return true;
+        // if (sensorDistance < Constants.Shooter.sensorThreshhold) {
+        //     return true;
+        // }
+        return (feeder.getTorqueCurrent().getValueAsDouble() > 10);
     }
 
     public void reset() {
@@ -282,5 +285,9 @@ public class Shooter extends SubsystemBase{
         lastGoalState = PositionState.IDLE;
         lastState = PositionState.IDLE;
         movementState = MovementState.MOVING;
+    }
+
+    public void setAuton(boolean auton) {
+        this.auton = auton;
     }
 }

@@ -49,13 +49,13 @@ public class Constants {
 
         public static final double defaultPosition = 1;
 
-        public static final double sensorThreshhold = 20;
+        public static final double sensorThreshhold = 50;
     }
 
     public static class Elevator {
         public static final int motorID = 15;
         public static final double conversionFactor = 1;
-        public static final double kP = 0;
+        public static final double kP = 0.1;
         public static final double kI = 0;
         public static final double kD = 0;
         public static final double gravityFFVolts = 0;
@@ -97,6 +97,8 @@ public class Constants {
         public static final double feederI = 0;
         public static final double feederD = 0;
         public static final double feederFF = 0;
+
+        public static final double sensorThreshhold = 33;
     }
 
     public static class Sensors {

@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,7 +29,7 @@ public class Intake extends SubsystemBase{
     }
 
     public enum PositionState {
-        GROUND(0.0),
+        GROUND(0.005),
         SCORING(0.2),
         STOW(0.32);
         // STOW(0.02);
@@ -45,6 +46,8 @@ public class Intake extends SubsystemBase{
     }
 
     private static Intake instance = null;
+    // private final Superstructure superstructure = Superstructure.getInstance();
+    // private final Shooter shooter = Shooter.getInstance();
     private ControlState controlState = ControlState.AUTOMATIC;
     private MovementState movementState = MovementState.MOVING;
     private PositionState lastState = PositionState.STOW;
@@ -55,6 +58,7 @@ public class Intake extends SubsystemBase{
     private boolean hasGamePiece = false;
     private double startTime = 0;
     private double travelTime = 1;
+    private double sensorDistance = 0;
 
     
     
@@ -70,6 +74,8 @@ public class Intake extends SubsystemBase{
     private final TalonFX rollerMotor;
     private final TalonFXConfiguration rollerConfig;
 
+    private final DigitalInput sensor = new DigitalInput(0);
+
     // Pivot
     private final CANSparkMax positionMotor;
     private final RelativeEncoder positionEncoder;
@@ -81,7 +87,7 @@ public class Intake extends SubsystemBase{
         rollerConfig = new TalonFXConfiguration();
         rollerMotor.getConfigurator().apply(rollerConfig);
         rollerMotor.setNeutralMode(NeutralModeValue.Brake);
-        rollerMotor.setInverted(true);
+        rollerMotor.setInverted(false);
 
 
         positionMotor = new CANSparkMax(Constants.Intake.positionCANID, MotorType.kBrushless);
@@ -119,17 +125,8 @@ public class Intake extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if (goalState == PositionState.GROUND) {
-            setRollerSpeed(0.3);
-        } else if (goalState == PositionState.SCORING && movementState == MovementState.MOVING) {
-            setRollerSpeed(0.1);
-        } else if (lastState == PositionState.STOW && hasGamePiece) {
-            setRollerSpeed(0.3);
-        } else {
-            setRollerSpeed(0);
-        }
-
-        hasGamePiece = (hasGamePiece());
+        // sensorDistance = SmartDashboard.getNumber("Intake/sensorDistance", 0);
+        hasGamePiece = hasGamePiece();
 
         if (controlState == ControlState.AUTOMATIC) {
             positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0, 
@@ -141,10 +138,10 @@ public class Intake extends SubsystemBase{
 
         lastState = atGoal()  ? goalState : lastState;
 
-        if (!hasGamePiece && lastState == PositionState.STOW && movementState == MovementState.MOVING && goalState == PositionState.STOW) {
-            startHandoff();
-            Shooter.getInstance().startHandoff();
-        }
+        // if (!hasGamePiece && lastState == PositionState.STOW && movementState == MovementState.MOVING && goalState == PositionState.STOW) {
+        //     startHandoff();
+        //     Shooter.getInstance().startHandoff();
+        // }
 
         movementState = atGoal() ? MovementState.AT_GOAL : MovementState.MOVING;
 
@@ -156,6 +153,8 @@ public class Intake extends SubsystemBase{
         SmartDashboard.putString("Intake/lastState", lastState.toString());
         SmartDashboard.putString("Intake/goalState", goalState.toString());
         SmartDashboard.putBoolean("Intake/hasGamePiece", hasGamePiece);
+        SmartDashboard.putBoolean("intkae sensor", sensor.get());
+        SmartDashboard.putNumber("Intake/roller torque", rollerMotor.getTorqueCurrent().getValueAsDouble());
     }
 
     /**
@@ -211,21 +210,30 @@ public class Intake extends SubsystemBase{
         positionEncoder.setPosition(absoluteEncoder.getPosition());
     }
 
-    public double getSensorDistance() {
-        return 15;
-    }
+    // public double getSensorDistance() {
+    //     return 15;
+    // }
 
     public void startHandoff() {
-        startTime = Timer.getFPGATimestamp();
-        hasGamePiece = true;
+        // startTime = Timer.getFPGATimestamp();
+        // hasGamePiece = true;
     }
 
     public boolean hasGamePiece() {
         // return false;
-        if (Timer.getFPGATimestamp() > startTime + travelTime) {
-            return false;
-        }
-        return true;
+        // if (Timer.getFPGATimestamp() > startTime + travelTime) {
+        //     return false;
+        // }
+        // return true;
+        // if (sensorDistance < Constants.Intake.sensorThreshhold && sensorDistance != 0.0) {
+        //     return true;
+        // }
+        // return sensor.get();
+        return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 20.0;
+    }
+
+    public double getTorqueCurrent() {
+        return rollerMotor.getTorqueCurrent().getValueAsDouble();
     }
 
     public void reset() {
