@@ -16,18 +16,24 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS5Controller;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.Amp;
 import frc.robot.commands.AutoIntake;
 import frc.robot.commands.SetSuperstructureState;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.Drivetrain.TeleopDrive;
+import frc.robot.commands.intake.SetIntakePosition;
+import frc.robot.commands.shooter.SetShooterPosition;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
@@ -52,10 +58,13 @@ public class RobotContainer {
 
   private final Superstructure superstructure = new Superstructure();
 
-  CommandJoystick driver = new CommandJoystick(0);
+  // CommandJoystick driver = new CommandJoystick(0);
+  // CommandPS5Controller driver = new CommandPS5Controller(0);
+  PS5Controller driver = new PS5Controller(0);
   // PS5Controller driverRumble = new PS5Controller(0);
   // GenericHID driverRumble = new GenericHID(0);
-  CommandJoystick operator = new CommandJoystick(1);
+  // CommandJoystick operator = new CommandJoystick(1);
+  PS5Controller operator = new PS5Controller(1);
 
   SendableChooser<Command> autoChooser;
 
@@ -68,17 +77,18 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
-      () -> !driver.button(IO.driveModeButton).getAsBoolean(),
+      () -> !driver.getRawButton(IO.driveModeButton),
       () -> faceLocation
     ));
     // intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
     // shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(5)), shooter));
     // climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(operator.getRawAxis(2)), climber));
-    elevator.setDefaultCommand(new RunCommand(() -> elevator.setSpeed(operator.getRawAxis(2)), elevator));
-    climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(operator.getRawAxis(1)), climber));
+    elevator.setDefaultCommand(new RunCommand(() -> elevator.setSpeed(-operator.getRawAxis(1)), elevator));
+    climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(operator.getRawAxis(5)), climber));
 
-    NamedCommands.registerCommand("Start", new InstantCommand(() -> {shooter. setShootSpeed(80); shooter.setFeederSpeed(0.3); shooter.setAuton(true);}));
-    NamedCommands.registerCommand("Intake", new InstantCommand(() -> superstructure.setGoalState(SystemState.INTAKE)));
+    NamedCommands.registerCommand("Start", new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.SHOOT); shooter. setShootSpeed(80); intake.moveTo(Intake.PositionState.GROUND); intake.setRollerSpeed(0.3);}).andThen(new WaitCommand(0.3)).andThen(new InstantCommand(() -> shooter.setFeederSpeed(0.3))).andThen(new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.SCORE_3);})));
+    NamedCommands.registerCommand("Wait For Ring", new InstantCommand(() -> {intake.moveTo(Intake.PositionState.GROUND); intake.setRollerSpeed(0.3);}).andThen(new WaitUntilCommand(() -> intake.hasGamePiece()).andThen(new InstantCommand(() -> {intake.setRollerSpeed(0);})).andThen(new SetIntakePosition(Intake.PositionState.STOW)).andThen(new InstantCommand(() -> {intake.setRollerSpeed(0.3); shooter.setFeederSpeed(0.3);}))).andThen(new WaitCommand(0.5)));
+    NamedCommands.registerCommand("Intake", new InstantCommand(() -> {intake.moveTo(Intake.PositionState.GROUND); intake.setRollerSpeed(0.3);}));
     autoChooser = AutoBuilder.buildAutoChooser();
     PathBuilder.setupQuestions();
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -87,24 +97,28 @@ public class RobotContainer {
 
 
   private void configureBindings() {
-    Command intakeCommand = new AutoIntake();
+    Command intakeCommand = new AutoIntake(operator);
+    Trigger resetGyroButton = new Trigger(() -> driver.getRawButton(IO.resetGyroButton));
 
-    driver.button(IO.resetGyroButton).onTrue(new InstantCommand(drivetrain::zeroGyro));
-    driver.button(IO.resetOdometryButton).onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
-    // driver.button(IO.faceSpeakerButton).onTrue(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.SPEAKER));
-    // driver.button(IO.faceSpeakerButton).onFalse(new InstantCommand(() -> faceLocation = Drivetrain.FieldLocation.NONE));
+    Trigger intakeButton = new Trigger(() -> operator.getRawButton(IO.intakeButton));
+    Trigger cancelIntakeButton = new Trigger(() -> operator.getRawButton(IO.cancelIntakeButton));
+    Trigger prepareSpeakerButton = new Trigger(() -> operator.getRawButton(IO.prepareSpeakerButton));
+    Trigger prepareSafeShootButton = new Trigger(() -> {return operator.getPOV() == IO.safeShootPOV;});
+    Trigger prepareAmpButton = new Trigger(() -> operator.getRawButton(IO.prepareAmpButton));
+    Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
+    Trigger resetSuperstructureButton = new Trigger(() -> operator.getRawButton(IO.resetSuperstructureButton));
 
-    // driver.button(IO.resetIntakePositionButton).onTrue(new InstantCommand(() -> {shooter.resetPosition(0); intake.resetPosition(0);}));
-    // driver.button(IO.intakeButton).whileTrue(new InstantCommand(() -> superstructure.setGoalState(SystemState.INTAKE))).onFalse(new InstantCommand(() -> superstructure.setGoalState(SystemState.STOW)));
-    // driver.button(IO.intakeButton).whileTrue(new AutoIntake()).onFalse(new InstantCommand(() -> {superstructure.setGoalState(Superstructure.SystemState.STOW); intake.setRollerSpeed(0); shooter.setFeederSpeed(0);}, superstructure, intake, shooter));
-    operator.button(IO.intakeButton).onTrue(intakeCommand);
-    operator.button(4).onTrue(new SetSuperstructureState(Superstructure.SystemState.STOW).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0);})));
-    operator.button(5).onTrue(new Shoot(() -> driver.button(14).getAsBoolean()));
-    operator.button(2).whileTrue(new InstantCommand(() -> intake.setRollerSpeed(-0.3))).onFalse(new InstantCommand(() -> intake.setRollerSpeed(0)));
-    // operator.button(1).onTrue(new InstantCommand(() -> {shooter.setControlState(Shooter.ControlState.MANUAL); intake.setControlState(Intake.ControlState.MANUAL);}));
-    // operator.button(3).onTrue(new InstantCommand(() -> {shooter.setControlState(Shooter.ControlState.AUTOMATIC); intake.setControlState(Intake.ControlState.AUTOMATIC);}));
-    operator.button(10).onTrue(new InstantCommand(() -> superstructure.reset()));
-    // driver.pov(0).onTrue(new InstantCommand(() -> elevator.moveTo(-5)));
+    resetGyroButton.onTrue(new InstantCommand(drivetrain::zeroGyro));
+
+    intakeButton.onTrue(intakeCommand);
+    cancelIntakeButton.onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.HANDOFF)).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0);})));
+    prepareSpeakerButton.onTrue(new Shoot(() -> shootButton.getAsBoolean()));
+    prepareAmpButton.onTrue(new Amp(() -> shootButton.getAsBoolean()));
+    resetSuperstructureButton.onTrue(new InstantCommand(() -> superstructure.reset()));
+    new Trigger(() -> operator.getRawButton(3)).onTrue(new InstantCommand(() -> elevator.moveTo(Elevator.PositionState.AMP)));
+    new Trigger(() -> operator.getRawButton(10)).onTrue(new InstantCommand(() -> elevator.resetPosition()));
+    new Trigger(() -> operator.getRawButton(14)).onTrue(new SetIntakePosition(Intake.PositionState.GROUND).alongWith(new SetShooterPosition(Shooter.PositionState.AMP)));
+    new Trigger(() -> operator.getRawButton(9)).onTrue(new InstantCommand(() -> {shooter.setShootSpeed(20); shooter.setFeederSpeed(0.3);}));
   }
 
 

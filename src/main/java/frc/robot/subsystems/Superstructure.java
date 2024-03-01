@@ -61,20 +61,24 @@ public class Superstructure extends SubsystemBase {
 
     private void moveToGoalState() {
         // potentially good logic to sequence/schedule movement
-        if (lastState == SystemState.STOW && goalState == SystemState.PREPARE_SPEAKER) {
-            intake.moveTo(goalState.intakeState);
-            if (intake.atGoal()) {
-                shooter.moveTo(goalState.shooterState);
-            }
-        } else if (lastState == SystemState.PREPARE_SPEAKER && goalState == SystemState.STOW){
-            shooter.moveTo(goalState.shooterState);
-            if (shooter.atGoal()) {
-                intake.moveTo(goalState.intakeState);
-            }
-        } else {
-            intake.moveTo(goalState.intakeState);
-            shooter.moveTo(goalState.shooterState);
-        }
+        // if (goalState == SystemState.PREPARE_SPEAKER) {
+        //     intake.moveTo(goalState.intakeState);
+        //     if (intake.atGoal()) {
+        //         shooter.moveTo(goalState.shooterState);
+        //     }
+        // // } else if (lastState == SystemState.PREPARE_SPEAKER && goalState == SystemState.STOW){
+        // //     shooter.moveTo(goalState.shooterState);
+        // //     if (shooter.atGoal()) {
+        // //         intake.moveTo(goalState.intakeState);
+        // //     }
+        // // } else {
+        // //     intake.moveTo(goalState.intakeState);
+        // //     shooter.moveTo(goalState.shooterState);
+        // // }
+        // } else {
+        //     intake.moveTo(goalState.intakeState);
+        //     shooter.moveTo(goalState.shooterState);
+        // }
     }
 
     public void setGoalState(SystemState goalState) {

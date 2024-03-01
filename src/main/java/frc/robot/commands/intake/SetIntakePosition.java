@@ -24,7 +24,7 @@ public class SetIntakePosition extends Command {
 
     @Override
     public boolean isFinished() {
-        // return intake.atGoal();
-        return true;
+        return intake.atGoal();
+        // return true;
     }
 }

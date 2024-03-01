@@ -65,11 +65,7 @@ public class Climber extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if (!openLoopControl) {
-            pidController.setReference(targetPos, ControlType.kSmartMotion);
-        } else {
             leader.set(targetOpenLoopOutput);
-        }
     } 
 
     public void moveTo(double position) {

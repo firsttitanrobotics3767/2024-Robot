@@ -30,7 +30,7 @@ public class Intake extends SubsystemBase{
 
     public enum PositionState {
         GROUND(0.005),
-        SCORING(0.2),
+        SCORING(0.15),
         STOW(0.32);
         // STOW(0.02);
 
@@ -97,7 +97,7 @@ public class Intake extends SubsystemBase{
         positionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         positionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
         positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.32);
-        positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.01);
+        positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.0);
         positionMotor.setOpenLoopRampRate(Constants.Intake.openLoopRampRate);
         positionMotor.setSmartCurrentLimit(40);
         
@@ -229,7 +229,7 @@ public class Intake extends SubsystemBase{
         //     return true;
         // }
         // return sensor.get();
-        return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 20.0;
+        return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 30.0;
     }
 
     public double getTorqueCurrent() {

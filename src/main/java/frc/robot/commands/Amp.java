@@ -13,13 +13,13 @@ import frc.robot.commands.intake.SetIntakePosition;
 import frc.robot.commands.shooter.SetShooterPosition;
 import frc.robot.subsystems.Intake;
 
-public class Shoot extends SequentialCommandGroup {
+public class Amp extends SequentialCommandGroup {
     private final Superstructure superstructure = Superstructure.getInstance();
     private final Shooter shooter = Shooter.getInstance();
     private final Intake intake = Intake.getInstance();
     private final BooleanSupplier shootButton;
 
-    public Shoot(BooleanSupplier shootButton) {
+    public Amp(BooleanSupplier shootButton) {
         this.shootButton = shootButton;
         addCommands(
             new InstantCommand(() -> intake.setRollerSpeed(0.1)),
@@ -29,11 +29,11 @@ public class Shoot extends SequentialCommandGroup {
             // new WaitUntilCommand(() -> shooter.atGoal()),
             new InstantCommand(() -> intake.moveTo(Intake.PositionState.SCORING)),
             new WaitCommand(0.3),
-            new SetShooterPosition(Shooter.PositionState.SHOOT),
+            new SetShooterPosition(Shooter.PositionState.AMP).withTimeout(1.5),
 
             new InstantCommand(() -> {shooter.setFeederSpeed(-0.1); intake.setRollerSpeed(0);}),
             new WaitCommand(0.1),
-            new InstantCommand(() -> {shooter.setShootSpeed(80); shooter.setFeederSpeed(0);}),
+            new InstantCommand(() -> {shooter.setShootSpeed(20); shooter.setFeederSpeed(0);}),
             new WaitUntilCommand(shootButton),
             new InstantCommand(() -> shooter.setFeederSpeed(0.30)),
             new WaitCommand(0.3),

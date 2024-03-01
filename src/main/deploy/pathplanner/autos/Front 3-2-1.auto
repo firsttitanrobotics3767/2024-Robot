@@ -18,33 +18,78 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Wait For Ring"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Front-3"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "Intake"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Front-3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3-2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2-1"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Wait For Ring"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "3-2"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Intake"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Wait For Ring"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "2-1"
+                }
+              }
+            ]
           }
         }
       ]

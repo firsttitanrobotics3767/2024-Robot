@@ -31,7 +31,8 @@ public class Shooter extends SubsystemBase{
     public enum PositionState {
         IDLE(0.19),
         SHOOT(0.11),
-        AMP(0.35),
+        SCORE_3(0.165),
+        AMP(0.37),
         HANDOFF(0.165);
 
         public double pos;
@@ -48,9 +49,9 @@ public class Shooter extends SubsystemBase{
     private static Shooter instance = null;
     private ControlState controlState = ControlState.AUTOMATIC;
     private MovementState movementState = MovementState.MOVING;
-    private PositionState lastState = PositionState.IDLE;
-    private PositionState goalState = PositionState.IDLE;
-    private PositionState lastGoalState = PositionState.IDLE;
+    private PositionState lastState = PositionState.HANDOFF;
+    private PositionState goalState = PositionState.HANDOFF;
+    private PositionState lastGoalState = PositionState.HANDOFF;
     private double targetOpenLoopOutput = 0;
     private double targetSpeed = 0;
     private double targetFeederSpeed = 0;
@@ -140,8 +141,12 @@ public class Shooter extends SubsystemBase{
         positionEncoder = positionMotor.getEncoder();
         positionEncoder.setPositionConversionFactor(Constants.Shooter.conversionFactor);
         positionEncoder.setVelocityConversionFactor(Constants.Shooter.conversionFactor);
-        resetPosition(absoluteEncoder.getPosition());
 
+        try {
+            Thread.sleep(500);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         positionController = positionMotor.getPIDController();
         positionController.setFeedbackDevice(absoluteEncoder);
@@ -150,12 +155,12 @@ public class Shooter extends SubsystemBase{
         positionController.setD(Constants.Shooter.positionD);
         positionController.setSmartMotionMaxAccel(Constants.Shooter.maxAcc, 0);
         positionController.setSmartMotionMaxVelocity(Constants.Shooter.maxVel, 0);
-        positionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-        positionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-        positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.3);
-        positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.01);
+        // positionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+        // positionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        // positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.35);
+        // positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.01);
 
-
+        resetPosition(absoluteEncoder.getPosition());
     }
 
     @Override
@@ -183,6 +188,7 @@ public class Shooter extends SubsystemBase{
         hasGamePiece = hasGamePiece();
 
         if (controlState == ControlState.AUTOMATIC) {
+
             positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0,
                 Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
         } else {
@@ -237,6 +243,12 @@ public class Shooter extends SubsystemBase{
      * @param position double of the anglular position
      */
     public void moveTo(PositionState positionState) {
+        if (goalState == PositionState.AMP) {
+            resetPosition(absoluteEncoder.getPosition());
+            positionController.setFeedbackDevice(absoluteEncoder);
+        } else {
+            positionController.setFeedbackDevice(positionEncoder);
+        }
         goalState = positionState;
     }
 

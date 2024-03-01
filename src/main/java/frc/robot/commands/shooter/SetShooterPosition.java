@@ -25,7 +25,7 @@ public class SetShooterPosition extends Command {
 
     @Override
     public boolean isFinished() {
-        // return shooter.atGoal();
-        return true;
+        return shooter.atGoal();
+        // return true;
     }
 }
