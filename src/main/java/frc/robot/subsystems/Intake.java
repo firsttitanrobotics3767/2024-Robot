@@ -96,7 +96,7 @@ public class Intake extends SubsystemBase{
         positionMotor.setInverted(false);
         positionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         positionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-        positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.32);
+        positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.33);
         positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.0);
         positionMotor.setOpenLoopRampRate(Constants.Intake.openLoopRampRate);
         positionMotor.setSmartCurrentLimit(40);
@@ -152,7 +152,7 @@ public class Intake extends SubsystemBase{
         SmartDashboard.putBoolean("Intake/atGoal", atGoal());
         SmartDashboard.putString("Intake/lastState", lastState.toString());
         SmartDashboard.putString("Intake/goalState", goalState.toString());
-        SmartDashboard.putBoolean("Intake/hasGamePiece", hasGamePiece);
+        SmartDashboard.putBoolean("Intake/hasGamePiece", hasGamePiece());
         SmartDashboard.putBoolean("intkae sensor", sensor.get());
         SmartDashboard.putNumber("Intake/roller torque", rollerMotor.getTorqueCurrent().getValueAsDouble());
     }
@@ -229,7 +229,7 @@ public class Intake extends SubsystemBase{
         //     return true;
         // }
         // return sensor.get();
-        return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 30.0;
+        return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 30;
     }
 
     public double getTorqueCurrent() {

@@ -32,7 +32,6 @@ public class Drivetrain extends SubsystemBase {
     private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
     private final double angleConversionFactor = Constants.Swerve.angleConversionFactor;
     
-    private final PhotonCamera camera = new PhotonCamera("Arducam_OV9281_USB_Camera");
 
     public static Drivetrain getInstance() {
         if (instance == null) {
@@ -76,9 +75,9 @@ public class Drivetrain extends SubsystemBase {
             this::getRobotVelocity, // ChassisSpeeds supplier (robot relative)
             this::driveRobotOriented, // Method that will drive robot given robot relative speeds
             new HolonomicPathFollowerConfig(
-                new PIDConstants(7.9, 0, 0), // Translation PID
+                new PIDConstants(7.9, 0, 0.002), // Translation PID
                 new PIDConstants( // Rotation PID
-                    8.65, 
+                    8.62, 
                     0.0, 
                     0.0), 
                 5.15, // Max module speed in m/s

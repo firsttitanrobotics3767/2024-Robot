@@ -45,9 +45,9 @@ public class Elevator extends SubsystemBase{
         elevatorMotor.setIdleMode(com.revrobotics.CANSparkBase.IdleMode.kBrake);
         elevatorMotor.setInverted(false);
         elevatorMotor.setSmartCurrentLimit(80);
-        elevatorMotor.enableSoftLimit(SoftLimitDirection.kForward, false);
+        elevatorMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         elevatorMotor.enableSoftLimit(SoftLimitDirection.kReverse, false);
-        elevatorMotor.setSoftLimit(SoftLimitDirection.kForward, 8);
+        elevatorMotor.setSoftLimit(SoftLimitDirection.kForward, 6);
         elevatorMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0);
 
         elevatorEncoder = elevatorMotor.getEncoder();

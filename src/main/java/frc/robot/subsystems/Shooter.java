@@ -30,8 +30,9 @@ public class Shooter extends SubsystemBase{
 
     public enum PositionState {
         IDLE(0.19),
-        SHOOT(0.11),
-        SCORE_3(0.165),
+        SHOOT(0.12),
+        SCORE_3(0.17),
+        SIDE_SCORE(0.11),
         AMP(0.37),
         HANDOFF(0.165);
 
@@ -257,7 +258,7 @@ public class Shooter extends SubsystemBase{
     }
 
     public boolean atGoal() {
-        return ((getAbsolutePosition() > (goalState.pos - 0.005)) && (getAbsolutePosition() < (goalState.pos + 0.005)));
+        return ((getAbsolutePosition() > (goalState.pos - 0.008)) && (getAbsolutePosition() < (goalState.pos + 0.008)));
     }
 
     public MovementState getMovementState() {

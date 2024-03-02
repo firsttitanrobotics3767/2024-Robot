@@ -44,5 +44,6 @@ public class Shoot extends SequentialCommandGroup {
                 new SetIntakePosition(Intake.PositionState.STOW)
             )
         );
+        addRequirements(intake, shooter);
     }
 }

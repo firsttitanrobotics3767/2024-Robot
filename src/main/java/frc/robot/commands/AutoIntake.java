@@ -24,10 +24,10 @@ public class AutoIntake extends SequentialCommandGroup {
     public AutoIntake(PS5Controller controller) {
         
         addCommands(
-            new InstantCommand(() -> intake.setRollerSpeed(0.3)),
+            new InstantCommand(() -> {intake.setRollerSpeed(0.3); SmartDashboard.putBoolean("Ready to Shoot", false);}),
             new ParallelCommandGroup(
-                new SetIntakePosition(Intake.PositionState.GROUND),
-                new SetShooterPosition(Shooter.PositionState.HANDOFF)
+                new SetIntakePosition(Intake.PositionState.GROUND).withTimeout(1),
+                new SetShooterPosition(Shooter.PositionState.HANDOFF).withTimeout(0.5)
             ),
             new WaitUntilCommand(() -> intake.hasGamePiece()),
             new InstantCommand(() -> {intake.setRollerSpeed(0.0); SmartDashboard.putBoolean("Intake Ring", true);}),
@@ -42,8 +42,9 @@ public class AutoIntake extends SequentialCommandGroup {
             new WaitCommand(0.4),
             new WaitUntilCommand(() -> intake.getTorqueCurrent() < 25),
             // new WaitCommand(1.5),
-            new InstantCommand(() -> {intake.setRollerSpeed(0.0); shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0); SmartDashboard.putBoolean("Intake Ring", false);})
+            new InstantCommand(() -> {intake.setRollerSpeed(0.0); shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0); SmartDashboard.putBoolean("Intake Ring", false); SmartDashboard.putBoolean("Ready to Shoot", true);})
 
         );
+        addRequirements(intake, shooter);
     }
 }
