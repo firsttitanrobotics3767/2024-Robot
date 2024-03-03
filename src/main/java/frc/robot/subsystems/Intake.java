@@ -229,7 +229,7 @@ public class Intake extends SubsystemBase{
         //     return true;
         // }
         // return sensor.get();
-        return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 30;
+        return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 25;
     }
 
     public double getTorqueCurrent() {

@@ -48,7 +48,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Wait For Ring Far"
+                  "name": "Wait For Far Ring"
                 }
               }
             ]
@@ -97,7 +97,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Wait For Ring"
+                  "name": "Wait For Far Ring"
                 }
               }
             ]

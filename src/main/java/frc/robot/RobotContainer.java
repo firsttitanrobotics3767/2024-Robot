@@ -108,6 +108,7 @@ public class RobotContainer {
     Trigger intakeButton = new Trigger(() -> operator.getRawButton(IO.intakeButton));
     Trigger cancelIntakeButton = new Trigger(() -> operator.getRawButton(IO.cancelIntakeButton));
     Trigger reverseIntakeButton = new Trigger(() -> operator.getRawButton(2));
+    Trigger manualIntake = new Trigger(() -> {return operator.getPOV() == 0;});
     Trigger prepareSpeakerButton = new Trigger(() -> operator.getRawButton(IO.prepareSpeakerButton));
     Trigger prepareSafeShootButton = new Trigger(() -> {return operator.getPOV() == IO.safeShootPOV;});
     Trigger prepareAmpButton = new Trigger(() -> operator.getRawButton(IO.prepareAmpButton));
@@ -120,11 +121,14 @@ public class RobotContainer {
     cancelIntakeButton.onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.HANDOFF)).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0);})));
     reverseIntakeButton.onTrue(new InstantCommand(() -> intake.setRollerSpeed(-0.3)));
     reverseIntakeButton.onFalse(new InstantCommand(() -> intake.setRollerSpeed(0)));
+    manualIntake.onTrue(new InstantCommand(() -> intake.setRollerSpeed(0.2)));
+    manualIntake.onFalse(new InstantCommand(() -> intake.setRollerSpeed(0)));
     prepareSpeakerButton.onTrue(new Shoot(() -> shootButton.getAsBoolean()));
     prepareAmpButton.onTrue(new Amp(() -> shootButton.getAsBoolean()));
     resetSuperstructureButton.onTrue(new InstantCommand(() -> superstructure.reset()));
     new Trigger(() -> operator.getRawButton(3)).onTrue(new InstantCommand(() -> elevator.moveTo(Elevator.PositionState.AMP)));
-    new Trigger(() -> operator.getRawButton(10)).onTrue(new InstantCommand(() -> elevator.resetPosition()));
+    // new Trigger(() -> operator.getRawButton(10)).onTrue(new InstantCommand(() -> elevator.resetPosition()));
+    new Trigger(() -> operator.getRawButton(10)).onTrue(new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.AMP); intake.moveTo(Intake.PositionState.STOW);}));
     new Trigger(() -> operator.getRawButton(14)).onTrue(new SetIntakePosition(Intake.PositionState.GROUND).alongWith(new SetShooterPosition(Shooter.PositionState.AMP)));
     new Trigger(() -> operator.getRawButton(9)).onTrue(new InstantCommand(() -> {shooter.setShootSpeed(20); shooter.setFeederSpeed(0.3);}));
   }

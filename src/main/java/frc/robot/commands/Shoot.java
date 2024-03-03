@@ -29,7 +29,7 @@ public class Shoot extends SequentialCommandGroup {
             // new WaitUntilCommand(() -> shooter.atGoal()),
             new InstantCommand(() -> intake.moveTo(Intake.PositionState.SCORING)),
             new WaitCommand(0.3),
-            new SetShooterPosition(Shooter.PositionState.SHOOT),
+            new SetShooterPosition(Shooter.PositionState.SHOOT).withTimeout(1),
 
             new InstantCommand(() -> {shooter.setFeederSpeed(-0.1); intake.setRollerSpeed(0);}),
             new WaitCommand(0.1),

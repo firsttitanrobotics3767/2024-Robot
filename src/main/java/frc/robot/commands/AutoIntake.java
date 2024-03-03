@@ -34,8 +34,8 @@ public class AutoIntake extends SequentialCommandGroup {
             // new InstantCommand(() -> superstructure.setGoalState(Superstructure.SystemState.STOW)).withTimeout(2).handleInterrupt(() -> this.end(true)),
             // new InstantCommand(() -> superstructure.setGoalState(Superstructure.SystemState.STOW)),
             new ParallelCommandGroup(
-                new SetIntakePosition(Intake.PositionState.STOW),
-                new SetShooterPosition(Shooter.PositionState.HANDOFF)
+                new SetIntakePosition(Intake.PositionState.STOW).withTimeout(1.2),
+                new SetShooterPosition(Shooter.PositionState.HANDOFF).withTimeout(0.5)
             ),
 
             new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2); shooter.setShootSpeed(-2);}),
