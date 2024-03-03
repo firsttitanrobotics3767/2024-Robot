@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase{
     }
 
     public enum PositionState {
-        GROUND(0.005),
+        GROUND(0.01),
         SCORING(0.15),
         STOW(0.32);
         // STOW(0.02);
@@ -74,7 +74,7 @@ public class Intake extends SubsystemBase{
     private final TalonFX rollerMotor;
     private final TalonFXConfiguration rollerConfig;
 
-    private final DigitalInput sensor = new DigitalInput(0);
+    private final DigitalInput limitSwitch = new DigitalInput(0);
 
     // Pivot
     private final CANSparkMax positionMotor;
@@ -99,7 +99,7 @@ public class Intake extends SubsystemBase{
         positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.33);
         positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.0);
         positionMotor.setOpenLoopRampRate(Constants.Intake.openLoopRampRate);
-        positionMotor.setSmartCurrentLimit(40);
+        positionMotor.setSmartCurrentLimit(60);
         
         absoluteEncoder = positionMotor.getAbsoluteEncoder(Type.kDutyCycle);
         absoluteEncoder.setPositionConversionFactor(Constants.Intake.absoluteConversionFactor);
@@ -153,8 +153,8 @@ public class Intake extends SubsystemBase{
         SmartDashboard.putString("Intake/lastState", lastState.toString());
         SmartDashboard.putString("Intake/goalState", goalState.toString());
         SmartDashboard.putBoolean("Intake/hasGamePiece", hasGamePiece());
-        SmartDashboard.putBoolean("intkae sensor", sensor.get());
         SmartDashboard.putNumber("Intake/roller torque", rollerMotor.getTorqueCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Position Amps", positionMotor.getOutputCurrent());
     }
 
     /**
@@ -228,8 +228,8 @@ public class Intake extends SubsystemBase{
         // if (sensorDistance < Constants.Intake.sensorThreshhold && sensorDistance != 0.0) {
         //     return true;
         // }
-        // return sensor.get();
-        return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 25;
+        return !limitSwitch.get();
+        // return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 25;
     }
 
     public double getTorqueCurrent() {

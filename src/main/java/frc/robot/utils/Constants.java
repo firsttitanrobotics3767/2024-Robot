@@ -45,8 +45,8 @@ public class Constants {
         public static final double positionP = 0.005;
         public static final double positionI = 0;
         public static final double positionD = 0;
-        public static final double positionGravityFF = 1;
-        public static final double maxVel = 40;
+        public static final double positionGravityFF = 1.2;
+        public static final double maxVel = 60;
         public static final double maxAccel = 80;
         public static final double openLoopRampRate = .5;
 
