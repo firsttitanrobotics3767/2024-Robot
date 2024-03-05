@@ -13,6 +13,9 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.ExponentialProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -81,6 +84,7 @@ public class Intake extends SubsystemBase{
     private final RelativeEncoder positionEncoder;
     private final AbsoluteEncoder absoluteEncoder;
     private final SparkPIDController positionController;
+    // private final ProfiledPIDController positionController;
 
     public Intake() {
         rollerMotor = new TalonFX(Constants.Intake.rollerCANID);
@@ -119,6 +123,7 @@ public class Intake extends SubsystemBase{
         positionController.setD(Constants.Intake.positionD);
         positionController.setSmartMotionMaxAccel(Constants.Intake.maxAccel, 0);
         positionController.setSmartMotionMaxVelocity(Constants.Intake.maxVel, 0);
+        // positionController = new ProfiledPIDController(Constants.Intake.positionP, Constants.Intake.positionI, Constants.Intake.positionD, new TrapezoidProfile.Constraints(Constants.Intake.maxAccel, Constants.Intake.maxVel));
 
         
     }
@@ -129,6 +134,7 @@ public class Intake extends SubsystemBase{
         hasGamePiece = hasGamePiece();
 
         if (controlState == ControlState.AUTOMATIC) {
+            // positionMotor.setVoltage(positionController.calculate(getAbsolutePosition(), goalState.pos) + Math.cos(getPosition() * Math.PI * 2.0) * Constants.Intake.positionGravityFF);
             positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0, 
                 Math.cos(getPosition() * Math.PI * 2.0) * Constants.Intake.positionGravityFF);
         } else {
