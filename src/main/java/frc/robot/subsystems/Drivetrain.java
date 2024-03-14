@@ -13,6 +13,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,6 +29,8 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class Drivetrain extends SubsystemBase {
     private static Drivetrain instance = null;
     private final SwerveDrive swerveDrive;
+    private final AddressableLED leds = new AddressableLED(0);
+    private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(48);
 
     public final double maxSpeed = Constants.Swerve.maxVelocity;
     private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
@@ -58,6 +62,13 @@ public class Drivetrain extends SubsystemBase {
         // swerveDrive.invertOdometry = true;
 
         setupPathPlanner();
+
+        leds.setLength(ledBuffer.getLength());
+        for (int i = 0; i < 48; i++) {
+            ledBuffer.setRGB(i, 0, 255, 0);
+        }
+        leds.setData(ledBuffer);
+        leds.start();
     }
 
     @Override

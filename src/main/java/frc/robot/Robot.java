@@ -72,7 +72,6 @@ public class Robot extends TimedRobot {
 
     m_robotContainer.drivetrain.setHeadingCorrection(true);
 
-    m_robotContainer.shooter.setAuton(false);
   }
 
   @Override

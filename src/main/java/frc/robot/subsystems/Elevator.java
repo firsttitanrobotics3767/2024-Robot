@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -25,9 +28,8 @@ public class Elevator extends SubsystemBase{
 
     private static Elevator instance = null;
     
-    private final CANSparkMax elevatorMotor;
-    private final RelativeEncoder elevatorEncoder;
-    private final SparkPIDController pidController;
+    private final TalonFX elevatorMotor;
+    private final TalonFXConfiguration elevatorConfig;
 
     private PositionState goalState = PositionState.STOW;
 
@@ -40,35 +42,44 @@ public class Elevator extends SubsystemBase{
     }
     
     public Elevator() {
-        elevatorMotor = new CANSparkMax(Constants.Elevator.motorID, MotorType.kBrushless);
-        elevatorMotor.restoreFactoryDefaults();
-        elevatorMotor.setIdleMode(com.revrobotics.CANSparkBase.IdleMode.kBrake);
+        // elevatorMotor = new CANSparkMax(Constants.Elevator.motorID, MotorType.kBrushless);
+        // elevatorMotor.restoreFactoryDefaults();
+        // elevatorMotor.setIdleMode(com.revrobotics.CANSparkBase.IdleMode.kBrake);
+        // elevatorMotor.setInverted(false);
+        // elevatorMotor.setSmartCurrentLimit(80);
+        // elevatorMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+        // elevatorMotor.enableSoftLimit(SoftLimitDirection.kReverse, false);
+        // elevatorMotor.setSoftLimit(SoftLimitDirection.kForward, 8);
+        // elevatorMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0);
+
+        // elevatorEncoder = elevatorMotor.getEncoder();
+        // elevatorEncoder.setPositionConversionFactor(Constants.Elevator.conversionFactor);
+        // elevatorEncoder.setVelocityConversionFactor(Constants.Elevator.conversionFactor / 60);
+
+        // pidController = elevatorMotor.getPIDController();
+        // pidController.setP(Constants.Elevator.kP);
+        // pidController.setI(Constants.Elevator.kI);
+        // pidController.setD(Constants.Elevator.kD);
+        // pidController.setSmartMotionMaxAccel(Constants.Elevator.maxAccel, 0);
+        // pidController.setSmartMotionMaxVelocity(Constants.Elevator.maxVel, 0);
+        elevatorMotor = new TalonFX(Constants.Elevator.motorID);
+        elevatorConfig = new TalonFXConfiguration();
+        elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
+        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.2;
+        elevatorMotor.getConfigurator().apply(elevatorConfig);
+        elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
         elevatorMotor.setInverted(false);
-        elevatorMotor.setSmartCurrentLimit(80);
-        elevatorMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-        elevatorMotor.enableSoftLimit(SoftLimitDirection.kReverse, false);
-        elevatorMotor.setSoftLimit(SoftLimitDirection.kForward, 6);
-        elevatorMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0);
-
-        elevatorEncoder = elevatorMotor.getEncoder();
-        elevatorEncoder.setPositionConversionFactor(Constants.Elevator.conversionFactor);
-        elevatorEncoder.setVelocityConversionFactor(Constants.Elevator.conversionFactor / 60);
-
-        pidController = elevatorMotor.getPIDController();
-        pidController.setP(Constants.Elevator.kP);
-        pidController.setI(Constants.Elevator.kI);
-        pidController.setD(Constants.Elevator.kD);
-        pidController.setSmartMotionMaxAccel(Constants.Elevator.maxAccel, 0);
-        pidController.setSmartMotionMaxVelocity(Constants.Elevator.maxVel, 0);
-
+        elevatorMotor.setPosition(0);
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putString("Elevator/goalState", goalState.toString());
         SmartDashboard.putNumber("Elevator/targetPos", goalState.pos);
-        SmartDashboard.putNumber("Elevator/measuredPos", elevatorEncoder.getPosition());
-        SmartDashboard.putNumber("Elevator/velocity", elevatorEncoder.getVelocity());
+        SmartDashboard.putNumber("Elevator/measuredPos", elevatorMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Elevator/velocity", elevatorMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putBoolean("Elevator/at goal", atGoal());
 
 
@@ -84,11 +95,11 @@ public class Elevator extends SubsystemBase{
     }
 
     public double getPosition() {
-        return elevatorEncoder.getPosition();
+        return elevatorMotor.getPosition().getValueAsDouble();
     }
 
     public void resetPosition() {
-        elevatorEncoder.setPosition(0);
+        elevatorMotor.setPosition(0);
     }
 
     public boolean atGoal() {

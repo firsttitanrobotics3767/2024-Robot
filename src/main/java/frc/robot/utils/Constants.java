@@ -12,6 +12,8 @@ import swervelib.math.SwerveMath;
 public class Constants {
     public static class IO {
         public static final double swerveDeadband = 0.04;
+        public static final double elevatorDeadband = 0.04;
+        public static final double climberDeadband = 0.05;
         public static final int driveXAxis = 1;
         public static final int driveYAxis = 0;
         public static final int driveOmegaAxis = 2;
@@ -36,18 +38,24 @@ public class Constants {
     }
 
     public static class Intake {
-        public static final int positionCANID = 13;
+        public static final int positionLeftCANID = 13;
+        public static final int positionRightCANID = 20;
         public static final int rollerCANID = 14;
 
-        public static final double conversionFactor = 0.04;
-        public static final double absoluteConversionFactor = 1.333;
-        public static final double absoluteOffset = 0.95;
-        public static final double positionP = 0.005;
+        // public static final double conversionFactor = 0.19047619;
+        public static final double conversionFactor = 23.3333333333333;
+        public static final double absoluteConversionFactor = -1.0;
+        public static final double absoluteOffset = 0.43;
+        // public static final double absoluteOffset = 0.0;
+
+        public static final double positionP = 7;
         public static final double positionI = 0;
         public static final double positionD = 0;
-        public static final double positionGravityFF = 1.2;
-        public static final double maxVel = 60;
-        public static final double maxAccel = 80;
+        public static final double positionG = 0.37;
+        public static final double positionV = 2.5;
+        public static final double positionS = 0.07;
+        public static final double maxVel = 1;
+        public static final double maxAccel = 2;
         public static final double openLoopRampRate = .5;
 
         public static final double defaultPosition = 1;

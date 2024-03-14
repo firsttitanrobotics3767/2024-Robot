@@ -14,6 +14,8 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,7 +36,8 @@ public class Shooter extends SubsystemBase{
         SCORE_3(0.162),
         SIDE_SCORE(0.11),
         AMP(0.37),
-        HANDOFF(0.165);
+        HANDOFF(0.165),
+        PASS(0.185);
 
         public double pos;
         private PositionState(double pos) {
@@ -57,12 +60,6 @@ public class Shooter extends SubsystemBase{
     private double targetSpeed = 0;
     private double targetFeederSpeed = 0;
     public static boolean hasGamePiece = false;
-    private boolean ready = false;
-    private double startTime = 0;
-    private double travelTime = 1;
-    private double feederBackOffTime = 0.75;
-    private double sensorDistance = 0;
-    private boolean auton = false;
 
     private final TalonFX shooterTop;
     private final TalonFX shooterBottom;
@@ -80,6 +77,8 @@ public class Shooter extends SubsystemBase{
     private final RelativeEncoder positionEncoder;
     private final AbsoluteEncoder absoluteEncoder;
     private final SparkPIDController positionController;
+
+    private final DigitalInput sensor = new DigitalInput(0);
 
     public static Shooter getInstance() {
         if (instance == null) {
@@ -166,7 +165,6 @@ public class Shooter extends SubsystemBase{
 
     @Override
     public void periodic() {
-        sensorDistance = SmartDashboard.getNumber("Shooter/sensorDistance", 0);
         // if (!auton) {
         //     if (lastState == PositionState.HANDOFF && !hasGamePiece && Superstructure.hasGamePiece) {
         //         setFeederSpeed(0.1);
@@ -193,7 +191,7 @@ public class Shooter extends SubsystemBase{
             positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0,
                 Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
         } else {
-            positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
+            // positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
         }
 
         feeder.set(targetFeederSpeed);
@@ -213,7 +211,6 @@ public class Shooter extends SubsystemBase{
         SmartDashboard.putNumber("Shooter/voltage", shooterBottom.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
-        SmartDashboard.putBoolean("Shooter/ready", ready);
         SmartDashboard.putNumber("Shooter/torque", feeder.getTorqueCurrent().getValueAsDouble());
     }
     
@@ -278,7 +275,6 @@ public class Shooter extends SubsystemBase{
     }
 
     public void startHandoff() {
-        startTime = Timer.getFPGATimestamp();
         hasGamePiece = true;
     }
 
@@ -290,7 +286,8 @@ public class Shooter extends SubsystemBase{
         // if (sensorDistance < Constants.Shooter.sensorThreshhold) {
         //     return true;
         // }
-        return (feeder.getTorqueCurrent().getValueAsDouble() > 10);
+        // return (feeder.getTorqueCurrent().getValueAsDouble() > 10);
+        return sensor.get();
     }
 
     public void reset() {
@@ -300,7 +297,4 @@ public class Shooter extends SubsystemBase{
         movementState = MovementState.MOVING;
     }
 
-    public void setAuton(boolean auton) {
-        this.auton = auton;
-    }
 }
