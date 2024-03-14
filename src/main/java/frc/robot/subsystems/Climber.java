@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Constants;
 
@@ -33,7 +34,6 @@ public class Climber extends SubsystemBase{
     private final AbsoluteEncoder absoluteEncoder;
     private final RelativeEncoder encoder;
 
-    private final SparkPIDController pidController;
 
     public Climber() {
         leader = new CANSparkMax(Constants.Climber.leaderID, MotorType.kBrushless);
@@ -53,19 +53,19 @@ public class Climber extends SubsystemBase{
         encoder.setPositionConversionFactor(Constants.Climber.conversionfactor);
         encoder.setPosition(absoluteEncoder.getPosition());
 
-        pidController = leader.getPIDController();
-        pidController.setFeedbackDevice(absoluteEncoder);
-        pidController.setP(Constants.Climber.kP);
-        pidController.setI(Constants.Climber.kI);
-        pidController.setD(Constants.Climber.kD);
-        pidController.setSmartMotionMaxAccel(Constants.Climber.maxAccel, 0);
-        pidController.setSmartMotionMaxVelocity(Constants.Climber.maxVel, 0);
 
     }
 
     @Override
     public void periodic() {
+        if ((absoluteEncoder.getPosition() > 0.05 && absoluteEncoder.getPosition() < 0.5) || targetOpenLoopOutput > 0) {
             leader.set(targetOpenLoopOutput);
+        } else {
+            leader.set(0);
+        }
+
+        SmartDashboard.putNumber("Absolute Climber", absoluteEncoder.getPosition());
+        SmartDashboard.putNumber("climber outoup", targetOpenLoopOutput);
     } 
 
     public void moveTo(double position) {
@@ -77,7 +77,7 @@ public class Climber extends SubsystemBase{
     }
 
     public void setArmSpeed(double speed) {
-        targetOpenLoopOutput = speed;
+        targetOpenLoopOutput = speed*0.5;
     }
 
     public double getPosition() {
