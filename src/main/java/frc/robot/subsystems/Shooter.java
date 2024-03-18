@@ -13,6 +13,8 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,6 +30,7 @@ public class Shooter extends SubsystemBase{
     public enum PositionState {
         IDLE(0.19),
         SHOOT(0.12),
+        AUTO(0),
         SCORE_3(0.167),
         SIDE_SCORE(0.11),
         AMP(0.37),
@@ -39,6 +42,13 @@ public class Shooter extends SubsystemBase{
             this.pos = pos;
         }
     }
+
+    private static InterpolatingDoubleTreeMap shootPosition = new InterpolatingDoubleTreeMap();
+
+    static {
+    }
+
+    private static Translation2d speaker = new Translation2d(0, 5.50);
 
     private static Shooter instance = null;
     private ControlState controlState = ControlState.AUTOMATIC;
@@ -147,9 +157,11 @@ public class Shooter extends SubsystemBase{
             resetPosition();
             areEncodersSynched = areEncodersSynched();
         }
-        if (controlState == ControlState.AUTOMATIC) {
+        if (controlState == ControlState.AUTOMATIC && goalState != PositionState.AUTO) {
             positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0,
                 Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
+        } else if (controlState == ControlState.AUTOMATIC && goalState == PositionState.AUTO) {
+            positionMotor.set(0);
         } else {
             positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
         }
@@ -159,6 +171,7 @@ public class Shooter extends SubsystemBase{
         lastState = atGoal() ? goalState : lastState;
         lastGoalState = goalState;
 
+        SmartDashboard.putNumber("Shooter/distanceToSpeaker", Drivetrain.getInstance().getPose().getTranslation().getDistance(speaker));
         SmartDashboard.putNumber("Shooter/measuredPosition", getPosition());
         SmartDashboard.putNumber("Shooter/absolute Position", absoluteEncoder.getPosition());
         SmartDashboard.putNumber("Shooter/positionCurrent", positionMotor.getOutputCurrent());
@@ -231,5 +244,7 @@ public class Shooter extends SubsystemBase{
         lastGoalState = PositionState.HANDOFF;
         lastState = PositionState.HANDOFF;
     }
+
+
 
 }
