@@ -3,8 +3,6 @@ package frc.robot.subsystems;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
@@ -15,10 +13,7 @@ import frc.robot.utils.Constants;
 
 public class Climber extends SubsystemBase{
     private static Climber instance = null;
-    private boolean openLoopControl = Constants.defaultControlMode;
     private double targetOpenLoopOutput = 0;
-    // private double targetPos = Superstructure.ClimberState.STOW.pos;
-    private double targetPos = 0;
 
     public static Climber getInstance() {
         if (instance == null) {
@@ -65,16 +60,8 @@ public class Climber extends SubsystemBase{
         }
 
         SmartDashboard.putNumber("Absolute Climber", absoluteEncoder.getPosition());
-        SmartDashboard.putNumber("climber outoup", targetOpenLoopOutput);
+        SmartDashboard.putNumber("climber output", targetOpenLoopOutput);
     } 
-
-    public void moveTo(double position) {
-        targetPos = position;
-    }
-
-    public void setOpenLoopControl(boolean controlType) {
-        openLoopControl = controlType;
-    }
 
     public void setArmSpeed(double speed) {
         targetOpenLoopOutput = speed*0.5;

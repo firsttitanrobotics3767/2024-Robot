@@ -10,20 +10,15 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.utils.Constants;
 
-/**
- * Shooter class
- */
 public class Shooter extends SubsystemBase{
     public enum ControlState {
         AUTOMATIC,
@@ -45,14 +40,8 @@ public class Shooter extends SubsystemBase{
         }
     }
 
-    public enum MovementState {
-        MOVING,
-        AT_GOAL;
-    }
-
     private static Shooter instance = null;
     private ControlState controlState = ControlState.AUTOMATIC;
-    private MovementState movementState = MovementState.MOVING;
     private PositionState lastState = PositionState.HANDOFF;
     private PositionState goalState = PositionState.HANDOFF;
     private PositionState lastGoalState = PositionState.HANDOFF;
@@ -71,7 +60,6 @@ public class Shooter extends SubsystemBase{
 
     private final VelocityVoltage shooterTopVelocityVolt;
     private final VelocityVoltage shooterBottomVelocityVolt;
-    private final VelocityVoltage feederVelocityVolt;
 
     private final CANSparkMax positionMotor;
     private final RelativeEncoder positionEncoder;
@@ -126,7 +114,6 @@ public class Shooter extends SubsystemBase{
 
         shooterBottomVelocityVolt = new VelocityVoltage(0).withSlot(0);
         shooterTopVelocityVolt = new VelocityVoltage(0).withSlot(0);
-        feederVelocityVolt = new VelocityVoltage(0).withSlot(0);
 
         positionMotor = new CANSparkMax(Constants.Shooter.rotationCANID, MotorType.kBrushless);
         positionMotor.restoreFactoryDefaults();
@@ -142,12 +129,6 @@ public class Shooter extends SubsystemBase{
         positionEncoder.setPositionConversionFactor(Constants.Shooter.conversionFactor);
         positionEncoder.setVelocityConversionFactor(Constants.Shooter.conversionFactor);
 
-        try {
-            Thread.sleep(500);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         positionController = positionMotor.getPIDController();
         positionController.setFeedbackDevice(absoluteEncoder);
         positionController.setP(Constants.Shooter.positionP);
@@ -155,79 +136,41 @@ public class Shooter extends SubsystemBase{
         positionController.setD(Constants.Shooter.positionD);
         positionController.setSmartMotionMaxAccel(Constants.Shooter.maxAcc, 0);
         positionController.setSmartMotionMaxVelocity(Constants.Shooter.maxVel, 0);
-        // positionMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-        // positionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-        // positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.35);
-        // positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.01);
 
-        resetPosition(absoluteEncoder.getPosition());
+        resetPosition();
     }
 
     @Override
     public void periodic() {
-        // if (!auton) {
-        //     if (lastState == PositionState.HANDOFF && !hasGamePiece && Superstructure.hasGamePiece) {
-        //         setFeederSpeed(0.1);
-        //     } else if (lastState == PositionState.HANDOFF && hasGamePiece) {
-        //         setFeederSpeed(0);
-        //     // } else if (goalState == PositionState.SHOOT && (Timer.getFPGATimestamp() < startTime + feederBackOffTime)) {
-        //     //     setFeederSpeed(-0.2);
-        //     //     setShootSpeed(-5);
-        //     // } else if (goalState == PositionState.SHOOT && (Timer.getFPGATimestamp() > startTime + feederBackOffTime) && !ready) {
-        //     //     setFeederSpeed(0);
-        //     //     setShootSpeed(80);
-        //     //     ready = true;
-        //     } else if (goalState == PositionState.SHOOT) {
-        //         setShootSpeed(80);
-        //     } else if (!(goalState == PositionState.SHOOT)){
-        //         setShootSpeed(0);
-        //     }
-        // }
-
-        hasGamePiece = hasGamePiece();
-
         if (controlState == ControlState.AUTOMATIC) {
-
             positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0,
                 Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
         } else {
-            // positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
+            positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
         }
 
         feeder.set(targetFeederSpeed);
 
-        movementState = atGoal() ? MovementState.AT_GOAL : MovementState.MOVING;
         lastState = atGoal() ? goalState : lastState;
         lastGoalState = goalState;
 
         SmartDashboard.putNumber("Shooter/measuredPosition", getPosition());
         SmartDashboard.putNumber("Shooter/absolute Position", absoluteEncoder.getPosition());
-        SmartDashboard.putNumber("Shooter/position temp", positionMotor.getMotorTemperature());
         SmartDashboard.putNumber("Shooter/positionCurrent", positionMotor.getOutputCurrent());
         SmartDashboard.putBoolean("Shooter/atGoal", atGoal());
         SmartDashboard.putString("Shooter/goalState", goalState.toString());
         SmartDashboard.putString("Shooter/lastState", lastState.toString());
-        SmartDashboard.putBoolean("Shooter/hasGamePiece", hasGamePiece);
         SmartDashboard.putNumber("Shooter/voltage", shooterBottom.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
-        SmartDashboard.putNumber("Shooter/torque", feeder.getTorqueCurrent().getValueAsDouble());
     }
     
-    /**
-     * Set the velocity of the shooter
-     * @param speed double of the velocity
-     */
     public void setShootSpeed(double speed) {
         this.targetSpeed = speed;
         shooterBottom.setControl(shooterBottomVelocityVolt.withVelocity(speed));
         shooterTop.setControl(shooterTopVelocityVolt.withVelocity(speed));
     }
 
-    /**
-     * Set the velocity of the feeder
-     * @param speed double of the velocity
-     */
     public void setFeederSpeed(double speed) {
         targetFeederSpeed = speed;
     }
@@ -236,13 +179,8 @@ public class Shooter extends SubsystemBase{
         targetOpenLoopOutput = speed * 0.2;
     }
 
-    /**
-     * Set the rotational position of the shooter
-     * @param position double of the anglular position
-     */
     public void moveTo(PositionState positionState) {
         if (goalState == PositionState.AMP) {
-            resetPosition(absoluteEncoder.getPosition());
             positionController.setFeedbackDevice(absoluteEncoder);
         } else {
             positionController.setFeedbackDevice(positionEncoder);
@@ -257,10 +195,6 @@ public class Shooter extends SubsystemBase{
     public boolean atGoal() {
         return ((getAbsolutePosition() > (goalState.pos - 0.01)) && (getAbsolutePosition() < (goalState.pos + 0.01)));
     }
-
-    public MovementState getMovementState() {
-        return movementState;
-    }
     
     public double getPosition() {
         return positionEncoder.getPosition();
@@ -270,31 +204,19 @@ public class Shooter extends SubsystemBase{
         return absoluteEncoder.getPosition();
     }
 
-    public void resetPosition(double newPosition) {
+    public void resetPosition() {
         positionEncoder.setPosition(absoluteEncoder.getPosition());
     }
 
-    public void startHandoff() {
-        hasGamePiece = true;
-    }
-
     public boolean hasGamePiece() {
-        // if (Timer.getFPGATimestamp() > startTime + travelTime) {
-        //     return false;
-        // }
-        // return true;
-        // if (sensorDistance < Constants.Shooter.sensorThreshhold) {
-        //     return true;
-        // }
         // return (feeder.getTorqueCurrent().getValueAsDouble() > 10);
         return sensor.get();
     }
 
     public void reset() {
-        goalState = PositionState.IDLE;
-        lastGoalState = PositionState.IDLE;
-        lastState = PositionState.IDLE;
-        movementState = MovementState.MOVING;
+        goalState = PositionState.HANDOFF;
+        lastGoalState = PositionState.HANDOFF;
+        lastState = PositionState.HANDOFF;
     }
 
 }

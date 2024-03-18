@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import org.photonvision.PhotonCamera;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -58,8 +56,6 @@ public class Drivetrain extends SubsystemBase {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        // swerveDrive.setHeadingCorrection(false);
-        // swerveDrive.invertOdometry = true;
 
         setupPathPlanner();
 
@@ -76,9 +72,6 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putNumber("heading", swerveDrive.getOdometryHeading().getDegrees());
     }
 
-    /**
-     * Setup AutoBuilder for PathPlanner
-     */
     public void setupPathPlanner() {
         AutoBuilder.configureHolonomic(
             this::getPose, // Robot pose supplier
@@ -243,21 +236,5 @@ public class Drivetrain extends SubsystemBase {
      */
     public void lock() {
         swerveDrive.lockPose();
-    }
-
-    public enum FieldLocation {
-        //none of these are correct yet
-        NONE(0, 0),
-        SPEAKER(0, 0),
-        AMP(1, 1),
-        SOURCE(10, 0);
-
-        public double xPos;
-        public double yPos;
-
-        private FieldLocation(double xPos, double yPos) {
-            this.xPos = xPos;
-            this.yPos = yPos;
-        }
     }
 }

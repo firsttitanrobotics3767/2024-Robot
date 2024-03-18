@@ -4,20 +4,11 @@
 
 package frc.robot;
 
-import java.util.function.Supplier;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS5Controller;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,29 +16,21 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import frc.robot.commands.Amp;
 import frc.robot.commands.AutoIntake;
 import frc.robot.commands.Pass;
-import frc.robot.commands.SetSuperstructureState;
+import frc.robot.commands.SetIntakePosition;
+import frc.robot.commands.SetShooterPosition;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.Drivetrain.TeleopDrive;
-import frc.robot.commands.intake.SetIntakePosition;
-import frc.robot.commands.shooter.SetShooterPosition;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SystemState;
 import frc.robot.utils.Constants;
-import frc.robot.utils.PathBuilder;
 import frc.robot.utils.Constants.IO;
-import frc.robot.utils.Constants.Sensors;
-import frc.robot.subsystems.SensorSubsystem;
 
 public class RobotContainer {
 
@@ -56,36 +39,23 @@ public class RobotContainer {
   private final Elevator elevator = Elevator.getInstance();
   public final Shooter shooter = Shooter.getInstance();
   private final Climber climber = Climber.getInstance();
-  private final SensorSubsystem sensors = SensorSubsystem.getInstance();
 
-  private final Superstructure superstructure = new Superstructure();
-
-  // CommandJoystick driver = new CommandJoystick(0);
-  // CommandPS5Controller driver = new CommandPS5Controller(0);
   PS5Controller driver = new PS5Controller(0);
-  // PS5Controller driverRumble = new PS5Controller(0);
-  // GenericHID driverRumble = new GenericHID(0);
-  // CommandJoystick operator = new CommandJoystick(1);
   PS5Controller operator = new PS5Controller(1);
 
   SendableChooser<Command> autoChooser;
 
-  Drivetrain.FieldLocation faceLocation = Drivetrain.FieldLocation.NONE;
-
   public RobotContainer() {
-    CameraServer.startAutomaticCapture();
     configureBindings();
-    drivetrain.setDefaultCommand(new TeleopDrive(
-      drivetrain,
-      () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
-      () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
-      () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
-      () -> !driver.getRawButton(IO.driveModeButton),
-      () -> faceLocation
-    ));
+    // drivetrain.setDefaultCommand(new TeleopDrive(
+    //   drivetrain,
+    //   () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
+    //   () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
+    //   () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
+    //   () -> !driver.getRawButton(IO.driveModeButton)
+    // ));
     // intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
     // shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(5)), shooter));
-    // climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(operator.getRawAxis(2)), climber));
     elevator.setDefaultCommand(new RunCommand(() -> elevator.setSpeed(MathUtil.applyDeadband(-operator.getRawAxis(5), Constants.IO.elevatorDeadband)), elevator));
     climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(MathUtil.applyDeadband(-operator.getRawAxis(1), Constants.IO.climberDeadband)), climber));
 
@@ -95,8 +65,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("Wait For Far Ring", new InstantCommand(() -> {intake.moveTo(Intake.PositionState.GROUND); intake.setRollerSpeed(0.3);}).andThen(new WaitUntilCommand(() -> intake.hasGamePiece()).andThen(new InstantCommand(() -> {intake.setRollerSpeed(0);})).andThen(new SetIntakePosition(Intake.PositionState.STOW))));
     NamedCommands.registerCommand("Intake", new InstantCommand(() -> {intake.moveTo(Intake.PositionState.GROUND); intake.setRollerSpeed(0.3);}));
     NamedCommands.registerCommand("End", new InstantCommand(() -> {shooter.setShootSpeed(0); shooter.setFeederSpeed(0); shooter.moveTo(Shooter.PositionState.HANDOFF); intake.setRollerSpeed(0); intake.moveTo(Intake.PositionState.STOW);}));
+    
     autoChooser = AutoBuilder.buildAutoChooser();
-    PathBuilder.setupQuestions();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
   }
@@ -114,7 +84,6 @@ public class RobotContainer {
     Trigger passButton = new Trigger(() -> operator.getRawButton(1));
     Trigger prepareAmpButton = new Trigger(() -> operator.getRawButton(IO.prepareAmpButton));
     Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
-    Trigger resetSuperstructureButton = new Trigger(() -> operator.getRawButton(IO.resetSuperstructureButton));
 
     resetGyroButton.onTrue(new InstantCommand(drivetrain::zeroGyro));
 
@@ -127,9 +96,7 @@ public class RobotContainer {
     prepareSpeakerButton.onTrue(new Shoot(() -> shootButton.getAsBoolean()));
     passButton.onTrue(new Pass(() -> shootButton.getAsBoolean()));
     prepareAmpButton.onTrue(new Amp(() -> shootButton.getAsBoolean()));
-    resetSuperstructureButton.onTrue(new InstantCommand(() -> superstructure.reset()));
     new Trigger(() -> operator.getRawButton(9)).onTrue(new InstantCommand(() -> elevator.resetPosition()));
-    new Trigger(() -> operator.getRawButton(10)).onTrue(new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.AMP); intake.moveTo(Intake.PositionState.STOW);}));
     new Trigger(() -> operator.getRawButton(14)).onTrue(new SetIntakePosition(Intake.PositionState.GROUND).alongWith(new SetShooterPosition(Shooter.PositionState.AMP)));
     new Trigger(() -> operator.getRawButton(3)).onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2); shooter.setShootSpeed(-2);}).andThen(new WaitCommand(0.4)).andThen(new WaitUntilCommand(() -> intake.getTorqueCurrent() < 25)).andThen(new InstantCommand(() -> {intake.setRollerSpeed(0.0); shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0); SmartDashboard.putBoolean("Intake Ring", false); SmartDashboard.putBoolean("Ready to Shoot", true);})));
   }
@@ -137,7 +104,5 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
-    // return PathBuilder.getFullPathCommand();
-    // return AutoBuilder.buildAuto("Front 3-2-1");
   }
 }
