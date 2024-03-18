@@ -63,67 +63,6 @@
         {
           "type": "named",
           "data": {
-            "name": "Side Score"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "End"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Source Side - C4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Wait For Far Ring"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "C4 - Source Side"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Side Score"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "End"
           }
         }

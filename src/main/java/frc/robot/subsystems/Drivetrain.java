@@ -81,7 +81,7 @@ public class Drivetrain extends SubsystemBase {
             new HolonomicPathFollowerConfig(
                 new PIDConstants(5.25, 0, 0.002), // Translation PID
                 new PIDConstants( // Rotation PID
-                    4.35, 
+                    4.3, 
                     0.0, 
                     0.0), 
                 5.15, // Max module speed in m/s

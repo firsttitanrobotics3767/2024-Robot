@@ -28,10 +28,10 @@ public class Shooter extends SubsystemBase{
     public enum PositionState {
         IDLE(0.19),
         SHOOT(0.12),
-        SCORE_3(0.162),
+        SCORE_3(0.167),
         SIDE_SCORE(0.11),
         AMP(0.37),
-        HANDOFF(0.165),
+        HANDOFF(0.175),
         PASS(0.185);
 
         public double pos;
@@ -49,6 +49,7 @@ public class Shooter extends SubsystemBase{
     private double targetSpeed = 0;
     private double targetFeederSpeed = 0;
     public static boolean hasGamePiece = false;
+    private boolean areEncodersSynched = false;
 
     private final TalonFX shooterTop;
     private final TalonFX shooterBottom;
@@ -137,11 +138,15 @@ public class Shooter extends SubsystemBase{
         positionController.setSmartMotionMaxAccel(Constants.Shooter.maxAcc, 0);
         positionController.setSmartMotionMaxVelocity(Constants.Shooter.maxVel, 0);
 
-        resetPosition();
+        
     }
 
     @Override
     public void periodic() {
+        if (!areEncodersSynched) {
+            resetPosition();
+            areEncodersSynched = areEncodersSynched();
+        }
         if (controlState == ControlState.AUTOMATIC) {
             positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0,
                 Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
@@ -180,7 +185,7 @@ public class Shooter extends SubsystemBase{
     }
 
     public void moveTo(PositionState positionState) {
-        if (goalState == PositionState.AMP) {
+        if (positionState == PositionState.AMP) {
             positionController.setFeedbackDevice(absoluteEncoder);
         } else {
             positionController.setFeedbackDevice(positionEncoder);
@@ -206,6 +211,14 @@ public class Shooter extends SubsystemBase{
 
     public void resetPosition() {
         positionEncoder.setPosition(absoluteEncoder.getPosition());
+    }
+
+    public boolean areEncodersSynched() {
+        return ((getPosition() > (getAbsolutePosition() - 0.0005)) && (getPosition() < (getAbsolutePosition() + 0.0005)));
+    }
+
+    public void startHandoff() {
+        hasGamePiece = true;
     }
 
     public boolean hasGamePiece() {
