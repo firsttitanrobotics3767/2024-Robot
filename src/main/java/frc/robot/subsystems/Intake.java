@@ -222,7 +222,7 @@ public class Intake extends SubsystemBase{
 
     public boolean atGoal() {
         // return ((getAbsolutePosition() > (goalState.pos - 0.01)) && (getAbsolutePosition() < (goalState.pos + 0.01)));
-        return ((getPosition() > (goalState.pos - 0.005)) && (getPosition() < (goalState.pos + 0.005)));
+        return ((getPosition() > (goalState.pos - 0.01)) && (getPosition() < (goalState.pos + 0.01)));
     }
 
     public MovementState getMovementState() {

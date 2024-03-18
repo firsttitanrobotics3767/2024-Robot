@@ -33,10 +33,10 @@ public class Shooter extends SubsystemBase{
     public enum PositionState {
         IDLE(0.19),
         SHOOT(0.12),
-        SCORE_3(0.162),
+        SCORE_3(0.167),
         SIDE_SCORE(0.11),
         AMP(0.37),
-        HANDOFF(0.165),
+        HANDOFF(0.175),
         PASS(0.185);
 
         public double pos;
@@ -60,6 +60,7 @@ public class Shooter extends SubsystemBase{
     private double targetSpeed = 0;
     private double targetFeederSpeed = 0;
     public static boolean hasGamePiece = false;
+    private boolean areEncodersSynched = false;
 
     private final TalonFX shooterTop;
     private final TalonFX shooterBottom;
@@ -160,11 +161,15 @@ public class Shooter extends SubsystemBase{
         // positionMotor.setSoftLimit(SoftLimitDirection.kForward, (float)0.35);
         // positionMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)0.01);
 
-        resetPosition(absoluteEncoder.getPosition());
+        
     }
 
     @Override
     public void periodic() {
+        if (!areEncodersSynched) {
+            resetPosition();
+            areEncodersSynched = areEncodersSynched();
+        }
         // if (!auton) {
         //     if (lastState == PositionState.HANDOFF && !hasGamePiece && Superstructure.hasGamePiece) {
         //         setFeederSpeed(0.1);
@@ -241,8 +246,7 @@ public class Shooter extends SubsystemBase{
      * @param position double of the anglular position
      */
     public void moveTo(PositionState positionState) {
-        if (goalState == PositionState.AMP) {
-            resetPosition(absoluteEncoder.getPosition());
+        if (positionState == PositionState.AMP) {
             positionController.setFeedbackDevice(absoluteEncoder);
         } else {
             positionController.setFeedbackDevice(positionEncoder);
@@ -270,8 +274,12 @@ public class Shooter extends SubsystemBase{
         return absoluteEncoder.getPosition();
     }
 
-    public void resetPosition(double newPosition) {
+    public void resetPosition() {
         positionEncoder.setPosition(absoluteEncoder.getPosition());
+    }
+
+    public boolean areEncodersSynched() {
+        return ((getPosition() > (getAbsolutePosition() - 0.0005)) && (getPosition() < (getAbsolutePosition() + 0.0005)));
     }
 
     public void startHandoff() {
