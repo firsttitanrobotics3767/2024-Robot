@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Constants;
@@ -28,7 +29,7 @@ public class Intake extends SubsystemBase{
     public enum PositionState {
         GROUND(0.005),
         SCORING(0.1),
-        STOW(0.22);
+        STOW(0.23);
 
         public double pos;
         private PositionState(double pos) {
@@ -98,7 +99,7 @@ public class Intake extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if (!areEncodersSynched) {
+        if (!areEncodersSynched && Timer.getFPGATimestamp() > 10) {
             resetPosition();
             areEncodersSynched = areEncodersSynched();
         }
@@ -126,7 +127,7 @@ public class Intake extends SubsystemBase{
         SmartDashboard.putString("Intake/goalState", goalState.toString());
         SmartDashboard.putBoolean("Intake/hasGamePiece", hasGamePiece);
         SmartDashboard.putNumber("Intake/Sensor Distance", analogSensor.getValue());
-        // SmartDashboard.putNumber("Intake/roller torque", rollerMotor.getTorqueCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/roller torque", rollerMotor.getTorqueCurrent().getValueAsDouble());
         SmartDashboard.putNumber("Intake/positionVolts", positionLeftMotor.getMotorVoltage().getValueAsDouble());
     }
 
@@ -156,6 +157,7 @@ public class Intake extends SubsystemBase{
     }
 
     public double getAbsolutePosition() {
+        // return absoluteEncoder.getAbsolutePosition() - 0;
         return absoluteEncoder.getAbsolutePosition() - Constants.Intake.absoluteOffset;
     }
 

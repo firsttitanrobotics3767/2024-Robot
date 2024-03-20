@@ -21,13 +21,11 @@ public class Amp extends SequentialCommandGroup {
             new InstantCommand(() -> intake.setRollerSpeed(0.1)),
             new InstantCommand(() -> intake.moveTo(Intake.PositionState.SCORING)),
             new WaitCommand(0.3),
-            new SetShooterPosition(Shooter.PositionState.AMP).withTimeout(1.5),
+            new SetShooterPosition(Shooter.PositionState.AMP).withTimeout(0.7),
+            new InstantCommand(() -> intake.setRollerSpeed(0)),
 
-            new InstantCommand(() -> {shooter.setFeederSpeed(-0.1); intake.setRollerSpeed(0);}),
-            new WaitCommand(0.1),
-            new InstantCommand(() -> {shooter.setShootSpeed(20); shooter.setFeederSpeed(0);}),
             new WaitUntilCommand(shootButton),
-            new InstantCommand(() -> shooter.setFeederSpeed(0.30)),
+            new InstantCommand(() -> {shooter.setFeederSpeed(0.30); shooter.setShootSpeed(20);}),
             new WaitCommand(0.3),
             new InstantCommand(() -> {shooter.setShootSpeed(0); shooter.setFeederSpeed(0);}),
             new ParallelCommandGroup(

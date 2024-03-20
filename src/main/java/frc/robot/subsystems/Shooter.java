@@ -31,7 +31,7 @@ public class Shooter extends SubsystemBase{
         SCORE_3(0.167),
         SIDE_SCORE(0.11),
         AMP(0.37),
-        HANDOFF(0.175),
+        HANDOFF(0.18),
         PASS(0.185);
 
         public double pos;
@@ -186,9 +186,9 @@ public class Shooter extends SubsystemBase{
 
     public void moveTo(PositionState positionState) {
         if (positionState == PositionState.AMP) {
-            positionController.setFeedbackDevice(absoluteEncoder);
-        } else {
             positionController.setFeedbackDevice(positionEncoder);
+        } else {
+            positionController.setFeedbackDevice(absoluteEncoder);
         }
         goalState = positionState;
     }
