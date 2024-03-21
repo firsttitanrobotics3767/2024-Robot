@@ -35,10 +35,9 @@ public class Vision extends SubsystemBase{
         this.drivetrain = Drivetrain.getInstance();
 
         aprilTagCam = new PhotonCamera("Arducam_OV9281_USB_Camera");
-        //Transform3d robotToCam = new Transform3d(new Translation3d(-0.298, 0, 0.205), new Rotation3d(0, Units.degreesToRadians(45), 0));
-        Transform3d robotToCamNeptune = new Transform3d(new Translation3d(-Units.inchesToMeters(13.25), 0, Units.inchesToMeters(5)), new Rotation3d(0, Units.degreesToRadians(3.5), Units.degreesToRadians(180)));
+        Transform3d robotToCam = new Transform3d(new Translation3d(-0.298, 0, 0.205), new Rotation3d(0, Units.degreesToRadians(45), 0));
 
-        photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.AVERAGE_BEST_TARGETS, aprilTagCam, robotToCamNeptune);
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.AVERAGE_BEST_TARGETS, aprilTagCam, robotToCam);
 
     }
 
@@ -51,11 +50,12 @@ public class Vision extends SubsystemBase{
             List<PhotonTrackedTarget> targets = result.targets;
             for (PhotonTrackedTarget target : targets) {
                 if (target.getPoseAmbiguity() >= 0.08) {
-                    System.out.println("not estimating");
+                    SmartDashboard.putBoolean("vision/isEstimating", false);
                     break;
                 } else {
                     estimatedPose = getEstimatedGlobalPose(drivetrain.getPose());
-                    System.out.println(estimatedPose.get().estimatedPose);
+                    SmartDashboard.putBoolean("vision/isEstimating", true);
+                    SmartDashboard.putString("vision/estimatedPose", estimatedPose.get().estimatedPose.toString());
         
                     if (estimatedPose.isPresent()) {
                         drivetrain.addVisionMeasurement(estimatedPose.get().estimatedPose);
