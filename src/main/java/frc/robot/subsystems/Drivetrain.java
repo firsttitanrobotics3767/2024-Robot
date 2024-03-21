@@ -7,6 +7,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -14,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -229,6 +231,11 @@ public class Drivetrain extends SubsystemBase {
      */
     public SwerveController getSwerveController() {
         return swerveDrive.getSwerveController();
+    }
+
+    public void addVisionMeasurement(Pose3d measurement) {
+        swerveDrive.addVisionMeasurement(measurement.toPose2d(), Timer.getFPGATimestamp());
+        swerveDrive.setGyroOffset(measurement.getRotation());
     }
 
     /**

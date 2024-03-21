@@ -30,11 +30,13 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Vision;
 import frc.robot.utils.Constants;
 import frc.robot.utils.Constants.IO;
 
 public class RobotContainer {
-
+  
+  public final Vision vision = new Vision();
   public final Drivetrain drivetrain = Drivetrain.getInstance();
   private final Intake intake = Intake.getInstance();
   private final Elevator elevator = Elevator.getInstance();
