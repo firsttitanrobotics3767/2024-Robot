@@ -9,6 +9,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -235,7 +236,9 @@ public class Drivetrain extends SubsystemBase {
 
     public void addVisionMeasurement(Pose3d measurement) {
         swerveDrive.addVisionMeasurement(measurement.toPose2d(), Timer.getFPGATimestamp());
-        swerveDrive.setGyroOffset(measurement.getRotation());
+        Pose2d newOdometry = new Pose2d(swerveDrive.getPose().getTranslation().getX(), swerveDrive.getPose().getTranslation().getY(), measurement.getRotation().toRotation2d());
+        swerveDrive.setGyroOffset(new Rotation3d(0, 0, measurement.getRotation().toRotation2d().getRadians()));
+        swerveDrive.resetOdometry(newOdometry);
     }
 
     /**
