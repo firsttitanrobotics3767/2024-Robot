@@ -29,8 +29,7 @@ public class Shooter extends SubsystemBase{
 
     public enum PositionState {
         IDLE(0.19),
-        SHOOT(0.12),
-        AUTO(0),
+        SHOOT(0),
         SCORE_3(0.167),
         SIDE_SCORE(0.11),
         AMP(0.37),
@@ -43,9 +42,16 @@ public class Shooter extends SubsystemBase{
         }
     }
 
-    private static InterpolatingDoubleTreeMap shootPosition = new InterpolatingDoubleTreeMap();
+    private static InterpolatingDoubleTreeMap shotAngle = new InterpolatingDoubleTreeMap();
 
     static {
+        shotAngle.put(1.55, 0.12);
+        shotAngle.put(2.0, 0.13);
+        shotAngle.put(2.5, 0.155);
+        shotAngle.put(3.0, 0.173);
+        shotAngle.put(3.5, 0.176);
+        shotAngle.put(4.0, 0.1885);
+        shotAngle.put(4.5, 0.1908);
     }
 
     private static Translation2d speaker = new Translation2d(0, 5.50);
@@ -157,11 +163,17 @@ public class Shooter extends SubsystemBase{
             resetPosition();
             areEncodersSynched = areEncodersSynched();
         }
-        if (controlState == ControlState.AUTOMATIC && goalState != PositionState.AUTO) {
-            positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0,
+        if (controlState == ControlState.AUTOMATIC) {
+            if (goalState == PositionState.SHOOT) {
+                positionController.setReference(getEstimatedShotAngle(), ControlType.kSmartMotion, 0,
+                Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);            
+            } else {
+                positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0,
                 Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
-        } else if (controlState == ControlState.AUTOMATIC && goalState == PositionState.AUTO) {
-            positionMotor.set(0);
+            }
+        } else if (controlState == ControlState.AUTOMATIC) {
+            positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
+            // setShootSpeed(80);
         } else {
             positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
         }
@@ -181,6 +193,10 @@ public class Shooter extends SubsystemBase{
         SmartDashboard.putNumber("Shooter/voltage", shooterBottom.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
+    }
+
+    public double getEstimatedShotAngle() {
+        return shotAngle.get(Drivetrain.getInstance().getPose().getTranslation().getDistance(speaker));
     }
     
     public void setShootSpeed(double speed) {
@@ -203,6 +219,7 @@ public class Shooter extends SubsystemBase{
         } else {
             positionController.setFeedbackDevice(absoluteEncoder);
         }
+
         goalState = positionState;
     }
 

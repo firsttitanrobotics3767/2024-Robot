@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -60,7 +61,7 @@ public class RobotContainer {
     // intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
     // shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(5)), shooter));
     elevator.setDefaultCommand(new RunCommand(() -> elevator.setSpeed(MathUtil.applyDeadband(-operator.getRawAxis(5), Constants.IO.elevatorDeadband)), elevator));
-    climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(MathUtil.applyDeadband(-operator.getRawAxis(1), Constants.IO.climberDeadband)), climber));
+    //climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(MathUtil.applyDeadband(-operator.getRawAxis(1), Constants.IO.climberDeadband)), climber));
 
     NamedCommands.registerCommand("Start", new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.SHOOT); shooter. setShootSpeed(80); intake.moveTo(Intake.PositionState.GROUND); intake.setRollerSpeed(0.3);}).andThen(new WaitCommand(0.5)).andThen(new InstantCommand(() -> shooter.setFeederSpeed(0.3))).andThen(new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.SCORE_3);})));
     NamedCommands.registerCommand("Side Score", new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.SIDE_SCORE); shooter. setShootSpeed(80); intake.moveTo(Intake.PositionState.STOW); intake.setRollerSpeed(0.3);}).andThen(new WaitCommand(0.3)).andThen(new InstantCommand(() -> shooter.setFeederSpeed(0.3))).andThen(new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.HANDOFF);})));
@@ -97,6 +98,8 @@ public class RobotContainer {
     manualIntake.onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2);}));
     manualIntake.onFalse(new InstantCommand(() -> {intake.setRollerSpeed(0); shooter.setFeederSpeed(0);}));
     prepareSpeakerButton.onTrue(new Shoot(() -> shootButton.getAsBoolean()));
+    //prepareSpeakerButton.onTrue(new SetShooterPosition(Shooter.PositionState.AUTO).alongWith(new SetIntakePosition(Intake.PositionState.SCORING)).alongWith(new SequentialCommandGroup(new InstantCommand(() -> {shooter.setFeederSpeed(-0.2); shooter.setShootSpeed(-2);}), new WaitCommand(0.1))).andThen(new InstantCommand(() -> {shooter.setShootSpeed(0); shooter.setFeederSpeed(0);})).andThen(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(1)))).alongWith(new RunCommand(() -> shooter.setShootSpeed(80))));
+    //shootButton.onTrue(new RunCommand(() -> shooter.setFeederSpeed(0.3)));
     passButton.onTrue(new Pass(() -> shootButton.getAsBoolean()));
     prepareAmpButton.onTrue(new Amp(() -> shootButton.getAsBoolean()));
     new Trigger(() -> operator.getRawButton(9)).onTrue(new InstantCommand(() -> elevator.resetPosition()));
