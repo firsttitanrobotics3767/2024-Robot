@@ -8,6 +8,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.PS5Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -79,6 +81,7 @@ public class RobotContainer {
   private void configureBindings() {
     Command intakeCommand = new AutoIntake(operator);
     Trigger resetGyroButton = new Trigger(() -> driver.getRawButton(IO.resetGyroButton));
+    Trigger faceLocationButton = new Trigger(() -> driver.getRawButton(5));
 
     Trigger intakeButton = new Trigger(() -> operator.getRawButton(IO.intakeButton));
     Trigger cancelIntakeButton = new Trigger(() -> operator.getRawButton(IO.cancelIntakeButton));
@@ -90,6 +93,7 @@ public class RobotContainer {
     Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
 
     resetGyroButton.onTrue(new InstantCommand(drivetrain::zeroGyro));
+    faceLocationButton.whileTrue(new InstantCommand((() -> drivetrain.aimChassis(new Translation2d(0, 0)))));
 
     intakeButton.onTrue(new InstantCommand(() -> intakeCommand.cancel()).andThen(intakeCommand));
     cancelIntakeButton.onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.HANDOFF)).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0);})));

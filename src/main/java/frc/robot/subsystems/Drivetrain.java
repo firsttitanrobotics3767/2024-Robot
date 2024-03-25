@@ -101,6 +101,19 @@ public class Drivetrain extends SubsystemBase {
             this);
     }
 
+    public Command aimChassis(Translation2d target) {
+        double faceLocationHeading = Math.atan2(
+            target.getX() - getPose().getX(),
+            target.getY() - getPose().getY()
+        );
+        return run(() -> driveFieldOriented(getTargetSpeeds(
+            swerveDrive.getFieldVelocity().vxMetersPerSecond,
+            swerveDrive.getFieldVelocity().vyMetersPerSecond,
+            Math.sin(faceLocationHeading),
+            Math.cos(faceLocationHeading)
+        )));
+    }
+
     public void setHeadingCorrection(boolean headingCorrection) {
         swerveDrive.setHeadingCorrection(headingCorrection);
     }

@@ -29,7 +29,8 @@ public class Shooter extends SubsystemBase{
 
     public enum PositionState {
         IDLE(0.19),
-        SHOOT(0),
+        SHOOT(0.12),
+        AUTO(0),
         SCORE_3(0.167),
         SIDE_SCORE(0.11),
         AMP(0.37),
@@ -164,7 +165,7 @@ public class Shooter extends SubsystemBase{
             areEncodersSynched = areEncodersSynched();
         }
         if (controlState == ControlState.AUTOMATIC) {
-            if (goalState == PositionState.SHOOT) {
+            if (goalState == PositionState.AUTO) {
                 positionController.setReference(getEstimatedShotAngle(), ControlType.kSmartMotion, 0,
                 Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);            
             } else {
