@@ -4,12 +4,21 @@ import java.io.File;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.math.SwerveMath;
 
 public class Constants {
+
+    public static class fieldLocations {
+        public static final Translation2d blueSpeaker = new Translation2d(0, 5.50);
+        public static final Translation2d redSpeaker = new Translation2d(16.5, 5.50);
+        public static final Translation2d bluePassZone = new Translation2d();
+        public static final Translation2d redPassZone = new Translation2d();   
+    }
+
     public static class IO {
         public static final double swerveDeadband = 0.04;
         public static final double elevatorDeadband = 0.04;
@@ -94,15 +103,18 @@ public class Constants {
         public static final double bottomFF = 0.117;
 
         // public static final double positionP = 0.004;
-        public static final double positionP = 0.004;
+        public static final double positionP = 9;
         public static final double positionI = 0;
-        public static final double positionD = 0.01;
-        public static final double positionFF = 0.75;
-        public static final double conversionFactor = 0.04;
-        public static final double maxVel = 120;
-        public static final double maxAcc = 240;
+        public static final double positionD = 0;
+        public static final double positionG = 0.37;
+        public static final double positionV = 2.5;
+        public static final double positionS = 0.9;
+        public static final double conversionFactor = 50;
+        public static final double maxVel = 1;
+        public static final double maxAcc = 2;
         // public static final double absoluteOffset = 0.49;
-        public static final double absoluteOffset = 0.52;
+        public static final double absoluteOffset = 0.59;
+        public static final double absoluteConversionFactor = 1.0;
 
         public static final double feederP = 0;
         public static final double feederI = 0;

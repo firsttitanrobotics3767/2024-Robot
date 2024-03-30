@@ -1,8 +1,12 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
@@ -16,6 +20,10 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -28,13 +36,13 @@ public class Shooter extends SubsystemBase{
     }
 
     public enum PositionState {
-        IDLE(0.19),
+        IDLE(0.145),
         SHOOT(0.12),
         AUTO(0),
         SCORE_3(0.167),
         SIDE_SCORE(0.11),
         AMP(0.37),
-        HANDOFF(0.18),
+        HANDOFF(-0.145),
         PASS(0.185);
 
         public double pos;
@@ -75,14 +83,14 @@ public class Shooter extends SubsystemBase{
     private final TalonFXConfiguration shooterTopConfig;
     private final TalonFXConfiguration shooterBottomConfig;
     private final TalonFXConfiguration feederConfig;
+    private final TalonFXConfiguration positionConfig;
 
     private final VelocityVoltage shooterTopVelocityVolt;
     private final VelocityVoltage shooterBottomVelocityVolt;
 
-    private final CANSparkMax positionMotor;
-    private final RelativeEncoder positionEncoder;
-    private final AbsoluteEncoder absoluteEncoder;
-    private final SparkPIDController positionController;
+    private final TalonFX positionMotor;
+    // private final RelativeEncoder positionEncoder;
+    private final DutyCycleEncoder absoluteEncoder;
 
     private final DigitalInput sensor = new DigitalInput(0);
 
@@ -97,7 +105,7 @@ public class Shooter extends SubsystemBase{
     public Shooter() {
         shooterTop = new TalonFX(Constants.Shooter.topCANID);
         shooterTop.setNeutralMode(NeutralModeValue.Brake);
-        shooterTop.setInverted(true);
+        shooterTop.setInverted(false);
         
         shooterBottom = new TalonFX(Constants.Shooter.bottomCANID);
         shooterBottom.setNeutralMode(NeutralModeValue.Brake);
@@ -133,29 +141,30 @@ public class Shooter extends SubsystemBase{
         shooterBottomVelocityVolt = new VelocityVoltage(0).withSlot(0);
         shooterTopVelocityVolt = new VelocityVoltage(0).withSlot(0);
 
-        positionMotor = new CANSparkMax(Constants.Shooter.rotationCANID, MotorType.kBrushless);
-        positionMotor.restoreFactoryDefaults();
-        positionMotor.setIdleMode(IdleMode.kBrake);
+        positionMotor = new TalonFX(Constants.Shooter.rotationCANID);
+
+        absoluteEncoder = new DutyCycleEncoder(2);
+        absoluteEncoder.setDistancePerRotation(Constants.Shooter.absoluteConversionFactor);
+        
+        positionConfig = new TalonFXConfiguration();
+        positionConfig.Slot0.kP = Constants.Shooter.positionP;
+        positionConfig.Slot0.kI = Constants.Shooter.positionI;
+        positionConfig.Slot0.kD = Constants.Shooter.positionD;
+        positionConfig.Slot0.kG = Constants.Shooter.positionG;
+        positionConfig.Slot0.kV = Constants.Shooter.positionV;
+        positionConfig.Slot0.kS = Constants.Shooter.positionS;
+        positionConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+        positionConfig.Feedback.SensorToMechanismRatio = Constants.Shooter.conversionFactor;
+        MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
+        motionMagicConfigs.MotionMagicCruiseVelocity = Constants.Shooter.maxVel;
+        motionMagicConfigs.MotionMagicAcceleration = Constants.Shooter.maxAcc;
+
+        positionMotor.getConfigurator().apply(positionConfig.Slot0);
+        positionMotor.getConfigurator().apply(motionMagicConfigs);
+        positionMotor.getConfigurator().apply(positionConfig.Feedback);
+        
+        positionMotor.setNeutralMode(NeutralModeValue.Brake);
         positionMotor.setInverted(true);
-        positionMotor.setSmartCurrentLimit(40);
-
-        absoluteEncoder = positionMotor.getAbsoluteEncoder(Type.kDutyCycle);
-        absoluteEncoder.setZeroOffset(Constants.Shooter.absoluteOffset);
-        absoluteEncoder.setInverted(true);
-        
-        positionEncoder = positionMotor.getEncoder();
-        positionEncoder.setPositionConversionFactor(Constants.Shooter.conversionFactor);
-        positionEncoder.setVelocityConversionFactor(Constants.Shooter.conversionFactor);
-
-        positionController = positionMotor.getPIDController();
-        positionController.setFeedbackDevice(absoluteEncoder);
-        positionController.setP(Constants.Shooter.positionP);
-        positionController.setI(Constants.Shooter.positionI);
-        positionController.setD(Constants.Shooter.positionD);
-        positionController.setSmartMotionMaxAccel(Constants.Shooter.maxAcc, 0);
-        positionController.setSmartMotionMaxVelocity(Constants.Shooter.maxVel, 0);
-
-        
     }
 
     @Override
@@ -163,21 +172,24 @@ public class Shooter extends SubsystemBase{
         if (!areEncodersSynched) {
             resetPosition();
             areEncodersSynched = areEncodersSynched();
+            SmartDashboard.putBoolean("Shooter/resetEncoder", areEncodersSynched ? true : false);
         }
+        //if (controlState == ControlState.AUTOMATIC) {
+        //    if (goalState == PositionState.AUTO) {
+        //        positionMotor.setControl(new MotionMagicVoltage(getEstimatedShotAngle(DriverStation.getAlliance().get())));  
+        //    } else {
+        //        positionMotor.setControl(new MotionMagicVoltage(goalState.pos));
+        //    }
+        //} else if (controlState == ControlState.AUTOMATIC) {
+        //     positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
+        //     // setShootSpeed(80);
+        // } else {
+        //     positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
+        // }
+
         if (controlState == ControlState.AUTOMATIC) {
-            if (goalState == PositionState.AUTO) {
-                positionController.setReference(getEstimatedShotAngle(), ControlType.kSmartMotion, 0,
-                Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);            
-            } else {
-                positionController.setReference(goalState.pos, ControlType.kSmartMotion, 0,
-                Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF);
-            }
-        } else if (controlState == ControlState.AUTOMATIC) {
-            positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
-            // setShootSpeed(80);
-        } else {
-            positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
-        }
+            positionMotor.setControl(new MotionMagicVoltage(goalState.pos));
+        } 
 
         feeder.set(targetFeederSpeed);
 
@@ -186,8 +198,8 @@ public class Shooter extends SubsystemBase{
 
         SmartDashboard.putNumber("Shooter/distanceToSpeaker", Drivetrain.getInstance().getPose().getTranslation().getDistance(speaker));
         SmartDashboard.putNumber("Shooter/measuredPosition", getPosition());
-        SmartDashboard.putNumber("Shooter/absolute Position", absoluteEncoder.getPosition());
-        SmartDashboard.putNumber("Shooter/positionCurrent", positionMotor.getOutputCurrent());
+        SmartDashboard.putNumber("Shooter/absolute Position", getAbsolutePosition());
+        SmartDashboard.putNumber("Shooter/positionVolts", positionMotor.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putBoolean("Shooter/atGoal", atGoal());
         SmartDashboard.putString("Shooter/goalState", goalState.toString());
         SmartDashboard.putString("Shooter/lastState", lastState.toString());
@@ -196,8 +208,8 @@ public class Shooter extends SubsystemBase{
         SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
     }
 
-    public double getEstimatedShotAngle() {
-        return shotAngle.get(Drivetrain.getInstance().getPose().getTranslation().getDistance(speaker));
+    public double getEstimatedShotAngle(Alliance alliance) {
+        return shotAngle.get(Drivetrain.getInstance().getPose().getTranslation().getDistance((alliance == Alliance.Blue) ? Constants.fieldLocations.blueSpeaker : Constants.fieldLocations.redSpeaker));
     }
     
     public void setShootSpeed(double speed) {
@@ -211,16 +223,10 @@ public class Shooter extends SubsystemBase{
     }
 
     public void setPositionSpeed(double speed) {
-        targetOpenLoopOutput = speed * 0.2;
+        targetOpenLoopOutput = speed * 0.1;
     }
 
     public void moveTo(PositionState positionState) {
-        if (positionState == PositionState.AMP) {
-            positionController.setFeedbackDevice(positionEncoder);
-        } else {
-            positionController.setFeedbackDevice(absoluteEncoder);
-        }
-
         goalState = positionState;
     }
 
@@ -233,15 +239,15 @@ public class Shooter extends SubsystemBase{
     }
     
     public double getPosition() {
-        return positionEncoder.getPosition();
+        return positionMotor.getPosition().getValueAsDouble();
     }
 
     public double getAbsolutePosition() {
-        return absoluteEncoder.getPosition();
+        return absoluteEncoder.getAbsolutePosition() - Constants.Shooter.absoluteOffset;
     }
 
     public void resetPosition() {
-        positionEncoder.setPosition(absoluteEncoder.getPosition());
+        positionMotor.setPosition(getAbsolutePosition());
     }
 
     public boolean areEncodersSynched() {

@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Constants;
 import swervelib.SwerveController;
@@ -106,7 +107,7 @@ public class Drivetrain extends SubsystemBase {
             target.getX() - getPose().getX(),
             target.getY() - getPose().getY()
         );
-        return run(() -> driveFieldOriented(getTargetSpeeds(
+        return new RunCommand(() -> driveFieldOriented(getTargetSpeeds(
             swerveDrive.getFieldVelocity().vxMetersPerSecond,
             swerveDrive.getFieldVelocity().vyMetersPerSecond,
             Math.sin(faceLocationHeading),

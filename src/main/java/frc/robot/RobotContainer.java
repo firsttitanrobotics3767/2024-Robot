@@ -10,7 +10,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS5Controller;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,6 +29,7 @@ import frc.robot.commands.Pass;
 import frc.robot.commands.SetIntakePosition;
 import frc.robot.commands.SetShooterPosition;
 import frc.robot.commands.Shoot;
+import frc.robot.commands.ShootAutoAim;
 import frc.robot.commands.TeleopDrive;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
@@ -60,8 +63,8 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
       () -> !driver.getRawButton(IO.driveModeButton)
     ));
-    // intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
-    // shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(5)), shooter));
+    //intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
+    //shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(1)), shooter));
     elevator.setDefaultCommand(new RunCommand(() -> elevator.setSpeed(MathUtil.applyDeadband(-operator.getRawAxis(5), Constants.IO.elevatorDeadband)), elevator));
     //climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(MathUtil.applyDeadband(-operator.getRawAxis(1), Constants.IO.climberDeadband)), climber));
 
@@ -93,7 +96,7 @@ public class RobotContainer {
     Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
 
     resetGyroButton.onTrue(new InstantCommand(drivetrain::zeroGyro));
-    faceLocationButton.whileTrue(new InstantCommand((() -> drivetrain.aimChassis(new Translation2d(0, 0)))));
+    faceLocationButton.whileTrue(drivetrain.aimChassis((DriverStation.getAlliance().get() == Alliance.Blue) ? Constants.fieldLocations.blueSpeaker : Constants.fieldLocations.redSpeaker));
 
     intakeButton.onTrue(new InstantCommand(() -> intakeCommand.cancel()).andThen(intakeCommand));
     cancelIntakeButton.onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.HANDOFF)).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0);})));
@@ -101,7 +104,7 @@ public class RobotContainer {
     reverseIntakeButton.onFalse(new InstantCommand(() -> intake.setRollerSpeed(0)));
     manualIntake.onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2);}));
     manualIntake.onFalse(new InstantCommand(() -> {intake.setRollerSpeed(0); shooter.setFeederSpeed(0);}));
-    prepareSpeakerButton.onTrue(new Shoot(() -> shootButton.getAsBoolean()));
+    prepareSpeakerButton.onTrue(new ShootAutoAim(() -> shootButton.getAsBoolean()));
     //prepareSpeakerButton.onTrue(new SetShooterPosition(Shooter.PositionState.AUTO).alongWith(new SetIntakePosition(Intake.PositionState.SCORING)).alongWith(new SequentialCommandGroup(new InstantCommand(() -> {shooter.setFeederSpeed(-0.2); shooter.setShootSpeed(-2);}), new WaitCommand(0.1))).andThen(new InstantCommand(() -> {shooter.setShootSpeed(0); shooter.setFeederSpeed(0);})).andThen(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(1)))).alongWith(new RunCommand(() -> shooter.setShootSpeed(80))));
     //shootButton.onTrue(new RunCommand(() -> shooter.setFeederSpeed(0.3)));
     passButton.onTrue(new Pass(() -> shootButton.getAsBoolean()));

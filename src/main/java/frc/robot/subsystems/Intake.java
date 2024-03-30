@@ -106,13 +106,13 @@ public class Intake extends SubsystemBase{
 
         hasGamePiece = hasGamePiece();
 
-        if (controlState == ControlState.AUTOMATIC) {
-            positionLeftMotor.setControl(new MotionMagicVoltage(goalState.pos));
-            positionRightMotor.setControl(new Follower(Constants.Intake.positionLeftCANID, true));
-        } else {
-            positionLeftMotor.setControl(new DutyCycleOut(targetOpenLoopOutput));
-            positionRightMotor.setControl(new Follower(Constants.Intake.positionLeftCANID, true));
-        }
+        // if (controlState == ControlState.AUTOMATIC) {
+        //     positionLeftMotor.setControl(new MotionMagicVoltage(goalState.pos));
+        //     positionRightMotor.setControl(new Follower(Constants.Intake.positionLeftCANID, true));
+        // } else {
+        //     positionLeftMotor.setControl(new DutyCycleOut(targetOpenLoopOutput));
+        //     positionRightMotor.setControl(new Follower(Constants.Intake.positionLeftCANID, true));
+        // }
 
         rollerMotor.set(targetRollerSpeed);
 
