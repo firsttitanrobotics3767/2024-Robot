@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 2.3639569086262413,
+        "x": 2.6,
         "y": 5.5
       },
       "prevControl": {
-        "x": 1.3639569086262413,
+        "x": 1.6,
         "y": 5.5
       },
       "nextControl": null,
@@ -35,7 +35,7 @@
     "maxVelocity": 4.0,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 180.0
+    "maxAngularAcceleration": 120.0
   },
   "goalEndState": {
     "velocity": 0,
@@ -43,7 +43,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Sx-x",
+  "folder": "manual",
   "previewStartingState": null,
   "useDefaultConstraints": true
 }

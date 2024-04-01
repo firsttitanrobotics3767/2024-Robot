@@ -17,16 +17,23 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.utils.Constants;
 
 public class Shooter extends SubsystemBase{
@@ -36,14 +43,14 @@ public class Shooter extends SubsystemBase{
     }
 
     public enum PositionState {
-        IDLE(0.145),
-        SHOOT(0.12),
+        IDLE(0.045),
+        SHOOT(0.02),
         AUTO(0),
-        SCORE_3(0.167),
-        SIDE_SCORE(0.11),
-        AMP(0.37),
-        HANDOFF(-0.145),
-        PASS(0.185);
+        SCORE_3(0.067),
+        SIDE_SCORE(0.01),
+        AMP(0.27),
+        HANDOFF(0.07),
+        PASS(0.085);
 
         public double pos;
         private PositionState(double pos) {
@@ -92,7 +99,10 @@ public class Shooter extends SubsystemBase{
     // private final RelativeEncoder positionEncoder;
     private final DutyCycleEncoder absoluteEncoder;
 
+    private final MotionMagicVoltage positionController;
+
     private final DigitalInput sensor = new DigitalInput(0);
+
 
     public static Shooter getInstance() {
         if (instance == null) {
@@ -102,10 +112,13 @@ public class Shooter extends SubsystemBase{
         return instance;
     }
 
+    // SysIdRoutine routine = new SysIdRoutine(new Config(Units.Volts.of(0.1).per(1), Units.Volts.of(1)), );
+    
+
     public Shooter() {
         shooterTop = new TalonFX(Constants.Shooter.topCANID);
         shooterTop.setNeutralMode(NeutralModeValue.Brake);
-        shooterTop.setInverted(false);
+        shooterTop.setInverted(true);
         
         shooterBottom = new TalonFX(Constants.Shooter.bottomCANID);
         shooterBottom.setNeutralMode(NeutralModeValue.Brake);
@@ -113,7 +126,7 @@ public class Shooter extends SubsystemBase{
 
         feeder = new TalonFX(Constants.Shooter.feederCANID);
         feeder.setNeutralMode(NeutralModeValue.Brake);
-        feeder.setInverted(true);
+        feeder.setInverted(false);
 
         shooterTopConfig = new TalonFXConfiguration();
         shooterBottomConfig = new TalonFXConfiguration();
@@ -146,6 +159,13 @@ public class Shooter extends SubsystemBase{
         absoluteEncoder = new DutyCycleEncoder(2);
         absoluteEncoder.setDistancePerRotation(Constants.Shooter.absoluteConversionFactor);
         
+        // positionController = new ProfiledPIDController(
+        //     Constants.Shooter.positionP,
+        //     Constants.Shooter.positionI,
+        //     Constants.Shooter.positionD,
+        //     new Constraints(Constants.Shooter.maxVel, Constants.Shooter.maxAcc)
+        // );
+
         positionConfig = new TalonFXConfiguration();
         positionConfig.Slot0.kP = Constants.Shooter.positionP;
         positionConfig.Slot0.kI = Constants.Shooter.positionI;
@@ -162,17 +182,24 @@ public class Shooter extends SubsystemBase{
         positionMotor.getConfigurator().apply(positionConfig.Slot0);
         positionMotor.getConfigurator().apply(motionMagicConfigs);
         positionMotor.getConfigurator().apply(positionConfig.Feedback);
+
+        positionController = new MotionMagicVoltage(goalState.pos);
         
         positionMotor.setNeutralMode(NeutralModeValue.Brake);
-        positionMotor.setInverted(true);
+        positionMotor.setInverted(false);
     }
 
     @Override
     public void periodic() {
-        if (!areEncodersSynched) {
+        if (!areEncodersSynched && Timer.getFPGATimestamp() > 10) {
             resetPosition();
             areEncodersSynched = areEncodersSynched();
+            System.out.println("out of sync : " + getPosition() + " | " + getAbsolutePosition());
             SmartDashboard.putBoolean("Shooter/resetEncoder", areEncodersSynched ? true : false);
+        }
+        if (lastGoalState == PositionState.HANDOFF && goalState != PositionState.HANDOFF) {
+            resetPosition();
+            System.out.println("reset");
         }
         //if (controlState == ControlState.AUTOMATIC) {
         //    if (goalState == PositionState.AUTO) {
@@ -188,7 +215,10 @@ public class Shooter extends SubsystemBase{
         // }
 
         if (controlState == ControlState.AUTOMATIC) {
+            // positionController.Position = goalState.pos;
             positionMotor.setControl(new MotionMagicVoltage(goalState.pos));
+            // double controllerOutput = positionController.calculate(getAbsolutePosition(), goalState.pos);
+            // positionMotor.setVoltage(controllerOutput + Math.cos(getAbsolutePosition() * Constants.Shooter.positionG) + (Math.signum(controllerOutput) * Constants.Shooter.positionS));
         } 
 
         feeder.set(targetFeederSpeed);
@@ -203,9 +233,12 @@ public class Shooter extends SubsystemBase{
         SmartDashboard.putBoolean("Shooter/atGoal", atGoal());
         SmartDashboard.putString("Shooter/goalState", goalState.toString());
         SmartDashboard.putString("Shooter/lastState", lastState.toString());
-        SmartDashboard.putNumber("Shooter/voltage", shooterBottom.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
+        SmartDashboard.putNumber("Shooter/voltage", positionMotor.getMotorVoltage().getValueAsDouble());
+        // SmartDashboard.putNumber("Shooter/voltage", shooterBottom.getMotorVoltage().getValueAsDouble());
+        // SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
+        // SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
+        SmartDashboard.putNumber("Shooter/velocity", positionMotor.getVelocity().getValueAsDouble());
+        // SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
     }
 
     public double getEstimatedShotAngle(Alliance alliance) {
@@ -223,7 +256,7 @@ public class Shooter extends SubsystemBase{
     }
 
     public void setPositionSpeed(double speed) {
-        targetOpenLoopOutput = speed * 0.1;
+        positionMotor.set(speed);
     }
 
     public void moveTo(PositionState positionState) {
@@ -243,7 +276,7 @@ public class Shooter extends SubsystemBase{
     }
 
     public double getAbsolutePosition() {
-        return absoluteEncoder.getAbsolutePosition() - Constants.Shooter.absoluteOffset;
+        return -(absoluteEncoder.getAbsolutePosition() - Constants.Shooter.absoluteOffset);
     }
 
     public void resetPosition() {

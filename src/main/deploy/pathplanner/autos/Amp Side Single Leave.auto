@@ -14,19 +14,19 @@
         {
           "type": "named",
           "data": {
-            "name": "Single Score"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
+            "name": "Prepare Close Shot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "End"
+            "name": "Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Amp Side Leave"
           }
         }
       ]

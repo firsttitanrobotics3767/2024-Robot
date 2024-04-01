@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3,
-        "y": 5.5
+        "x": 2.7,
+        "y": 6.8
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.882543191671961,
-        "y": 6.245861457839336
+        "x": 2.0635131712488803,
+        "y": 6.230165042355762
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.7,
-        "y": 7.45
+        "x": 1.3,
+        "y": 5.5
       },
       "prevControl": {
-        "x": 6.7,
-        "y": 7.45
+        "x": 1.9356792559738978,
+        "y": 6.107637599890586
       },
       "nextControl": null,
       "isLocked": false,
@@ -39,11 +39,14 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0,
-    "rotateFast": false
+    "rotation": 0,
+    "rotateFast": true
   },
   "reversed": false,
-  "folder": "Front-Cx",
-  "previewStartingState": null,
+  "folder": "manual",
+  "previewStartingState": {
+    "rotation": 45.0,
+    "velocity": 0
+  },
   "useDefaultConstraints": true
 }

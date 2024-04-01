@@ -103,17 +103,18 @@ public class Constants {
         public static final double bottomFF = 0.117;
 
         // public static final double positionP = 0.004;
-        public static final double positionP = 9;
+        public static final double positionP = 30;
         public static final double positionI = 0;
         public static final double positionD = 0;
-        public static final double positionG = 0.37;
+        public static final double positionG = 0.38;
         public static final double positionV = 2.5;
-        public static final double positionS = 0.9;
-        public static final double conversionFactor = 50;
-        public static final double maxVel = 1;
-        public static final double maxAcc = 2;
+        // public static final double positionV = 0.0;
+        public static final double positionS = 0.4;
+        public static final double conversionFactor = 44.1176471;
+        public static final double maxVel = 2;
+        public static final double maxAcc = 4;
         // public static final double absoluteOffset = 0.49;
-        public static final double absoluteOffset = 0.59;
+        public static final double absoluteOffset = 0.54;
         public static final double absoluteConversionFactor = 1.0;
 
         public static final double feederP = 0;
