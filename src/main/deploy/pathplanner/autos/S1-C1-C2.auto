@@ -5,7 +5,7 @@
       "x": 0.75,
       "y": 4.5
     },
-    "rotation": -50.0
+    "rotation": -48.0
   },
   "command": {
     "type": "sequential",
@@ -54,13 +54,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Front-2"
+                        "pathName": "S1-C1"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "2-Front"
+                        "pathName": "C1-Shoot"
                       }
                     },
                     {
@@ -85,7 +85,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "Prepare Close Shot"
+                        "name": "Prepare Far Shot"
                       }
                     }
                   ]
@@ -101,7 +101,7 @@
           }
         },
         {
-          "type": "race",
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -111,19 +111,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Front-3"
+                        "pathName": "Shoot-C4"
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "3-Front"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.0
+                        "pathName": "C4-Shoot"
                       }
                     }
                   ]
@@ -142,64 +136,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "Prepare Close Shot"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Front-1"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "1-Front"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.0
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Prepare Close Shot"
+                        "name": "Prepare Far Shot"
                       }
                     }
                   ]

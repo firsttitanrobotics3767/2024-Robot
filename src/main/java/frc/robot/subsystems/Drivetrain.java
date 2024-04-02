@@ -53,7 +53,7 @@ public class Drivetrain extends SubsystemBase {
         System.out.println("\t\"drive\": " + driveConversionFactor);
         System.out.println("}");
 
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
 
         try {
             swerveDrive = new SwerveParser(Constants.Swerve.directory).createSwerveDrive(maxSpeed, angleConversionFactor, driveConversionFactor);
@@ -204,7 +204,7 @@ public class Drivetrain extends SubsystemBase {
      * @return The yaw angle
      */    
     public Rotation2d getHeading() {
-        return swerveDrive.getYaw();
+        return swerveDrive.getOdometryHeading();
     }
 
     /**
@@ -219,6 +219,10 @@ public class Drivetrain extends SubsystemBase {
      */
     public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, double headingX, double headingY) {
         return swerveDrive.swerveController.getTargetSpeeds(xInput, yInput, headingX, headingY, getHeading().getRadians(), Constants.Swerve.maxVelocity);
+    }
+
+    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d heading) {
+        return swerveDrive.swerveController.getTargetSpeeds(yInput, xInput, heading.getRadians(), getHeading().getRadians(), Constants.Swerve.maxVelocity);
     }
 
     /**

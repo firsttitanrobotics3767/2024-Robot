@@ -30,7 +30,7 @@ public class AutoIntake extends SequentialCommandGroup {
             ),
             new InstantCommand(() -> {intake.setRollerSpeed(0.5); shooter.setFeederSpeed(0.2); shooter.setShootSpeed(-2);}),
             new WaitCommand(0.2),
-            new WaitUntilCommand(() -> intake.getTorqueCurrent() < 25),
+            new WaitUntilCommand(() -> shooter.hasGamePiece()),
             new InstantCommand(() -> {intake.setRollerSpeed(0.0); shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0); SmartDashboard.putBoolean("Intake Ring", false); SmartDashboard.putBoolean("Ready to Shoot", true);})
 
         );

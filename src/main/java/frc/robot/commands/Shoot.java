@@ -24,11 +24,12 @@ public class Shoot extends SequentialCommandGroup {
             new SetShooterPosition(Shooter.PositionState.SHOOT).withTimeout(1),
 
             new InstantCommand(() -> {shooter.setFeederSpeed(-0.1); shooter.setShootSpeed(-2); intake.setRollerSpeed(0);}),
-            new WaitCommand(0.1),
+            new WaitUntilCommand(() -> !shooter.hasGamePiece()),
             new InstantCommand(() -> {shooter.setShootSpeed(80); shooter.setFeederSpeed(0);}),
             new WaitUntilCommand(shootButton),
             new InstantCommand(() -> shooter.setFeederSpeed(0.30)),
-            new WaitCommand(0.3),
+            new WaitCommand(0.2),
+            new WaitUntilCommand(() -> !shooter.hasGamePiece()),
             new InstantCommand(() -> {shooter.setShootSpeed(0); shooter.setFeederSpeed(0);}),
             // new SetSuperstructureState(Superstructure.SystemState.STOW)
             new ParallelCommandGroup(

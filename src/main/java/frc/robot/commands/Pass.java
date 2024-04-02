@@ -28,7 +28,7 @@ public class Pass extends SequentialCommandGroup {
             new InstantCommand(() -> {shooter.setShootSpeed(80); shooter.setFeederSpeed(0);}),
             new WaitUntilCommand(shootButton),
             new InstantCommand(() -> shooter.setFeederSpeed(0.30)),
-            new WaitCommand(0.3),
+            new WaitCommand(0.5),
             new InstantCommand(() -> {shooter.setShootSpeed(0); shooter.setFeederSpeed(0);}),
             new ParallelCommandGroup(
                 new SetShooterPosition(Shooter.PositionState.HANDOFF),

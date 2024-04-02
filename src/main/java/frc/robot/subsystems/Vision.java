@@ -45,7 +45,7 @@ public class Vision extends SubsystemBase{
         this.drivetrain = Drivetrain.getInstance();
 
         aprilTagCam = new PhotonCamera("Arducam_OV9281_USB_Camera");
-        Transform3d robotToCam = new Transform3d(new Translation3d(Units.inchesToMeters(-11), Units.inchesToMeters(7.25), Units.inchesToMeters(8.75)), new Rotation3d(0, Units.degreesToRadians(45), Units.degreesToRadians(180)));
+        Transform3d robotToCam = new Transform3d(new Translation3d(-0.289857, -0.31749, 0.171914), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(135), Units.degreesToRadians(0)));
 
         photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, aprilTagCam, robotToCam);
 

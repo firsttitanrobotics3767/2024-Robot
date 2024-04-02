@@ -8,16 +8,16 @@ import frc.robot.commands.SetShooterPosition;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
-public class PrepareCloseShotAuton extends SequentialCommandGroup{
+public class PrepareSideShotAuton extends SequentialCommandGroup{
     private final Shooter shooter = Shooter.getInstance();
     private final Intake intake = Intake.getInstance();
 
-    public PrepareCloseShotAuton() {
+    public PrepareSideShotAuton() {
         addCommands(
             new InstantCommand(() -> intake.setRollerSpeed(0.1)),
             new InstantCommand(() -> intake.moveTo(Intake.PositionState.SCORING)),
             new WaitCommand(0.2),
-            new SetShooterPosition(Shooter.PositionState.SHOOT).withTimeout(1),
+            new SetShooterPosition(Shooter.PositionState.SIDE_SCORE).withTimeout(1),
 
             new InstantCommand(() -> {shooter.setFeederSpeed(-0.1); shooter.setShootSpeed(-2); intake.setRollerSpeed(0);}),
             new WaitUntilCommand(() -> !shooter.hasGamePiece()),

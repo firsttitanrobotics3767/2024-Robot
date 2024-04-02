@@ -1,7 +1,10 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -10,8 +13,8 @@ import frc.robot.utils.Constants;
 
 public class Elevator extends SubsystemBase{
     public enum PositionState {
-        STOW(0.5),
-        AMP(20),
+        STOW(1),
+        AMP(33),
         SAFE_SHOOT(35);
 
         public double pos;
@@ -25,6 +28,7 @@ public class Elevator extends SubsystemBase{
     private final TalonFX elevatorMotor;
     private final TalonFXConfiguration elevatorConfig;
 
+    private boolean positionControlled = true;
     private PositionState goalState = PositionState.STOW;
 
     public static Elevator getInstance() {
@@ -40,21 +44,36 @@ public class Elevator extends SubsystemBase{
         elevatorConfig = new TalonFXConfiguration();
         elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 35;
-        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.2;
-        elevatorMotor.getConfigurator().apply(elevatorConfig);
+        elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 37;
+        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 1;
         elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
         elevatorMotor.setInverted(false);
         elevatorMotor.setPosition(0);
+        elevatorConfig.Slot0.kP = Constants.Elevator.positionP;
+        elevatorConfig.Slot0.kI = Constants.Elevator.positionI;
+        elevatorConfig.Slot0.kD = Constants.Elevator.positionD;
+        elevatorConfig.Slot0.kG = Constants.Elevator.positionG;
+        elevatorConfig.Slot0.kV = Constants.Elevator.positionV;
+        elevatorConfig.Slot0.kS = Constants.Elevator.positionS;
+        elevatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+        MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
+        motionMagicConfigs.MotionMagicCruiseVelocity = Constants.Elevator.maxVel;
+        motionMagicConfigs.MotionMagicAcceleration = Constants.Elevator.maxAccel;
+
+        elevatorMotor.getConfigurator().apply(elevatorConfig);
+        elevatorMotor.getConfigurator().apply(motionMagicConfigs);
     }
 
     @Override
     public void periodic() {
-        // SmartDashboard.putString("Elevator/goalState", goalState.toString());
-        // SmartDashboard.putNumber("Elevator/targetPos", goalState.pos);
+        // if (positionControlled) {
+        //     elevatorMotor.setControl(new MotionMagicVoltage(goalState.pos));
+        // }
+        SmartDashboard.putString("Elevator/goalState", goalState.toString());
+        SmartDashboard.putNumber("Elevator/targetPos", goalState.pos);
         SmartDashboard.putNumber("Elevator/measuredPos", elevatorMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Elevator/velocity", elevatorMotor.getVelocity().getValueAsDouble());
-        // SmartDashboard.putBoolean("Elevator/at goal", atGoal());
+        SmartDashboard.putBoolean("Elevator/at goal", atGoal());
     }
 
     public void moveTo(PositionState position) {

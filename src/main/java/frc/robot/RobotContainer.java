@@ -33,6 +33,8 @@ import frc.robot.commands.ShootAutoAim;
 import frc.robot.commands.TeleopDrive;
 import frc.robot.commands.auton.GetRingAuton;
 import frc.robot.commands.auton.PrepareCloseShotAuton;
+import frc.robot.commands.auton.PrepareFarShotAuton;
+import frc.robot.commands.auton.PrepareSideShotAuton;
 import frc.robot.commands.auton.ShootAuton;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
@@ -44,6 +46,17 @@ import frc.robot.utils.Constants;
 import frc.robot.utils.Constants.IO;
 
 public class RobotContainer {
+  
+  public enum FaceLocation {
+    None(0),
+    Speaker(1), 
+    Pass(2);
+
+    int faceLocation;
+    private FaceLocation(int faceLocation) {
+      this.faceLocation = faceLocation;
+    }
+  }
   
   public final Vision vision = new Vision();
   public final Drivetrain drivetrain = Drivetrain.getInstance();
@@ -57,6 +70,8 @@ public class RobotContainer {
 
   SendableChooser<Command> autoChooser;
 
+  FaceLocation faceLocation = FaceLocation.None;
+
   public RobotContainer() {
     configureBindings();
     drivetrain.setDefaultCommand(new TeleopDrive(
@@ -64,7 +79,10 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
-      () -> !driver.getRawButton(IO.driveModeButton)
+      () -> !driver.getRawButton(IO.driveModeButton),
+      () -> faceLocation == FaceLocation.Speaker ? (DriverStation.getAlliance().get() == Alliance.Blue ? Constants.FieldLocations.blueSpeaker : Constants.FieldLocations.redSpeaker) : Constants.FieldLocations.none,
+      () -> MathUtil.applyDeadband(driver.getRawAxis(5), 0.5),
+      () -> MathUtil.applyDeadband(driver.getRawAxis(2), 0.5)
     ));
     //intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
     // shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(1)), shooter));
@@ -79,6 +97,8 @@ public class RobotContainer {
     // NamedCommands.registerCommand("End", new InstantCommand(() -> {shooter.setShootSpeed(0); shooter.setFeederSpeed(0); shooter.moveTo(Shooter.PositionState.HANDOFF); intake.setRollerSpeed(0); intake.moveTo(Intake.PositionState.STOW);}));
     NamedCommands.registerCommand("Intake", new GetRingAuton());
     NamedCommands.registerCommand("Prepare Close Shot", new PrepareCloseShotAuton());
+    NamedCommands.registerCommand("Prepare Side Shot", new PrepareSideShotAuton());
+    NamedCommands.registerCommand("Prepare Far Shot", new PrepareFarShotAuton());
     NamedCommands.registerCommand("Shoot", new ShootAuton());
     
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -90,22 +110,25 @@ public class RobotContainer {
   private void configureBindings() {
     Command intakeCommand = new AutoIntake(operator);
     Trigger resetGyroButton = new Trigger(() -> driver.getRawButton(IO.resetGyroButton));
-    Trigger faceLocationButton = new Trigger(() -> driver.getRawButton(5));
+    Trigger shootAutoAimButton = new Trigger(() -> driver.getRawButton(5));
 
-    Trigger intakeButton = new Trigger(() -> operator.getRawButton(IO.intakeButton));
+    Trigger intakeButton = new Trigger(() -> driver.getRawButton(IO.intakeButton));
     Trigger cancelIntakeButton = new Trigger(() -> operator.getRawButton(IO.cancelIntakeButton));
     Trigger reverseIntakeButton = new Trigger(() -> operator.getRawButton(2));
     Trigger manualIntake = new Trigger(() -> {return operator.getPOV() == 0;});
     Trigger prepareSpeakerButton = new Trigger(() -> operator.getRawButton(IO.prepareSpeakerButton));
     Trigger passButton = new Trigger(() -> operator.getRawButton(1));
     Trigger prepareAmpButton = new Trigger(() -> operator.getRawButton(IO.prepareAmpButton));
-    Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
+    // Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
+    Trigger shootButton = new Trigger(() -> driver.getRawButton(IO.shootButton));
+    
 
     resetGyroButton.onTrue(new InstantCommand(drivetrain::zeroGyro));
-    faceLocationButton.whileTrue(drivetrain.aimChassis((DriverStation.getAlliance().get() == Alliance.Blue) ? Constants.fieldLocations.blueSpeaker : Constants.fieldLocations.redSpeaker));
+    shootAutoAimButton.onTrue(new ShootAutoAim(() -> shootButton.getAsBoolean()).alongWith(new InstantCommand(() -> faceLocation = FaceLocation.Speaker)).finallyDo(() -> faceLocation = FaceLocation.None));
+    shootAutoAimButton.onFalse(new InstantCommand(() -> faceLocation = FaceLocation.None));
 
     intakeButton.onTrue(new InstantCommand(() -> intakeCommand.cancel()).andThen(intakeCommand));
-    cancelIntakeButton.onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.HANDOFF)).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0);})));
+    cancelIntakeButton.onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.HANDOFF)).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0); elevator.moveTo(Elevator.PositionState.STOW);})));
     reverseIntakeButton.onTrue(new InstantCommand(() -> intake.setRollerSpeed(-0.3)));
     reverseIntakeButton.onFalse(new InstantCommand(() -> intake.setRollerSpeed(0)));
     manualIntake.onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2);}));

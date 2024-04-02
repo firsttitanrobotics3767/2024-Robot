@@ -12,9 +12,10 @@ import swervelib.math.SwerveMath;
 
 public class Constants {
 
-    public static class fieldLocations {
-        public static final Translation2d blueSpeaker = new Translation2d(0, 5.50);
-        public static final Translation2d redSpeaker = new Translation2d(16.5, 5.50);
+    public static class FieldLocations {
+        public static final Translation2d none = new Translation2d(0, 0);
+        public static final Translation2d blueSpeaker = new Translation2d(0, 5.20);
+        public static final Translation2d redSpeaker = new Translation2d(16.5, 5.20);
         public static final Translation2d bluePassZone = new Translation2d();
         public static final Translation2d redPassZone = new Translation2d();   
     }
@@ -75,12 +76,14 @@ public class Constants {
     public static class Elevator {
         public static final int motorID = 15;
         public static final double conversionFactor = 1;
-        public static final double kP = 0.05;
-        public static final double kI = 0;
-        public static final double kD = 0.01;
-        public static final double FF = 1;
-        public static final double maxVel = 4;
-        public static final double maxAccel = 4;
+        public static final double positionP = 0.1;
+        public static final double positionI = 0;
+        public static final double positionD = 0;
+        public static final double positionG = 0;
+        public static final double positionV = 1;
+        public static final double positionS = 0;
+        public static final double maxVel = 3;
+        public static final double maxAccel = 3;
 
         public static final double defaultPosition = 1;
     }
@@ -95,7 +98,7 @@ public class Constants {
         public static final double topP = 0;
         public static final double topI = 0;
         public static final double topD = 0;
-        public static final double topFF = 0;
+        public static final double topFF = 0.177;
 
         public static final double bottomP = 0.0;
         public static final double bottomI = 0;

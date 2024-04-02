@@ -44,13 +44,13 @@ public class Shooter extends SubsystemBase{
 
     public enum PositionState {
         IDLE(0.045),
-        SHOOT(0.02),
+        SHOOT(-0.03),
         AUTO(0),
-        SCORE_3(0.067),
-        SIDE_SCORE(0.01),
+        SCORE_3(0.05),
+        SIDE_SCORE(-0.01),
         AMP(0.27),
-        HANDOFF(0.07),
-        PASS(0.085);
+        HANDOFF(0.06),
+        PASS(0.0);
 
         public double pos;
         private PositionState(double pos) {
@@ -61,13 +61,13 @@ public class Shooter extends SubsystemBase{
     private static InterpolatingDoubleTreeMap shotAngle = new InterpolatingDoubleTreeMap();
 
     static {
-        shotAngle.put(1.55, 0.12);
-        shotAngle.put(2.0, 0.13);
-        shotAngle.put(2.5, 0.155);
-        shotAngle.put(3.0, 0.173);
-        shotAngle.put(3.5, 0.176);
-        shotAngle.put(4.0, 0.1885);
-        shotAngle.put(4.5, 0.1908);
+        shotAngle.put(1.55, -0.03);
+        shotAngle.put(2.0, 0.015);
+        shotAngle.put(2.5, 0.035);
+        shotAngle.put(3.0, 0.04);
+        shotAngle.put(3.5, 0.045);
+        shotAngle.put(4.0, 0.06);
+        shotAngle.put(4.5, 0.06);
     }
 
     private static Translation2d speaker = new Translation2d(0, 5.50);
@@ -75,7 +75,7 @@ public class Shooter extends SubsystemBase{
     private static Shooter instance = null;
     private ControlState controlState = ControlState.AUTOMATIC;
     private PositionState lastState = PositionState.HANDOFF;
-    private PositionState goalState = PositionState.HANDOFF;
+    private PositionState goalState = PositionState.SHOOT;
     private PositionState lastGoalState = PositionState.HANDOFF;
     private double targetOpenLoopOutput = 0;
     private double targetSpeed = 0;
@@ -201,32 +201,32 @@ public class Shooter extends SubsystemBase{
             resetPosition();
             System.out.println("reset");
         }
-        //if (controlState == ControlState.AUTOMATIC) {
-        //    if (goalState == PositionState.AUTO) {
-        //        positionMotor.setControl(new MotionMagicVoltage(getEstimatedShotAngle(DriverStation.getAlliance().get())));  
-        //    } else {
-        //        positionMotor.setControl(new MotionMagicVoltage(goalState.pos));
-        //    }
-        //} else if (controlState == ControlState.AUTOMATIC) {
+        if (controlState == ControlState.AUTOMATIC) {
+           if (goalState == PositionState.AUTO) {
+               positionMotor.setControl(new MotionMagicVoltage(getEstimatedShotAngle(DriverStation.getAlliance().get())));
+           } else {
+               positionMotor.setControl(new MotionMagicVoltage(goalState.pos));
+           }
+        }// } else if (controlState == ControlState.AUTOMATIC) {
         //     positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
         //     // setShootSpeed(80);
         // } else {
         //     positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
         // }
 
-        if (controlState == ControlState.AUTOMATIC) {
-            // positionController.Position = goalState.pos;
-            positionMotor.setControl(new MotionMagicVoltage(goalState.pos));
-            // double controllerOutput = positionController.calculate(getAbsolutePosition(), goalState.pos);
-            // positionMotor.setVoltage(controllerOutput + Math.cos(getAbsolutePosition() * Constants.Shooter.positionG) + (Math.signum(controllerOutput) * Constants.Shooter.positionS));
-        } 
+        // if (controlState == ControlState.AUTOMATIC) {
+        //     // positionController.Position = goalState.pos;
+        //     positionMotor.setControl(new MotionMagicVoltage(goalState.pos));
+        //     // double controllerOutput = positionController.calculate(getAbsolutePosition(), goalState.pos);
+        //     // positionMotor.setVoltage(controllerOutput + Math.cos(getAbsolutePosition() * Constants.Shooter.positionG) + (Math.signum(controllerOutput) * Constants.Shooter.positionS));
+        // } 
 
         feeder.set(targetFeederSpeed);
 
         lastState = atGoal() ? goalState : lastState;
         lastGoalState = goalState;
 
-        SmartDashboard.putNumber("Shooter/distanceToSpeaker", Drivetrain.getInstance().getPose().getTranslation().getDistance(speaker));
+        SmartDashboard.putNumber("Shooter/distanceToSpeaker", Drivetrain.getInstance().getPose().getTranslation().getDistance(Constants.FieldLocations.blueSpeaker));
         SmartDashboard.putNumber("Shooter/measuredPosition", getPosition());
         SmartDashboard.putNumber("Shooter/absolute Position", getAbsolutePosition());
         SmartDashboard.putNumber("Shooter/positionVolts", positionMotor.getMotorVoltage().getValueAsDouble());
@@ -238,11 +238,12 @@ public class Shooter extends SubsystemBase{
         // SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
         // SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
         SmartDashboard.putNumber("Shooter/velocity", positionMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putBoolean("Shooter/sensor", hasGamePiece());
         // SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
     }
 
     public double getEstimatedShotAngle(Alliance alliance) {
-        return shotAngle.get(Drivetrain.getInstance().getPose().getTranslation().getDistance((alliance == Alliance.Blue) ? Constants.fieldLocations.blueSpeaker : Constants.fieldLocations.redSpeaker));
+        return shotAngle.get(Drivetrain.getInstance().getPose().getTranslation().getDistance((alliance == Alliance.Blue) ? Constants.FieldLocations.blueSpeaker : Constants.FieldLocations.redSpeaker));
     }
     
     public void setShootSpeed(double speed) {
@@ -293,7 +294,11 @@ public class Shooter extends SubsystemBase{
 
     public boolean hasGamePiece() {
         // return (feeder.getTorqueCurrent().getValueAsDouble() > 10);
-        return sensor.get();
+        return !sensor.get();
+    }
+
+    public double getWheelSpeed() {
+        return shooterBottom.getVelocity().getValueAsDouble();
     }
 
     public void reset() {
