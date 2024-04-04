@@ -53,7 +53,7 @@ public class Climber extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if ((absoluteEncoder.getPosition() > 0.05 && absoluteEncoder.getPosition() < 0.7) || targetOpenLoopOutput > 0) {
+        if ((absoluteEncoder.getPosition() > 0.25 && absoluteEncoder.getPosition() < 0.7) || targetOpenLoopOutput > 0) {
             leader.set(targetOpenLoopOutput);
         } else {
             leader.set(0);

@@ -84,10 +84,10 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(driver.getRawAxis(5), 0.5),
       () -> MathUtil.applyDeadband(driver.getRawAxis(2), 0.5)
     ));
-    //intake.setDefaultCommand(new RunCommand(() -> intake.setPositionSpeed(operator.getRawAxis(1)), intake));
+    // intake.setDefaultCommand(new RunCommand(() -> intake.setLights(operator.getRawAxis(1)), intake));
     // shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(1)), shooter));
     elevator.setDefaultCommand(new RunCommand(() -> elevator.setSpeed(MathUtil.applyDeadband(-operator.getRawAxis(5), Constants.IO.elevatorDeadband)), elevator));
-    //climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(MathUtil.applyDeadband(-operator.getRawAxis(1), Constants.IO.climberDeadband)), climber));
+    climber.setDefaultCommand(new RunCommand(() -> climber.setArmSpeed(MathUtil.applyDeadband(-operator.getRawAxis(1), Constants.IO.climberDeadband)), climber));
 
     // NamedCommands.registerCommand("Start", new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.SHOOT); shooter. setShootSpeed(80); intake.moveTo(Intake.PositionState.GROUND); intake.setRollerSpeed(0.3);}).andThen(new WaitCommand(0.5)).andThen(new InstantCommand(() -> shooter.setFeederSpeed(0.3))).andThen(new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.SCORE_3);})));
     // NamedCommands.registerCommand("Side Score", new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.SIDE_SCORE); shooter. setShootSpeed(80); intake.moveTo(Intake.PositionState.STOW); intake.setRollerSpeed(0.3);}).andThen(new WaitCommand(0.3)).andThen(new InstantCommand(() -> shooter.setFeederSpeed(0.3))).andThen(new InstantCommand(() -> {shooter.moveTo(Shooter.PositionState.HANDOFF);})));
@@ -112,7 +112,7 @@ public class RobotContainer {
     Trigger resetGyroButton = new Trigger(() -> driver.getRawButton(IO.resetGyroButton));
     Trigger shootAutoAimButton = new Trigger(() -> driver.getRawButton(5));
 
-    Trigger intakeButton = new Trigger(() -> driver.getRawButton(IO.intakeButton));
+    Trigger intakeButton = new Trigger(() -> operator.getRawButton(IO.intakeButton));
     Trigger cancelIntakeButton = new Trigger(() -> operator.getRawButton(IO.cancelIntakeButton));
     Trigger reverseIntakeButton = new Trigger(() -> operator.getRawButton(2));
     Trigger manualIntake = new Trigger(() -> {return operator.getPOV() == 0;});
@@ -120,7 +120,7 @@ public class RobotContainer {
     Trigger passButton = new Trigger(() -> operator.getRawButton(1));
     Trigger prepareAmpButton = new Trigger(() -> operator.getRawButton(IO.prepareAmpButton));
     // Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
-    Trigger shootButton = new Trigger(() -> driver.getRawButton(IO.shootButton));
+    Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
     
 
     resetGyroButton.onTrue(new InstantCommand(drivetrain::zeroGyro));
@@ -128,7 +128,7 @@ public class RobotContainer {
     shootAutoAimButton.onFalse(new InstantCommand(() -> faceLocation = FaceLocation.None));
 
     intakeButton.onTrue(new InstantCommand(() -> intakeCommand.cancel()).andThen(intakeCommand));
-    cancelIntakeButton.onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.HANDOFF)).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0); elevator.moveTo(Elevator.PositionState.STOW);})));
+    cancelIntakeButton.onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.HANDOFF)).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0);})));
     reverseIntakeButton.onTrue(new InstantCommand(() -> intake.setRollerSpeed(-0.3)));
     reverseIntakeButton.onFalse(new InstantCommand(() -> intake.setRollerSpeed(0)));
     manualIntake.onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2);}));
@@ -139,7 +139,8 @@ public class RobotContainer {
     //shootButton.onTrue(new RunCommand(() -> shooter.setFeederSpeed(0.3)));
     passButton.onTrue(new Pass(() -> shootButton.getAsBoolean()));
     prepareAmpButton.onTrue(new Amp(() -> shootButton.getAsBoolean()));
-    new Trigger(() -> operator.getRawButton(9)).onTrue(new InstantCommand(() -> elevator.resetPosition()));
+    shootButton.onTrue(new InstantCommand(() -> intake.flashLights(0, 0)));
+    new Trigger(() -> operator.getRawButton(9)).onTrue(new InstantCommand(() -> shooter.reset()));
     new Trigger(() -> operator.getRawButton(14)).onTrue(new SetIntakePosition(Intake.PositionState.GROUND).alongWith(new SetShooterPosition(Shooter.PositionState.AMP)));
     new Trigger(() -> operator.getRawButton(3)).onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2); shooter.setShootSpeed(-2);}).andThen(new WaitCommand(0.4)).andThen(new WaitUntilCommand(() -> intake.getTorqueCurrent() < 25)).andThen(new InstantCommand(() -> {intake.setRollerSpeed(0.0); shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0); SmartDashboard.putBoolean("Intake Ring", false); SmartDashboard.putBoolean("Ready to Shoot", true);})));
   }

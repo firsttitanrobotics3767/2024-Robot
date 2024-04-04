@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -45,7 +46,13 @@ public class Intake extends SubsystemBase{
     private double targetOpenLoopOutput = 0;
     private double targetRollerSpeed = 0;
     private boolean areEncodersSynched = false;
-    private boolean hasGamePiece = false;    
+    private boolean hasGamePiece = false; 
+    private boolean flashLights = false;
+    private boolean lightsOn = true;
+    private int t = 0;
+    private double startTime = 0; 
+    private double runTime = 1; 
+    private int runSpeed = 4;
     
     public static Intake getInstance() {
         if (instance == null) {
@@ -59,6 +66,7 @@ public class Intake extends SubsystemBase{
     private final TalonFXConfiguration rollerConfig, positionConfig;
 
     private final AnalogInput analogSensor = new AnalogInput(3);
+    private final PWM lights = new PWM(1);
 
     private final TalonFX positionLeftMotor, positionRightMotor;
     private final DutyCycleEncoder absoluteEncoder;
@@ -117,6 +125,23 @@ public class Intake extends SubsystemBase{
         rollerMotor.set(targetRollerSpeed);
 
         lastState = atGoal()  ? goalState : lastState;
+
+        if (flashLights && Timer.getFPGATimestamp() < (startTime + runTime)) {
+            t = (t + 1) % runSpeed;
+            if (t == 0) {
+                lightsOn = !lightsOn;
+            }
+        } else {
+            lightsOn = true;
+            flashLights = false;
+        }
+
+        
+        if (lightsOn) {
+            lights.setSpeed(1);
+        } else {
+            lights.setSpeed(0);
+        }
 
         SmartDashboard.putNumber("Intake/measuredPosition", getPosition());
         SmartDashboard.putNumber("Intake/Absolute Position", getAbsolutePosition());
@@ -183,4 +208,18 @@ public class Intake extends SubsystemBase{
         lastGoalState = PositionState.STOW;
         lastState = PositionState.STOW;
     }
+
+    public void flashLights(double time, int speed) {
+        flashLights = true;
+        startTime = Timer.getFPGATimestamp();
+        runTime = time;
+        runSpeed = speed;
+        if (time == 0) {
+            flashLights = false;
+        } else if (time == -1) {
+            startTime = 99999;
+        }
+    }
+
+
 }

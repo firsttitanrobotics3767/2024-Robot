@@ -44,8 +44,8 @@ public class Elevator extends SubsystemBase{
         elevatorConfig = new TalonFXConfiguration();
         elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 37;
-        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 1;
+        elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 30;
+        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 2.5;
         elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
         elevatorMotor.setInverted(false);
         elevatorMotor.setPosition(0);
@@ -81,7 +81,7 @@ public class Elevator extends SubsystemBase{
     }
 
     public void setSpeed(double speed) {
-        elevatorMotor.set(speed * 0.5);
+        elevatorMotor.set(speed * 0.7);
     }
 
     public double getPosition() {

@@ -48,7 +48,7 @@ public class Shooter extends SubsystemBase{
         AUTO(0),
         SCORE_3(0.05),
         SIDE_SCORE(-0.01),
-        AMP(0.27),
+        AMP(0.25),
         HANDOFF(0.06),
         PASS(0.0);
 

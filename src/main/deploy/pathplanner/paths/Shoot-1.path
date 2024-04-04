@@ -3,56 +3,50 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.75,
-        "y": 4.5
+        "x": 2.9,
+        "y": 3.3
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.1149354110405783,
-        "y": -0.5855418272890752
+        "x": 1.20862210340683,
+        "y": 3.2556125597272594
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.550916247131639,
-        "y": 0.49115448658247773
+        "x": 2.75,
+        "y": 4.0
       },
       "prevControl": {
-        "x": 6.595606914466325,
-        "y": 0.8666019043878308
+        "x": 1.5365255266887123,
+        "y": 4.262744502664469
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.4,
-      "rotationDegrees": 0,
-      "rotateFast": true
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
-    "maxAcceleration": 4.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 120.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0,
-    "rotateFast": false
+    "rotation": 0,
+    "rotateFast": true
   },
   "reversed": false,
-  "folder": "S1-Cx",
+  "folder": "manual",
   "previewStartingState": {
-    "rotation": -60.0,
+    "rotation": -37.69999999999999,
     "velocity": 0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

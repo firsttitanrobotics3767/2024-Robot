@@ -36,6 +36,5 @@ public class Amp extends SequentialCommandGroup {
                 new InstantCommand(() -> elevator.moveTo(Elevator.PositionState.STOW))
             )
         );
-        addRequirements(elevator);
     }
 }
