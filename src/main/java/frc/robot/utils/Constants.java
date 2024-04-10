@@ -14,8 +14,8 @@ public class Constants {
 
     public static class FieldLocations {
         public static final Translation2d none = new Translation2d(0, 0);
-        public static final Translation2d blueSpeaker = new Translation2d(0, 5.20);
-        public static final Translation2d redSpeaker = new Translation2d(16.5, 5.20);
+        public static final Translation2d blueSpeaker = new Translation2d(0, 5.1);
+        public static final Translation2d redSpeaker = new Translation2d(16.5, 5.5);
         public static final Translation2d bluePassZone = new Translation2d();
         public static final Translation2d redPassZone = new Translation2d();   
     }

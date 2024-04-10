@@ -53,7 +53,7 @@ public class Drivetrain extends SubsystemBase {
         System.out.println("\t\"drive\": " + driveConversionFactor);
         System.out.println("}");
 
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
 
         try {
             swerveDrive = new SwerveParser(Constants.Swerve.directory).createSwerveDrive(maxSpeed, angleConversionFactor, driveConversionFactor);

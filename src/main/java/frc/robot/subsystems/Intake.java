@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Timer;
@@ -66,6 +67,7 @@ public class Intake extends SubsystemBase{
     private final TalonFXConfiguration rollerConfig, positionConfig;
 
     private final AnalogInput analogSensor = new AnalogInput(3);
+    private final DigitalInput digitalSensor = new DigitalInput(3);
     private final PWM lights = new PWM(1);
 
     private final TalonFX positionLeftMotor, positionRightMotor;
@@ -152,6 +154,7 @@ public class Intake extends SubsystemBase{
         SmartDashboard.putString("Intake/goalState", goalState.toString());
         SmartDashboard.putBoolean("Intake/hasGamePiece", hasGamePiece);
         SmartDashboard.putNumber("Intake/Sensor Distance", analogSensor.getValue());
+        SmartDashboard.putBoolean("Intake/digitalSensor", digitalSensor.get());
         SmartDashboard.putNumber("Intake/roller torque", rollerMotor.getTorqueCurrent().getValueAsDouble());
         SmartDashboard.putNumber("Intake/positionVolts", positionLeftMotor.getMotorVoltage().getValueAsDouble());
     }
@@ -196,7 +199,7 @@ public class Intake extends SubsystemBase{
 
     public boolean hasGamePiece() {
         // return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 30.0;
-        return analogSensor.getValue() < 3700.0;
+        return (analogSensor.getValue() < 2700.0) || !digitalSensor.get();
     }
 
     public double getTorqueCurrent() {

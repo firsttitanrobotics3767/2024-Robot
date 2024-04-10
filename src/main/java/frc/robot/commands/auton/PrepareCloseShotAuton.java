@@ -22,7 +22,7 @@ public class PrepareCloseShotAuton extends SequentialCommandGroup{
             new InstantCommand(() -> {shooter.setFeederSpeed(-0.1); shooter.setShootSpeed(-2); intake.setRollerSpeed(0);}),
             new WaitUntilCommand(() -> !shooter.hasGamePiece()),
             new InstantCommand(() -> {shooter.setShootSpeed(80); shooter.setFeederSpeed(0); System.out.println("end shoot");}),
-            new WaitUntilCommand(() -> shooter.getWheelSpeed() > 60)
+            new WaitUntilCommand(() -> shooter.getWheelSpeed() > 75)
         );
         addRequirements(intake, shooter);
     }

@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase{
 
     public enum PositionState {
         IDLE(0.045),
-        SHOOT(-0.03),
+        SHOOT(-0.02),
         AUTO(0),
         SCORE_3(0.05),
         SIDE_SCORE(-0.01),
@@ -191,14 +191,15 @@ public class Shooter extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if (!areEncodersSynched && Timer.getFPGATimestamp() > 10) {
+        if (!areEncodersSynched && Timer.getFPGATimestamp() > 12) {
             resetPosition();
             areEncodersSynched = areEncodersSynched();
             System.out.println("out of sync : " + getPosition() + " | " + getAbsolutePosition());
             SmartDashboard.putBoolean("Shooter/resetEncoder", areEncodersSynched ? true : false);
         }
+
         if (lastGoalState == PositionState.HANDOFF && goalState != PositionState.HANDOFF) {
-            resetPosition();
+            // resetPosition();
             System.out.println("reset");
         }
         if (controlState == ControlState.AUTOMATIC) {
@@ -206,6 +207,7 @@ public class Shooter extends SubsystemBase{
                positionMotor.setControl(new MotionMagicVoltage(getEstimatedShotAngle(DriverStation.getAlliance().get())));
            } else {
                positionMotor.setControl(new MotionMagicVoltage(goalState.pos));
+            //    positionMotor.setPosition(getAbsolutePosition());
            }
         }// } else if (controlState == ControlState.AUTOMATIC) {
         //     positionMotor.set(targetOpenLoopOutput + (Math.cos((getPosition() - 0.05) * Math.PI * 2.0) * Constants.Shooter.positionFF));
@@ -226,7 +228,7 @@ public class Shooter extends SubsystemBase{
         lastState = atGoal() ? goalState : lastState;
         lastGoalState = goalState;
 
-        SmartDashboard.putNumber("Shooter/distanceToSpeaker", Drivetrain.getInstance().getPose().getTranslation().getDistance(Constants.FieldLocations.blueSpeaker));
+        SmartDashboard.putNumber("Shooter/distanceToSpeaker", Drivetrain.getInstance().getPose().getTranslation().getDistance((DriverStation.getAlliance().get() == Alliance.Blue) ? Constants.FieldLocations.blueSpeaker : Constants.FieldLocations.redSpeaker));
         SmartDashboard.putNumber("Shooter/measuredPosition", getPosition());
         SmartDashboard.putNumber("Shooter/absolute Position", getAbsolutePosition());
         SmartDashboard.putNumber("Shooter/positionVolts", positionMotor.getMotorVoltage().getValueAsDouble());
@@ -237,8 +239,9 @@ public class Shooter extends SubsystemBase{
         // SmartDashboard.putNumber("Shooter/voltage", shooterBottom.getMotorVoltage().getValueAsDouble());
         // SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
         // SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
-        SmartDashboard.putNumber("Shooter/velocity", positionMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
         SmartDashboard.putBoolean("Shooter/sensor", hasGamePiece());
+        SmartDashboard.putBoolean("Shooter/encodersSynched", areEncodersSynched());
         // SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
     }
 
@@ -262,6 +265,7 @@ public class Shooter extends SubsystemBase{
 
     public void moveTo(PositionState positionState) {
         goalState = positionState;
+        positionMotor.setPosition(getAbsolutePosition());
     }
 
     public void setControlState(ControlState controlState) {
