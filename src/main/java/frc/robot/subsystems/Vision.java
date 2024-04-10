@@ -47,9 +47,9 @@ public class Vision extends SubsystemBase{
         this.drivetrain = Drivetrain.getInstance();
 
         aprilTagCam = new PhotonCamera("Arducam_OV9281_USB_Camera");
-        Transform3d robotToCam = new Transform3d(new Translation3d(-0.289857, -0.31749, 0.171914), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(135), Units.degreesToRadians(0)));
+        Transform3d robotToCam = new Transform3d(new Translation3d(-0.289857, 0.031749, 0.171914), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(135), Units.degreesToRadians(0)));
 
-        photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.CLOSEST_TO_REFERENCE_POSE, aprilTagCam, robotToCam);
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, aprilTagCam, robotToCam);
 
     }
 
@@ -72,7 +72,7 @@ public class Vision extends SubsystemBase{
             }
 
             for (PhotonTrackedTarget target : targets) {
-                if (target.getPoseAmbiguity() >= 0.01) {
+                if (!estimate) {
                     SmartDashboard.putBoolean("vision/isEstimating", false);
                     break;
                 } else {
@@ -95,7 +95,7 @@ public class Vision extends SubsystemBase{
                     SmartDashboard.putBoolean("vision/isEstimating", true);
                     SmartDashboard.putString("vision/estimatedPose", estimatedPose.isPresent() ? estimatedPose.get().estimatedPose.toString() : "no pose");
                     
-                    if (estimatedPose.isPresent() && estimate == true) {
+                    if (estimatedPose.isPresent()) {
                         lastUpdateTimestamp = Timer.getFPGATimestamp();
                         drivetrain.addVisionMeasurement(averagedPose);
                     }

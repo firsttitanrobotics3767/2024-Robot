@@ -14,7 +14,7 @@ public class Constants {
 
     public static class FieldLocations {
         public static final Translation2d none = new Translation2d(0, 0);
-        public static final Translation2d blueSpeaker = new Translation2d(0, 5.1);
+        public static final Translation2d blueSpeaker = new Translation2d(0, 5.5);
         public static final Translation2d redSpeaker = new Translation2d(16.5, 5.5);
         public static final Translation2d bluePassZone = new Translation2d();
         public static final Translation2d redPassZone = new Translation2d();   
@@ -117,7 +117,7 @@ public class Constants {
         public static final double maxVel = 2;
         public static final double maxAcc = 4;
         // public static final double absoluteOffset = 0.49;
-        public static final double absoluteOffset = 0.54;
+        public static final double absoluteOffset = 0.54 - .166666;
         public static final double absoluteConversionFactor = 1.0;
 
         public static final double feederP = 0;

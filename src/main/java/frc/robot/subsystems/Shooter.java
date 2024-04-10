@@ -66,8 +66,9 @@ public class Shooter extends SubsystemBase{
         shotAngle.put(2.5, 0.035);
         shotAngle.put(3.0, 0.04);
         shotAngle.put(3.5, 0.045);
-        shotAngle.put(4.0, 0.06);
-        shotAngle.put(4.5, 0.06);
+        shotAngle.put(4.0, 0.063);
+        shotAngle.put(4.5, 0.069);
+        shotAngle.put(5.0, .085);
     }
 
     private static Translation2d speaker = new Translation2d(0, 5.50);
@@ -198,10 +199,11 @@ public class Shooter extends SubsystemBase{
             SmartDashboard.putBoolean("Shooter/resetEncoder", areEncodersSynched ? true : false);
         }
 
-        if (lastGoalState == PositionState.HANDOFF && goalState != PositionState.HANDOFF) {
-            // resetPosition();
-            System.out.println("reset");
-        }
+        // if (lastGoalState == PositionState.HANDOFF && goalState != PositionState.HANDOFF) {
+        //     // resetPosition();
+        //     System.out.println("reset");
+        // }
+
         if (controlState == ControlState.AUTOMATIC) {
            if (goalState == PositionState.AUTO) {
                positionMotor.setControl(new MotionMagicVoltage(getEstimatedShotAngle(DriverStation.getAlliance().get())));

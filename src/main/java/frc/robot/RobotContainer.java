@@ -41,6 +41,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Vision;
 // import frc.robot.subsystems.Vision;
 import frc.robot.utils.Constants;
 import frc.robot.utils.Constants.IO;
@@ -58,7 +59,7 @@ public class RobotContainer {
     }
   }
   
-  // public final Vision vision = new Vision();
+  public final Vision vision = new Vision();
   public final Drivetrain drivetrain = Drivetrain.getInstance();
   private final Intake intake = Intake.getInstance();
   private final Elevator elevator = Elevator.getInstance();
@@ -110,22 +111,22 @@ public class RobotContainer {
   private void configureBindings() {
     Command intakeCommand = new AutoIntake(operator);
     Trigger resetGyroButton = new Trigger(() -> driver.getRawButton(IO.resetGyroButton));
-    // Trigger shootAutoAimButton = new Trigger(() -> driver.getRawButton(5));
+    Trigger shootAutoAimButton = new Trigger(() -> driver.getRawButton(5));
 
     Trigger intakeButton = new Trigger(() -> operator.getRawButton(IO.intakeButton));
-    Trigger cancelIntakeButton = new Trigger(() -> operator.getRawButton(IO.cancelIntakeButton));
+    // Trigger cancelIntakeButton = new Trigger(() -> operator.getRawButton(IO.cancelIntakeButton));
+    Trigger cancelIntakeButton = new Trigger(() -> driver.getRawButton(IO.cancelIntakeButton));
     Trigger reverseIntakeButton = new Trigger(() -> operator.getRawButton(2));
     Trigger manualIntake = new Trigger(() -> {return operator.getPOV() == 0;});
     Trigger prepareSpeakerButton = new Trigger(() -> operator.getRawButton(IO.prepareSpeakerButton));
     Trigger passButton = new Trigger(() -> operator.getRawButton(1));
     Trigger prepareAmpButton = new Trigger(() -> operator.getRawButton(IO.prepareAmpButton));
+    Trigger shootButton = new Trigger(() -> driver.getRawButton(IO.shootButton));
     // Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
-    Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
     
-
     resetGyroButton.onTrue(new InstantCommand(drivetrain::zeroGyro));
-    // shootAutoAimButton.onTrue(new ShootAutoAim(() -> shootButton.getAsBoolean()).alongWith(new InstantCommand(() -> faceLocation = FaceLocation.Speaker)).finallyDo(() -> faceLocation = FaceLocation.None));
-    // shootAutoAimButton.onFalse(new InstantCommand(() -> faceLocation = FaceLocation.None));
+    shootAutoAimButton.onTrue(new ShootAutoAim(() -> shootButton.getAsBoolean()).alongWith(new InstantCommand(() -> faceLocation = FaceLocation.Speaker)).finallyDo(() -> faceLocation = FaceLocation.None));
+    shootAutoAimButton.onFalse(new InstantCommand(() -> faceLocation = FaceLocation.None));
 
     intakeButton.onTrue(new InstantCommand(() -> intakeCommand.cancel()).andThen(intakeCommand));
     cancelIntakeButton.onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.HANDOFF)).alongWith(new InstantCommand(() -> {intakeCommand.cancel(); intake.setRollerSpeed(0); shooter.setFeederSpeed(0); shooter.setShootSpeed(0); shooter.reset();})));
