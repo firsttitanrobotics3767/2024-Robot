@@ -53,11 +53,12 @@ public class Climber extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if ((absoluteEncoder.getPosition() > 0.25 && absoluteEncoder.getPosition() < 0.7) || targetOpenLoopOutput > 0) {
-            leader.set(targetOpenLoopOutput);
-        } else {
-            leader.set(0);
-        }
+        // if ((absoluteEncoder.getPosition() > 0.25 && absoluteEncoder.getPosition() < 0.7) || targetOpenLoopOutput > 0) {
+        //     leader.set(targetOpenLoopOutput);
+        // } else {
+        //     leader.set(0);
+        // }
+        leader.set(targetOpenLoopOutput);
 
         SmartDashboard.putNumber("Absolute Climber", absoluteEncoder.getPosition());
         SmartDashboard.putNumber("climber output", targetOpenLoopOutput);

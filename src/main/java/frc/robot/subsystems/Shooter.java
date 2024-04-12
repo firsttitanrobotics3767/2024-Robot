@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -61,14 +62,14 @@ public class Shooter extends SubsystemBase{
     private static InterpolatingDoubleTreeMap shotAngle = new InterpolatingDoubleTreeMap();
 
     static {
-        shotAngle.put(1.55, -0.03);
-        shotAngle.put(2.0, 0.015);
-        shotAngle.put(2.5, 0.035);
-        shotAngle.put(3.0, 0.04);
-        shotAngle.put(3.5, 0.045);
-        shotAngle.put(4.0, 0.063);
+        shotAngle.put(1.55, 0.00);
+        shotAngle.put(2.0, 0.018);
+        shotAngle.put(2.5, 0.04);
+        shotAngle.put(3.0, 0.05);
+        shotAngle.put(3.5, 0.054);
+        shotAngle.put(4.0, 0.06);
         shotAngle.put(4.5, 0.069);
-        shotAngle.put(5.0, .085);
+        shotAngle.put(5.0, .05);
     }
 
     private static Translation2d speaker = new Translation2d(0, 5.50);
@@ -254,7 +255,7 @@ public class Shooter extends SubsystemBase{
     public void setShootSpeed(double speed) {
         this.targetSpeed = speed;
         shooterBottom.setControl(shooterBottomVelocityVolt.withVelocity(speed));
-        shooterTop.setControl(shooterTopVelocityVolt.withVelocity(speed));
+        shooterTop.setControl(shooterTopVelocityVolt.withVelocity(speed - 1));
     }
 
     public void setFeederSpeed(double speed) {
@@ -275,7 +276,11 @@ public class Shooter extends SubsystemBase{
     }
 
     public boolean atGoal() {
-        return ((getAbsolutePosition() > (goalState.pos - 0.01)) && (getAbsolutePosition() < (goalState.pos + 0.01)));
+        if (goalState == PositionState.AUTO) { 
+            return ((getAbsolutePosition() > (getEstimatedShotAngle(DriverStation.getAlliance().get()) - 0.01) && (getAbsolutePosition() > (getEstimatedShotAngle(DriverStation.getAlliance().get()) + 0.01))));
+        } else {
+            return ((getAbsolutePosition() > (goalState.pos - 0.01)) && (getAbsolutePosition() < (goalState.pos + 0.01)));
+        }
     }
     
     public double getPosition() {

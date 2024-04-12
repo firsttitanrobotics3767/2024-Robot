@@ -114,15 +114,16 @@ public class RobotContainer {
     Trigger shootAutoAimButton = new Trigger(() -> driver.getRawButton(5));
 
     Trigger intakeButton = new Trigger(() -> operator.getRawButton(IO.intakeButton));
-    // Trigger cancelIntakeButton = new Trigger(() -> operator.getRawButton(IO.cancelIntakeButton));
-    Trigger cancelIntakeButton = new Trigger(() -> driver.getRawButton(IO.cancelIntakeButton));
+    // Trigger intakeButton = new Trigger(() -> driver.getRawButton(IO.intakeButton));
+    Trigger cancelIntakeButton = new Trigger(() -> operator.getRawButton(IO.cancelIntakeButton));
+    // Trigger cancelIntakeButton = new Trigger(() -> driver.getRawButton(IO.cancelIntakeButton));
     Trigger reverseIntakeButton = new Trigger(() -> operator.getRawButton(2));
     Trigger manualIntake = new Trigger(() -> {return operator.getPOV() == 0;});
     Trigger prepareSpeakerButton = new Trigger(() -> operator.getRawButton(IO.prepareSpeakerButton));
     Trigger passButton = new Trigger(() -> operator.getRawButton(1));
     Trigger prepareAmpButton = new Trigger(() -> operator.getRawButton(IO.prepareAmpButton));
-    Trigger shootButton = new Trigger(() -> driver.getRawButton(IO.shootButton));
-    // Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
+    // Trigger shootButton = new Trigger(() -> driver.getRawButton(IO.shootButton));
+    Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
     
     resetGyroButton.onTrue(new InstantCommand(drivetrain::zeroGyro));
     shootAutoAimButton.onTrue(new ShootAutoAim(() -> shootButton.getAsBoolean()).alongWith(new InstantCommand(() -> faceLocation = FaceLocation.Speaker)).finallyDo(() -> faceLocation = FaceLocation.None));
@@ -143,6 +144,7 @@ public class RobotContainer {
     shootButton.onTrue(new InstantCommand(() -> intake.flashLights(0, 0)));
     new Trigger(() -> operator.getRawButton(9)).onTrue(new InstantCommand(() -> shooter.reset()));
     new Trigger(() -> operator.getRawButton(14)).onTrue(new SetIntakePosition(Intake.PositionState.GROUND).alongWith(new SetShooterPosition(Shooter.PositionState.AMP)));
+    new Trigger(() -> operator.getRawButton(10)).onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.AMP)));
     new Trigger(() -> operator.getRawButton(3)).onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2); shooter.setShootSpeed(-2);}).andThen(new WaitCommand(0.4)).andThen(new WaitUntilCommand(() -> intake.getTorqueCurrent() < 25)).andThen(new InstantCommand(() -> {intake.setRollerSpeed(0.0); shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0); SmartDashboard.putBoolean("Intake Ring", false); SmartDashboard.putBoolean("Ready to Shoot", true);})));
   }
 
