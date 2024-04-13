@@ -83,10 +83,10 @@ public class Drivetrain extends SubsystemBase {
             this::getRobotVelocity, // ChassisSpeeds supplier (robot relative)
             this::driveRobotOriented, // Method that will drive robot given robot relative speeds
             new HolonomicPathFollowerConfig(
-                new PIDConstants(5.25, 0, 0.002), // Translation PID
+                new PIDConstants(23, 0, 0.002), // Translation PID
                 new PIDConstants( // Rotation PID
-                    4.3, 
-                    0.0, 
+                    5, 
+                    0.0,
                     0.0), 
                 5.15, // Max module speed in m/s
                 swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(), // Drive base radius in meters

@@ -66,9 +66,10 @@ public class TeleopDrive extends Command{
         SmartDashboard.putNumber("omega", angVelocity);
 
         if (faceLocation.get().equals(Constants.FieldLocations.none)) {
-            drivetrain.drive(new Translation2d(xVelocity * drivetrain.maxSpeed, yVelocity * drivetrain.maxSpeed),
-                            angVelocity * controller.config.maxAngularVelocity,
-                            driveMode.getAsBoolean());
+            drivetrain.drive(new Translation2d((DriverStation.getAlliance().get() == Alliance.Blue) ? xVelocity * drivetrain.maxSpeed : -xVelocity * drivetrain.maxSpeed, 
+                                            (DriverStation.getAlliance().get() == Alliance.Blue) ? yVelocity * drivetrain.maxSpeed : -yVelocity * drivetrain.maxSpeed),
+                                            angVelocity * controller.config.maxAngularVelocity,
+                                            driveMode.getAsBoolean());
         } else {
             Translation2d target = faceLocation.get();
             double faceLocationHeading = Math.atan2(drivetrain.getPose().getY() - target.getY(), drivetrain.getPose().getX() - target.getX()) + ((omega.getAsDouble() > 0.1) ? omega.getAsDouble() * 0.1 : 0.0);

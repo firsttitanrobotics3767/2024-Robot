@@ -126,7 +126,7 @@ public class Intake extends SubsystemBase{
 
         rollerMotor.set(targetRollerSpeed);
 
-        lastState = atGoal()  ? goalState : lastState;
+        lastState = atGoal() ? goalState : lastState;
 
         if (flashLights && Timer.getFPGATimestamp() < (startTime + runTime)) {
             t = (t + 1) % runSpeed;
@@ -157,6 +157,10 @@ public class Intake extends SubsystemBase{
         SmartDashboard.putBoolean("Intake/digitalSensor", digitalSensor.get());
         SmartDashboard.putNumber("Intake/roller torque", rollerMotor.getTorqueCurrent().getValueAsDouble());
         SmartDashboard.putNumber("Intake/positionVolts", positionLeftMotor.getMotorVoltage().getValueAsDouble());
+    }
+
+    public String goalState() {
+        return goalState.toString();
     }
 
     public void setPositionSpeed(double speed) {

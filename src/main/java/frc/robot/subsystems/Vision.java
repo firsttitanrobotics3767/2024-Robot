@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -28,8 +30,12 @@ public class Vision extends SubsystemBase{
     private final Drivetrain drivetrain;
 
     boolean hasTargets = false;
+    boolean hasRingTargets = false;
+    Transform3d robotToRingCam = new Transform3d(new Translation3d(Units.inchesToMeters(21), 0, Units.inchesToMeters(10.25)), new Rotation3d(0, Units.degreesToRadians(35), 0));
+    List<Translation2d> ringPoses = new ArrayList<Translation2d>();
 
     private final PhotonCamera aprilTagCam;
+    private final PhotonCamera ringCam;
     private final AprilTagFieldLayout aprilTagField = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     private final PhotonPoseEstimator photonPoseEstimator;
     Optional<EstimatedRobotPose> estimatedPose = Optional.of(new EstimatedRobotPose(new Pose3d(), 0, null, null));
@@ -49,6 +55,8 @@ public class Vision extends SubsystemBase{
         aprilTagCam = new PhotonCamera("Arducam_OV9281_USB_Camera");
         Transform3d robotToCam = new Transform3d(new Translation3d(-0.289857, 0.031749, 0.171914), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(135), Units.degreesToRadians(0)));
 
+        ringCam = new PhotonCamera("HD_USB_Camera");
+
         photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, aprilTagCam, robotToCam);
 
     }
@@ -57,6 +65,12 @@ public class Vision extends SubsystemBase{
     public void periodic() {
         var result = aprilTagCam.getLatestResult();
         hasTargets = result.hasTargets();
+
+        var ringResult = ringCam.getLatestResult();
+        hasRingTargets = ringResult.hasTargets();
+        List<PhotonTrackedTarget> rings = (hasRingTargets ? ringResult.targets : new ArrayList<PhotonTrackedTarget>(0));
+
+        SmartDashboard.putBoolean("vision/hasRingTarget", hasRingTargets);
 
         if (hasTargets) {
             List<PhotonTrackedTarget> targets = result.targets;
@@ -104,7 +118,34 @@ public class Vision extends SubsystemBase{
             
         }
 
+        if (hasRingTargets) {
+
+            ringPoses.clear();
+
+            for (PhotonTrackedTarget target : rings) { 
+                double targYaw = Units.degreesToRadians(target.getYaw());//+noteCameraOffset.getRotation().getX();
+                double targPitch = Units.degreesToRadians(target.getPitch());//+noteCameraOffset.getRotation().getY();
+
+                double noteDistY = (1/Math.tan(targPitch - robotToRingCam.getRotation().getY())) * robotToRingCam.getZ();
+                double noteDistX = Math.tan(targYaw - robotToRingCam.getRotation().getZ())* noteDistY;
+
+                ringPoses.add(new Translation2d(noteDistX, noteDistY));
+            }
+
+            Translation2d bestRingPose = new Translation2d(Drivetrain.getInstance().getPose().getTranslation().getX() + ringPoses.get(0).getX(), Drivetrain.getInstance().getPose().getY() + ringPoses.get(0).getY());
+
+            SmartDashboard.putString("vision/ringPoses", ringPoses.toString());
+            SmartDashboard.putString("vision/bestRingPose", bestRingPose.toString());
+            SmartDashboard.putNumber("vision/distanceToRing", Drivetrain.getInstance().getPose().getTranslation().getDistance(bestRingPose));
+        } else {
+            SmartDashboard.putString("vision/ringPoses", "null");
+        }
+
     }   
+
+    public boolean hasRingTarget() {
+        return hasRingTargets;
+    }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
         photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
