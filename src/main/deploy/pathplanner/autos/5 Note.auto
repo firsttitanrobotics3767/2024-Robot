@@ -1,12 +1,6 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 0.75,
-      "y": 4.5
-    },
-    "rotation": -48.0
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
@@ -44,7 +38,7 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -54,54 +48,29 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "S1-C1"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "C1-Shoot"
+                        "pathName": "Front-1"
                       }
                     },
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.3
+                        "waitTime": 2.5
                       }
                     }
                   ]
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Prepare Far Shot"
-                      }
-                    }
-                  ]
+                  "name": "Intake And Shoot"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "deadline",
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -111,44 +80,57 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Shoot-C4"
+                        "pathName": "1-2"
                       }
                     },
                     {
-                      "type": "path",
+                      "type": "wait",
                       "data": {
-                        "pathName": "C4-Shoot"
+                        "waitTime": 2.0
                       }
                     }
                   ]
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Prepare Far Shot"
-                      }
-                    }
-                  ]
+                  "name": "Intake And Shoot"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "Shoot"
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "2-3"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake And Shoot"
+                }
+              }
+            ]
           }
         }
       ]

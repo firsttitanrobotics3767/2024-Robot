@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.TargetCorner;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -24,10 +26,23 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.RingPoseEstimator;
 
 public class Vision extends SubsystemBase{
 
+    private static Vision instance = null;
+
+    public static Vision getInstance() {
+        if (instance == null) {
+            instance = new Vision();
+        }
+
+        return instance;
+    }
+
     private final Drivetrain drivetrain;
+
+    private boolean doEstimation = true;
 
     boolean hasTargets = false;
     boolean hasRingTargets = false;
@@ -106,10 +121,10 @@ public class Vision extends SubsystemBase{
                     double rad = radFilter.calculate(estimatedPose.isPresent() ? estimatedPose.get().estimatedPose.getRotation().toRotation2d().getRadians() : previousPose.estimatedPose.getRotation().toRotation2d().getRadians());
                     
                     Pose3d averagedPose = new Pose3d(x, y, z, new Rotation3d(0, 0, rad));
-                    SmartDashboard.putBoolean("vision/isEstimating", true);
-                    SmartDashboard.putString("vision/estimatedPose", estimatedPose.isPresent() ? estimatedPose.get().estimatedPose.toString() : "no pose");
                     
-                    if (estimatedPose.isPresent()) {
+                    if (estimatedPose.isPresent() && doEstimation) {
+                        SmartDashboard.putString("vision/estimatedPose", estimatedPose.isPresent() ? estimatedPose.get().estimatedPose.toString() : "no pose");
+                        SmartDashboard.putBoolean("vision/isEstimating", true);
                         lastUpdateTimestamp = Timer.getFPGATimestamp();
                         drivetrain.addVisionMeasurement(averagedPose);
                     }
@@ -119,29 +134,32 @@ public class Vision extends SubsystemBase{
         }
 
         if (hasRingTargets) {
-
-            ringPoses.clear();
-
-            for (PhotonTrackedTarget target : rings) { 
-                double targYaw = Units.degreesToRadians(target.getYaw());//+noteCameraOffset.getRotation().getX();
-                double targPitch = Units.degreesToRadians(target.getPitch());//+noteCameraOffset.getRotation().getY();
-
-                double noteDistY = (1/Math.tan(targPitch - robotToRingCam.getRotation().getY())) * robotToRingCam.getZ();
-                double noteDistX = Math.tan(targYaw - robotToRingCam.getRotation().getZ())* noteDistY;
-
-                ringPoses.add(new Translation2d(noteDistX, noteDistY));
+            for (PhotonTrackedTarget ring : rings) {
+                // RingPoseEstimator.calculatePose(getMinMaxCorners(ring), ring., lastUpdateTimestamp, null, lastUpdateTimestamp, null, null)
             }
-
-            Translation2d bestRingPose = new Translation2d(Drivetrain.getInstance().getPose().getTranslation().getX() + ringPoses.get(0).getX(), Drivetrain.getInstance().getPose().getY() + ringPoses.get(0).getY());
-
-            SmartDashboard.putString("vision/ringPoses", ringPoses.toString());
-            SmartDashboard.putString("vision/bestRingPose", bestRingPose.toString());
-            SmartDashboard.putNumber("vision/distanceToRing", Drivetrain.getInstance().getPose().getTranslation().getDistance(bestRingPose));
-        } else {
-            SmartDashboard.putString("vision/ringPoses", "null");
         }
 
-    }   
+    }  
+    
+    public int[][] getMinMaxCorners(PhotonTrackedTarget ring) {
+        List<Integer> cornersX = new ArrayList<Integer>();
+        List<Integer> cornersY = new ArrayList<Integer>();
+
+        for (TargetCorner corner : ring.getDetectedCorners()) {
+            cornersX.add((int) corner.x);
+            cornersY.add((int) corner.y);
+        }
+        
+        cornersX.sort(Comparator.naturalOrder());
+        cornersY.sort(Comparator.naturalOrder());
+
+        int cornersMinMax[][] = {
+            {cornersX.get(0), cornersX.get(3)},
+            {cornersY.get(3), cornersX.get(0)}
+        };
+
+        return cornersMinMax;
+    }
 
     public boolean hasRingTarget() {
         return hasRingTargets;
@@ -154,6 +172,14 @@ public class Vision extends SubsystemBase{
 
     public double timeSinceLastUpdate() {
         return Timer.getFPGATimestamp() - lastUpdateTimestamp;
+    }
+
+    public void turnOffAprilTags() {
+        doEstimation = false;
+    }
+
+    public void turnOnAprilTags() {
+        doEstimation = true;
     }
 
 }

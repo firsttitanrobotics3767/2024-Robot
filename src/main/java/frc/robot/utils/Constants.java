@@ -117,7 +117,7 @@ public class Constants {
         public static final double maxVel = 2;
         public static final double maxAcc = 4;
         // public static final double absoluteOffset = 0.49;
-        public static final double absoluteOffset = 0.54 - .166666;
+        public static final double absoluteOffset = 1.04 - .166666;
         public static final double absoluteConversionFactor = 1.0;
 
         public static final double feederP = 0;

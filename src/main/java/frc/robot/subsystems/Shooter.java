@@ -51,7 +51,8 @@ public class Shooter extends SubsystemBase{
         SIDE_SCORE(-0.01),
         AMP(0.25),
         HANDOFF(0.06),
-        PASS(0.0);
+        PASS(0.0),
+        CLIMB(0.25);
 
         public double pos;
         private PositionState(double pos) {
@@ -66,8 +67,8 @@ public class Shooter extends SubsystemBase{
         shotAngle.put(2.0, 0.018);
         shotAngle.put(2.5, 0.04);
         shotAngle.put(3.0, 0.05);
-        shotAngle.put(3.5, 0.054);
-        shotAngle.put(4.0, 0.06);
+        shotAngle.put(3.5, 0.056);
+        shotAngle.put(4.0, 0.062);
         shotAngle.put(4.5, 0.069);
         shotAngle.put(5.0, .05);
     }
@@ -242,9 +243,10 @@ public class Shooter extends SubsystemBase{
         // SmartDashboard.putNumber("Shooter/voltage", shooterBottom.getMotorVoltage().getValueAsDouble());
         // SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
         // SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
-        SmartDashboard.putNumber("Shooter/velocity", shooterBottom.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter/velocity", getWheelSpeed());
         SmartDashboard.putBoolean("Shooter/sensor", hasGamePiece());
         SmartDashboard.putBoolean("Shooter/encodersSynched", areEncodersSynched());
+        SmartDashboard.putBoolean("Shooter/hasGamePiece", hasGamePiece());
         // SmartDashboard.putNumber("Shooter/target velocity", targetSpeed);
     }
 

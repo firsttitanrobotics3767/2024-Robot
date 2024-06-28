@@ -34,7 +34,8 @@ public class Drivetrain extends SubsystemBase {
     private final AddressableLED leds = new AddressableLED(0);
     private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(48);
 
-    public final double maxSpeed = Constants.Swerve.maxVelocity;
+    // public final double maxSpeed = Constants.Swerve.maxVelocity;
+    public final double maxSpeed = 0.5;
     private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
     private final double angleConversionFactor = Constants.Swerve.angleConversionFactor;
     
@@ -83,7 +84,7 @@ public class Drivetrain extends SubsystemBase {
             this::getRobotVelocity, // ChassisSpeeds supplier (robot relative)
             this::driveRobotOriented, // Method that will drive robot given robot relative speeds
             new HolonomicPathFollowerConfig(
-                new PIDConstants(23, 0, 0.002), // Translation PID
+                new PIDConstants(6.5, 0, 0.002), // Translation PID
                 new PIDConstants( // Rotation PID
                     5, 
                     0.0,

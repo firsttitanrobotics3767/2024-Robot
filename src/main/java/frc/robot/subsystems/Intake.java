@@ -203,7 +203,7 @@ public class Intake extends SubsystemBase{
 
     public boolean hasGamePiece() {
         // return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 30.0;
-        return (analogSensor.getValue() < 2700.0) || !digitalSensor.get();
+        return (/*analogSensor.getValue() < 2700.0) || */!digitalSensor.get());
     }
 
     public double getTorqueCurrent() {

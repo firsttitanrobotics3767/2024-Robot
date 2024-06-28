@@ -34,11 +34,13 @@ public class Climber extends SubsystemBase{
         leader = new CANSparkMax(Constants.Climber.leaderID, MotorType.kBrushless);
         leader.restoreFactoryDefaults();
         leader.setIdleMode(IdleMode.kBrake);
+        leader.setSmartCurrentLimit(100);
         leader.setInverted(false);
 
         follower = new CANSparkMax(Constants.Climber.followerID, MotorType.kBrushless);
         follower.restoreFactoryDefaults();
         follower.setIdleMode(IdleMode.kBrake);
+        follower.setSmartCurrentLimit(100);
         follower.setInverted(false);
         follower.follow(leader);
 
@@ -53,12 +55,12 @@ public class Climber extends SubsystemBase{
 
     @Override
     public void periodic() {
-        // if ((absoluteEncoder.getPosition() > 0.25 && absoluteEncoder.getPosition() < 0.7) || targetOpenLoopOutput > 0) {
-        //     leader.set(targetOpenLoopOutput);
-        // } else {
-        //     leader.set(0);
-        // }
-        leader.set(targetOpenLoopOutput);
+        if ((absoluteEncoder.getPosition() > 0.2 && absoluteEncoder.getPosition() < 0.7) || targetOpenLoopOutput > 0) {
+            leader.set(targetOpenLoopOutput);
+        } else {
+            leader.set(0);
+        }
+        // leader.set(targetOpenLoopOutput);
 
         SmartDashboard.putNumber("Absolute Climber", absoluteEncoder.getPosition());
         SmartDashboard.putNumber("climber output", targetOpenLoopOutput);

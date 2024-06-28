@@ -10,6 +10,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS5Controller;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -30,8 +31,10 @@ import frc.robot.commands.SetIntakePosition;
 import frc.robot.commands.SetShooterPosition;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.ShootAutoAim;
+import frc.robot.commands.ShortPass;
 import frc.robot.commands.TeleopDrive;
 import frc.robot.commands.auton.GetRingAuton;
+import frc.robot.commands.auton.IntakeAndShoot;
 import frc.robot.commands.auton.PrepareCloseShotAuton;
 import frc.robot.commands.auton.PrepareFarShotAuton;
 import frc.robot.commands.auton.PrepareSideShotAuton;
@@ -101,9 +104,14 @@ public class RobotContainer {
     NamedCommands.registerCommand("Prepare Side Shot", new PrepareSideShotAuton());
     NamedCommands.registerCommand("Prepare Far Shot", new PrepareFarShotAuton());
     NamedCommands.registerCommand("Shoot", new ShootAuton());
+    NamedCommands.registerCommand("Intake And Shoot", new IntakeAndShoot());
+    NamedCommands.registerCommand("Turn Off Apriltags", new InstantCommand(() -> vision.turnOffAprilTags()));
+    NamedCommands.registerCommand("Turn On Apriltags", new InstantCommand(() -> vision.turnOnAprilTags()));
     
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    // PortForwarder.add(1182, null, 0);
 
   }
 
@@ -121,6 +129,7 @@ public class RobotContainer {
     Trigger manualIntake = new Trigger(() -> {return operator.getPOV() == 0;});
     Trigger prepareSpeakerButton = new Trigger(() -> operator.getRawButton(IO.prepareSpeakerButton));
     Trigger passButton = new Trigger(() -> operator.getRawButton(1));
+    Trigger shortPassButton = new Trigger(() -> operator.getRawButton(10));
     Trigger prepareAmpButton = new Trigger(() -> operator.getRawButton(IO.prepareAmpButton));
     // Trigger shootButton = new Trigger(() -> driver.getRawButton(IO.shootButton));
     Trigger shootButton = new Trigger(() -> operator.getRawButton(IO.shootButton));
@@ -140,10 +149,11 @@ public class RobotContainer {
     prepareSpeakerButton.onTrue(new Shoot(() -> shootButton.getAsBoolean()));
     //shootButton.onTrue(new RunCommand(() -> shooter.setFeederSpeed(0.3)));
     passButton.onTrue(new Pass(() -> shootButton.getAsBoolean()));
+    shortPassButton.onTrue(new ShortPass(() -> shootButton.getAsBoolean()));
     prepareAmpButton.onTrue(new Amp(() -> shootButton.getAsBoolean()));
     shootButton.onTrue(new InstantCommand(() -> intake.flashLights(0, 0)));
     new Trigger(() -> operator.getRawButton(9)).onTrue(new InstantCommand(() -> shooter.reset()));
-    new Trigger(() -> operator.getRawButton(14)).onTrue(new SetIntakePosition(Intake.PositionState.GROUND).alongWith(new SetShooterPosition(Shooter.PositionState.AMP)));
+    new Trigger(() -> operator.getRawButton(14)).onTrue(new SetIntakePosition(Intake.PositionState.GROUND).alongWith(new SetShooterPosition(Shooter.PositionState.CLIMB)));
     new Trigger(() -> operator.getRawButton(10)).onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.AMP)));
     new Trigger(() -> operator.getRawButton(3)).onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2); shooter.setShootSpeed(-2);}).andThen(new WaitCommand(0.4)).andThen(new WaitUntilCommand(() -> intake.getTorqueCurrent() < 25)).andThen(new InstantCommand(() -> {intake.setRollerSpeed(0.0); shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0); SmartDashboard.putBoolean("Intake Ring", false); SmartDashboard.putBoolean("Ready to Shoot", true);})));
   }

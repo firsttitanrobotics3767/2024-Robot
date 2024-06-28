@@ -22,6 +22,12 @@
                     {
                       "type": "named",
                       "data": {
+                        "name": "Turn Off Apriltags"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
                         "name": "Prepare Close Shot"
                       }
                     },
@@ -206,6 +212,12 @@
           "type": "named",
           "data": {
             "name": "Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Turn On Apriltags"
           }
         }
       ]

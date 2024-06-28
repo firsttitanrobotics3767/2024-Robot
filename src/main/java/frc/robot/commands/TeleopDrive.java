@@ -58,16 +58,15 @@ public class TeleopDrive extends Command{
 
     @Override
     public void execute() {
-        double xVelocity = vX.getAsDouble();
-        double yVelocity = vY.getAsDouble();
+        double xVelocity = (DriverStation.getAlliance().get() == Alliance.Blue || !driveMode.getAsBoolean()) ? vX.getAsDouble() * drivetrain.maxSpeed : -vX.getAsDouble() * drivetrain.maxSpeed;
+        double yVelocity = (DriverStation.getAlliance().get() == Alliance.Blue || !driveMode.getAsBoolean()) ? vY.getAsDouble() * drivetrain.maxSpeed : -vY.getAsDouble() * drivetrain.maxSpeed;
         double angVelocity = omega.getAsDouble();
         SmartDashboard.putNumber("vX", xVelocity);
         SmartDashboard.putNumber("vY", yVelocity);
         SmartDashboard.putNumber("omega", angVelocity);
 
         if (faceLocation.get().equals(Constants.FieldLocations.none)) {
-            drivetrain.drive(new Translation2d((DriverStation.getAlliance().get() == Alliance.Blue) ? xVelocity * drivetrain.maxSpeed : -xVelocity * drivetrain.maxSpeed, 
-                                            (DriverStation.getAlliance().get() == Alliance.Blue) ? yVelocity * drivetrain.maxSpeed : -yVelocity * drivetrain.maxSpeed),
+            drivetrain.drive(new Translation2d(xVelocity * drivetrain.maxSpeed, yVelocity * drivetrain.maxSpeed),
                                             angVelocity * controller.config.maxAngularVelocity,
                                             driveMode.getAsBoolean());
         } else {
