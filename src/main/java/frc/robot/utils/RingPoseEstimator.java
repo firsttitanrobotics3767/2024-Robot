@@ -1,22 +1,24 @@
 package frc.robot.utils;
 
+import org.opencv.core.Mat;
+
 import edu.wpi.first.math.util.Units;
 
 class rotationVals {
     public static final int yaw = 0;
     public static final int pitch = 1;
-    public static final int roll = 2;
+    public static final int skew = 2;
 }
 
 public class RingPoseEstimator {
     
-    public static double[] calculatePose(int[][] boundBoxMinMax, 
+    public static double[] calculatePose(double[][] boundBoxMinMax, 
                         double[] ringRotationVals, double ringDiameter, 
                             int[] camDimensions, double camFOVDeg, 
                                 double[] camTransform, double[] camRotationVals) {
         
-        int xCenter = ((boundBoxMinMax[0][0]) + (boundBoxMinMax[1][0])) / 2;
-        int yCenter = ((boundBoxMinMax[1][0]) + (boundBoxMinMax[1][1])) / 2;
+        int xCenter = ((int)Math.floor(((boundBoxMinMax[0][0]) + (boundBoxMinMax[1][0])) / 2));
+        int yCenter = ((int)Math.floor(((boundBoxMinMax[1][0]) + (boundBoxMinMax[1][1])) / 2));
 
         int xNDC = (int) (((2 * xCenter / camDimensions[0]) - 1) * Math.tan(Units.degreesToRadians(camFOVDeg)));
         int yNDC = (int) (((2 * yCenter / camDimensions[1]) - 1) * Math.tan(Units.degreesToRadians(camFOVDeg)));
@@ -44,13 +46,13 @@ public class RingPoseEstimator {
             {-Math.sin(Units.degreesToRadians(ringRotationVals[rotationVals.pitch])), 0, Math.cos(Units.degreesToRadians(ringRotationVals[rotationVals.pitch]))}
         };
 
-        double[][] RRingRoll = {
-            {1, 0, 0},
-            {0, Math.cos(Units.degreesToRadians(ringRotationVals[rotationVals.roll])), -Math.sin(Units.degreesToRadians(ringRotationVals[rotationVals.roll]))},
-            {0, Math.sin(Units.degreesToRadians(ringRotationVals[rotationVals.roll])), Math.cos(Units.degreesToRadians(ringRotationVals[rotationVals.roll]))}
+        double[][] RRingSkew = {
+            {1, Math.tan(Units.degreesToRadians(ringRotationVals[rotationVals.skew])), 0},
+            {0, 1, 0},
+            {0, 0, 1}
         };
 
-        double[][] RRing = multiplyMatrix(3, 3, RRingRoll,
+        double[][] RRing = multiplyMatrix(3, 3, RRingSkew,
                                             3, 3, multiplyMatrix(3, 3, RRingPitch,     
                                                                         3, 3, RRingYaw));
         double[] camSpace = {xCamSpace, yCamSpace, zCamSpace};
@@ -70,8 +72,8 @@ public class RingPoseEstimator {
 
         double[][] RCamRoll = {
             {1, 0, 0},
-            {0, Math.cos(Units.degreesToRadians(camRotationVals[rotationVals.roll])), -Math.sin(Units.degreesToRadians(camRotationVals[rotationVals.roll]))},
-            {0, Math.sin(Units.degreesToRadians(camRotationVals[rotationVals.roll])), Math.cos(Units.degreesToRadians(camRotationVals[rotationVals.roll]))}
+            {0, Math.cos(Units.degreesToRadians(camRotationVals[rotationVals.skew])), -Math.sin(Units.degreesToRadians(camRotationVals[rotationVals.skew]))},
+            {0, Math.sin(Units.degreesToRadians(camRotationVals[rotationVals.skew])), Math.cos(Units.degreesToRadians(camRotationVals[rotationVals.skew]))}
         };
 
         double[][] RCam = multiplyMatrix(3, 3, RCamRoll, 3, 3, multiplyMatrix(3, 3, RCamPitch, 3, 3, RCamYaw));

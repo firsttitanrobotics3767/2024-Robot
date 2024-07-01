@@ -84,6 +84,7 @@ public class Vision extends SubsystemBase{
         var ringResult = ringCam.getLatestResult();
         hasRingTargets = ringResult.hasTargets();
         List<PhotonTrackedTarget> rings = (hasRingTargets ? ringResult.targets : new ArrayList<PhotonTrackedTarget>(0));
+        List<Translation2d> ringList = new ArrayList<Translation2d>();
 
         SmartDashboard.putBoolean("vision/hasRingTarget", hasRingTargets);
 
@@ -135,31 +136,60 @@ public class Vision extends SubsystemBase{
 
         if (hasRingTargets) {
             for (PhotonTrackedTarget ring : rings) {
-                // RingPoseEstimator.calculatePose(getMinMaxCorners(ring), ring., lastUpdateTimestamp, null, lastUpdateTimestamp, null, null)
+                double[] ringRotationVals = {ring.getYaw(), ring.getPitch(), ring.getSkew()};
+                int[] camDimensions = {640, 360};
+                double[] camTransform = {0.529, 0.0, 0.261};
+                double[] camRotationVals = {0, 17.6, 0};
+                double[] estimatedRingPose = RingPoseEstimator.calculatePose(getMinMaxCorners(ring), 
+                                                ringRotationVals, 
+                                                0.3556, 
+                                                camDimensions, 
+                                                100, 
+                                                camTransform, 
+                                                camRotationVals);
+                
+                
+                
+                SmartDashboard.putNumberArray("vision/Ring From Camera Meters", estimatedRingPose);
             }
         }
 
     }  
     
-    public int[][] getMinMaxCorners(PhotonTrackedTarget ring) {
-        List<Integer> cornersX = new ArrayList<Integer>();
-        List<Integer> cornersY = new ArrayList<Integer>();
+    public double[][] getMinMaxCorners(PhotonTrackedTarget ring) {
+        List<Double> cornersX = new ArrayList<Double>();
+        List<Double> cornersY = new ArrayList<Double>();
 
-        for (TargetCorner corner : ring.getDetectedCorners()) {
-            cornersX.add((int) corner.x);
-            cornersY.add((int) corner.y);
+        for (TargetCorner corner : ring.getMinAreaRectCorners()) {
+            cornersX.add(corner.x);
+            cornersY.add(corner.y);
         }
-        
+
         cornersX.sort(Comparator.naturalOrder());
         cornersY.sort(Comparator.naturalOrder());
 
-        int cornersMinMax[][] = {
+        double cornersMinMax[][] = {
             {cornersX.get(0), cornersX.get(3)},
             {cornersY.get(3), cornersX.get(0)}
         };
 
+        SmartDashboard.putString("vision/ring bounding corners", cornersMinMax.toString());
+
         return cornersMinMax;
     }
+
+    // public List<Double> sortList(List<Double> list) {
+    //     List<Double> result = new ArrayList<Double>(list.size());
+    //     double tempNum;
+    //     for (double item : list) {
+    //         for (int i = list.size() - list.indexOf(item); i < list.size(); i++) {
+    //             if (item > list.get(i)) {
+    //                 tempNum = list.get(i);
+    //                 result.set(i, null);
+    //             }
+    //         }
+    //     }
+    // } 
 
     public boolean hasRingTarget() {
         return hasRingTargets;
