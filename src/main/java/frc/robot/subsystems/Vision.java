@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.RingPoseEstimator;
 
 public class Vision extends SubsystemBase{
 
@@ -134,27 +133,11 @@ public class Vision extends SubsystemBase{
             
         }
 
-        if (hasRingTargets) {
-            for (PhotonTrackedTarget ring : rings) {
-                double[] ringRotationVals = {ring.getYaw(), ring.getPitch(), ring.getSkew()};
-                int[] camDimensions = {640, 360};
-                double[] camTransform = {0.529, 0.0, 0.261};
-                double[] camRotationVals = {0, 17.6, 0};
-                double[] estimatedRingPose = RingPoseEstimator.calculatePose(getMinMaxCorners(ring), 
-                                                ringRotationVals, 
-                                                0.3556, 
-                                                camDimensions, 
-                                                100, 
-                                                camTransform, 
-                                                camRotationVals);
-                
-                
-                
-                SmartDashboard.putNumberArray("vision/Ring From Camera Meters", estimatedRingPose);
-            }
-        }
-
-    }  
+    } 
+    
+    public PhotonCamera getRingCam() {
+        return ringCam;
+    }
     
     public double[][] getMinMaxCorners(PhotonTrackedTarget ring) {
         List<Double> cornersX = new ArrayList<Double>();

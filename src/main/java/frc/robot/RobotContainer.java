@@ -47,6 +47,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
 // import frc.robot.subsystems.Vision;
 import frc.robot.utils.Constants;
+import frc.robot.utils.PhotonNoteDetection;
 import frc.robot.utils.Constants.IO;
 
 public class RobotContainer {
@@ -63,6 +64,7 @@ public class RobotContainer {
   }
   
   public final Vision vision = new Vision();
+  public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
   public final Drivetrain drivetrain = Drivetrain.getInstance();
   private final Intake intake = Intake.getInstance();
   private final Elevator elevator = Elevator.getInstance();

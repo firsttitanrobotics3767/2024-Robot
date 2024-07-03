@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -23,55 +26,64 @@ public class Climber extends SubsystemBase{
         return instance;
     }
     
-    private final CANSparkMax leader;
-    private final CANSparkMax follower;
+    // private final CANSparkMax leader;
+    // private final CANSparkMax follower;
 
-    private final AbsoluteEncoder absoluteEncoder;
-    private final RelativeEncoder encoder;
+    // private final AbsoluteEncoder absoluteEncoder;
+    // private final RelativeEncoder encoder;
+
+    private final TalonFX climbMotor;
+    private final TalonFXConfiguration config;
 
 
     public Climber() {
-        leader = new CANSparkMax(Constants.Climber.leaderID, MotorType.kBrushless);
-        leader.restoreFactoryDefaults();
-        leader.setIdleMode(IdleMode.kBrake);
-        leader.setSmartCurrentLimit(100);
-        leader.setInverted(false);
+        climbMotor = new TalonFX(21);
+        config = new TalonFXConfiguration();
+        climbMotor.setNeutralMode(NeutralModeValue.Brake);
+        climbMotor.setInverted(false);
+        climbMotor.getConfigurator().apply(config);
+        // leader = new CANSparkMax(Constants.Climber.leaderID, MotorType.kBrushless);
+        // leader.restoreFactoryDefaults();
+        // leader.setIdleMode(IdleMode.kBrake);
+        // leader.setSmartCurrentLimit(100);
+        // leader.setInverted(false);
 
-        follower = new CANSparkMax(Constants.Climber.followerID, MotorType.kBrushless);
-        follower.restoreFactoryDefaults();
-        follower.setIdleMode(IdleMode.kBrake);
-        follower.setSmartCurrentLimit(100);
-        follower.setInverted(false);
-        follower.follow(leader);
+        // follower = new CANSparkMax(Constants.Climber.followerID, MotorType.kBrushless);
+        // follower.restoreFactoryDefaults();
+        // follower.setIdleMode(IdleMode.kBrake);
+        // follower.setSmartCurrentLimit(100);
+        // follower.setInverted(false);
+        // follower.follow(leader);
 
-        absoluteEncoder = leader.getAbsoluteEncoder(Type.kDutyCycle);
+        // absoluteEncoder = leader.getAbsoluteEncoder(Type.kDutyCycle);
 
-        encoder = leader.getEncoder();
-        encoder.setPositionConversionFactor(Constants.Climber.conversionfactor);
-        encoder.setPosition(absoluteEncoder.getPosition());
+        // encoder = leader.getEncoder();
+        // encoder.setPositionConversionFactor(Constants.Climber.conversionfactor);
+        // encoder.setPosition(absoluteEncoder.getPosition());
 
 
     }
 
     @Override
     public void periodic() {
-        if ((absoluteEncoder.getPosition() > 0.2 && absoluteEncoder.getPosition() < 0.7) || targetOpenLoopOutput > 0) {
-            leader.set(targetOpenLoopOutput);
-        } else {
-            leader.set(0);
-        }
-        // leader.set(targetOpenLoopOutput);
+        // if ((absoluteEncoder.getPosition() > 0.2 && absoluteEncoder.getPosition() < 0.7) || targetOpenLoopOutput > 0) {
+        //     leader.set(targetOpenLoopOutput);
+        // } else {
+        //     leader.set(0);
+        // }
+        // // leader.set(targetOpenLoopOutput);
 
-        SmartDashboard.putNumber("Absolute Climber", absoluteEncoder.getPosition());
-        SmartDashboard.putNumber("climber output", targetOpenLoopOutput);
+        // SmartDashboard.putNumber("Absolute Climber", absoluteEncoder.getPosition());
+        // SmartDashboard.putNumber("climber output", targetOpenLoopOutput);
+        climbMotor.set(targetOpenLoopOutput);
     } 
 
     public void setArmSpeed(double speed) {
-        targetOpenLoopOutput = speed*0.5;
+        targetOpenLoopOutput = speed;
     }
 
-    public double getPosition() {
-        return absoluteEncoder.getPosition();
-    }
+    // public double getPosition() {
+    //     // return absoluteEncoder.getPosition();
+    // }
 
 }

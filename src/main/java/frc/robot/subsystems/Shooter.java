@@ -45,7 +45,8 @@ public class Shooter extends SubsystemBase{
 
     public enum PositionState {
         IDLE(0.045),
-        SHOOT(-0.02),
+        SHOOT(0.1),
+        // SHOOT(-0.02),
         AUTO(0),
         SCORE_3(0.05),
         SIDE_SCORE(-0.01),

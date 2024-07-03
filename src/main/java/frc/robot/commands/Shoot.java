@@ -25,7 +25,7 @@ public class Shoot extends SequentialCommandGroup {
 
             new InstantCommand(() -> {shooter.setFeederSpeed(-0.1); shooter.setShootSpeed(-2); intake.setRollerSpeed(0);}),
             new WaitUntilCommand(() -> !shooter.hasGamePiece()),
-            new InstantCommand(() -> {shooter.setShootSpeed(40); shooter.setFeederSpeed(0);}),
+            new InstantCommand(() -> {shooter.setShootSpeed(85); shooter.setFeederSpeed(0);}),
             new WaitUntilCommand(shootButton),
             new InstantCommand(() -> shooter.setFeederSpeed(0.30)),
             new WaitCommand(0.2),
