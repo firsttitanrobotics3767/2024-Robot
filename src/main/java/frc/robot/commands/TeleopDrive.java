@@ -66,7 +66,7 @@ public class TeleopDrive extends Command{
         SmartDashboard.putNumber("omega", angVelocity);
 
         if (faceLocation.get().equals(Constants.FieldLocations.none)) {
-            drivetrain.drive(new Translation2d(xVelocity * drivetrain.maxSpeed, yVelocity * drivetrain.maxSpeed),
+            drivetrain.drive(new Translation2d(xVelocity, yVelocity),
                                             angVelocity * controller.config.maxAngularVelocity,
                                             driveMode.getAsBoolean());
         } else {

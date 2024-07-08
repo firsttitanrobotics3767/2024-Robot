@@ -34,8 +34,8 @@ public class Drivetrain extends SubsystemBase {
     private final AddressableLED leds = new AddressableLED(0);
     private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(48);
 
-    // public final double maxSpeed = Constants.Swerve.maxVelocity;
-    public final double maxSpeed = 0.5;
+    public final double maxSpeed = Constants.Swerve.maxVelocity;
+    // public final double maxSpeed = 1;
     private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
     private final double angleConversionFactor = Constants.Swerve.angleConversionFactor;
     
