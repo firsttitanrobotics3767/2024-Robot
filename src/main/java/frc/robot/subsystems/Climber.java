@@ -26,40 +26,40 @@ public class Climber extends SubsystemBase{
         return instance;
     }
     
-    // private final CANSparkMax leader;
-    // private final CANSparkMax follower;
+    private final CANSparkMax leader;
+    private final CANSparkMax follower;
 
-    // private final AbsoluteEncoder absoluteEncoder;
-    // private final RelativeEncoder encoder;
+    private final AbsoluteEncoder absoluteEncoder;
+    private final RelativeEncoder encoder;
 
-    private final TalonFX climbMotor;
-    private final TalonFXConfiguration config;
+    // private final TalonFX climbMotor;
+    // private final TalonFXConfiguration config;
 
 
     public Climber() {
-        climbMotor = new TalonFX(21);
-        config = new TalonFXConfiguration();
-        climbMotor.setNeutralMode(NeutralModeValue.Brake);
-        climbMotor.setInverted(false);
-        climbMotor.getConfigurator().apply(config);
-        // leader = new CANSparkMax(Constants.Climber.leaderID, MotorType.kBrushless);
-        // leader.restoreFactoryDefaults();
-        // leader.setIdleMode(IdleMode.kBrake);
-        // leader.setSmartCurrentLimit(100);
-        // leader.setInverted(false);
+        // climbMotor = new TalonFX(21);
+        // config = new TalonFXConfiguration();
+        // climbMotor.setNeutralMode(NeutralModeValue.Brake);
+        // climbMotor.setInverted(false);
+        // climbMotor.getConfigurator().apply(config);
+        leader = new CANSparkMax(Constants.Climber.leaderID, MotorType.kBrushless);
+        leader.restoreFactoryDefaults();
+        leader.setIdleMode(IdleMode.kBrake);
+        leader.setSmartCurrentLimit(100);
+        leader.setInverted(false);
 
-        // follower = new CANSparkMax(Constants.Climber.followerID, MotorType.kBrushless);
-        // follower.restoreFactoryDefaults();
-        // follower.setIdleMode(IdleMode.kBrake);
-        // follower.setSmartCurrentLimit(100);
-        // follower.setInverted(false);
-        // follower.follow(leader);
+        follower = new CANSparkMax(Constants.Climber.followerID, MotorType.kBrushless);
+        follower.restoreFactoryDefaults();
+        follower.setIdleMode(IdleMode.kBrake);
+        follower.setSmartCurrentLimit(100);
+        follower.setInverted(false);
+        follower.follow(leader);
 
-        // absoluteEncoder = leader.getAbsoluteEncoder(Type.kDutyCycle);
+        absoluteEncoder = leader.getAbsoluteEncoder(Type.kDutyCycle);
 
-        // encoder = leader.getEncoder();
-        // encoder.setPositionConversionFactor(Constants.Climber.conversionfactor);
-        // encoder.setPosition(absoluteEncoder.getPosition());
+        encoder = leader.getEncoder();
+        encoder.setPositionConversionFactor(Constants.Climber.conversionfactor);
+        encoder.setPosition(absoluteEncoder.getPosition());
 
 
     }
@@ -75,7 +75,7 @@ public class Climber extends SubsystemBase{
 
         // SmartDashboard.putNumber("Absolute Climber", absoluteEncoder.getPosition());
         // SmartDashboard.putNumber("climber output", targetOpenLoopOutput);
-        climbMotor.set(targetOpenLoopOutput);
+        // // climbMotor.set(targetOpenLoopOutput);
     } 
 
     public void setArmSpeed(double speed) {
@@ -83,7 +83,7 @@ public class Climber extends SubsystemBase{
     }
 
     // public double getPosition() {
-    //     // return absoluteEncoder.getPosition();
+    //     return absoluteEncoder.getPosition();
     // }
 
 }
