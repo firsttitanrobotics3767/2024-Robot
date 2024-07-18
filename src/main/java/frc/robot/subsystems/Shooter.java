@@ -66,8 +66,8 @@ public class Shooter extends SubsystemBase{
     static {
         shotAngle.put(1.55, 0.00);
         shotAngle.put(2.0, 0.018);
-        shotAngle.put(2.5, 0.04);
-        shotAngle.put(3.0, 0.05);
+        shotAngle.put(2.5, 0.038);
+        shotAngle.put(3.0, 0.048);
         shotAngle.put(3.5, 0.056);
         shotAngle.put(4.0, 0.062);
         shotAngle.put(4.5, 0.069);
