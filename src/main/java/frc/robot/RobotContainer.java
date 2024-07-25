@@ -43,6 +43,7 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.NoteLight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
 // import frc.robot.subsystems.Vision;
@@ -63,6 +64,7 @@ public class RobotContainer {
     }
   }
   
+  public final NoteLight lights = new NoteLight();
   public final Vision vision = new Vision();
   public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
   public final Drivetrain drivetrain = Drivetrain.getInstance();
