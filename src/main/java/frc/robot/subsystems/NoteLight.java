@@ -9,7 +9,8 @@ public class NoteLight extends SubsystemBase {
   
   private SerialPort noteLight;
 
-  private String color = null;
+  private String color = "Orange";
+  private String lastColor = "Orange";
 
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
@@ -30,6 +31,12 @@ public class NoteLight extends SubsystemBase {
           System.out.println("Failed to connect to Note Light Arduino" + e.getMessage());
       }
 
+      SmartDashboard.putBoolean("Color/Red", false);
+      SmartDashboard.putBoolean("Color/Orange", true);
+      SmartDashboard.putBoolean("Color/Yellow", false);
+      SmartDashboard.putBoolean("Color/Green", false);
+      SmartDashboard.putBoolean("Color/Blue", false);
+      SmartDashboard.putBoolean("Color/Violet", false);
 
       m_chooser.setDefaultOption("Orange", "Orange");
       m_chooser.addOption("Red", "Red");
@@ -44,9 +51,7 @@ public class NoteLight extends SubsystemBase {
     public void periodic() {
       String colorCode = "";
 
-      String m_colorSelected = m_chooser.getSelected();
-
-      switch (m_colorSelected) {
+      switch (color) {
         case "Red":
           colorCode = "R";
           break;
@@ -72,11 +77,16 @@ public class NoteLight extends SubsystemBase {
 
       
       noteLight.writeString(colorCode);
-       
+      
+      SmartDashboard.putBoolean("Color/" + color, true);
+      SmartDashboard.putBoolean("Color/" + lastColor, false);
+      lastColor = color;
 
+      System.out.println(color);
     }
 
-    public void setColor(String colorCode) {
-      
+    public void setColor(String color) {
+      color = this.color;
+      System.out.println("changing Color to " + color);
     }
 }

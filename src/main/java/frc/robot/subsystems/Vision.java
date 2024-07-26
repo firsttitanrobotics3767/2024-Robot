@@ -49,7 +49,7 @@ public class Vision extends SubsystemBase{
     List<Translation2d> ringPoses = new ArrayList<Translation2d>();
 
     private final PhotonCamera aprilTagCam;
-    private final PhotonCamera ringCam;
+    //private final PhotonCamera ringCam;
     private final AprilTagFieldLayout aprilTagField = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     private final PhotonPoseEstimator photonPoseEstimator;
     Optional<EstimatedRobotPose> estimatedPose = Optional.of(new EstimatedRobotPose(new Pose3d(), 0, null, null));
@@ -69,7 +69,7 @@ public class Vision extends SubsystemBase{
         aprilTagCam = new PhotonCamera("Arducam_OV9281_USB_Camera");
         Transform3d robotToCam = new Transform3d(new Translation3d(-0.289857, 0.031749, 0.171914), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(135), Units.degreesToRadians(0)));
 
-        ringCam = new PhotonCamera("HD_USB_Camera");
+        //ringCam = new PhotonCamera("HD_USB_Camera");
 
         photonPoseEstimator = new PhotonPoseEstimator(aprilTagField, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, aprilTagCam, robotToCam);
 
@@ -80,10 +80,10 @@ public class Vision extends SubsystemBase{
         var result = aprilTagCam.getLatestResult();
         hasTargets = result.hasTargets();
 
-        var ringResult = ringCam.getLatestResult();
-        hasRingTargets = ringResult.hasTargets();
-        List<PhotonTrackedTarget> rings = (hasRingTargets ? ringResult.targets : new ArrayList<PhotonTrackedTarget>(0));
-        List<Translation2d> ringList = new ArrayList<Translation2d>();
+        // var ringResult = ringCam.getLatestResult();
+        // hasRingTargets = ringResult.hasTargets();
+        // List<PhotonTrackedTarget> rings = (hasRingTargets ? ringResult.targets : new ArrayList<PhotonTrackedTarget>(0));
+        // List<Translation2d> ringList = new ArrayList<Translation2d>();
 
         SmartDashboard.putBoolean("vision/hasRingTarget", hasRingTargets);
 
@@ -135,9 +135,9 @@ public class Vision extends SubsystemBase{
 
     } 
     
-    public PhotonCamera getRingCam() {
-        return ringCam;
-    }
+    // public PhotonCamera getRingCam() {
+    //     return ringCam;
+    // }
     
     public double[][] getMinMaxCorners(PhotonTrackedTarget ring) {
         List<Double> cornersX = new ArrayList<Double>();
