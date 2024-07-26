@@ -9,6 +9,8 @@ public class NoteLight extends SubsystemBase {
   
   private SerialPort noteLight;
 
+  private String color = null;
+
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
     public NoteLight() {
@@ -36,7 +38,6 @@ public class NoteLight extends SubsystemBase {
       m_chooser.addOption("Blue", "Blue");
       m_chooser.addOption("Violet", "Violet");
       SmartDashboard.putData("Note Color", m_chooser);
-
     }
 
     @Override
@@ -70,9 +71,12 @@ public class NoteLight extends SubsystemBase {
       }
 
       
-         noteLight.writeString(colorCode);
+      noteLight.writeString(colorCode);
        
 
     }
 
+    public void setColor(String colorCode) {
+      
+    }
 }
