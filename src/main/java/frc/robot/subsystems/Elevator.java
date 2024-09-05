@@ -47,7 +47,7 @@ public class Elevator extends SubsystemBase{
         elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 30;
-        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 16;
+        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
         elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
         elevatorMotor.setInverted(false);
         elevatorMotor.setPosition(0);
@@ -85,8 +85,10 @@ public class Elevator extends SubsystemBase{
     public void setSpeed(double speed) {
         if (speed >= 0) {
             finalSpeed = speed * 0.7;
-        } else {
+        } else if (speed <= 0 && getPosition() <= 10) {
             finalSpeed = speed * 0.3;
+        } else {
+            finalSpeed = speed * 0.7;
         }
         elevatorMotor.set(finalSpeed);
     }

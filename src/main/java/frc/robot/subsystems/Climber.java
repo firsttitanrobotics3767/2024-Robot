@@ -72,10 +72,18 @@ public class Climber extends SubsystemBase{
     @Override
     public void periodic() {
         if (DriverStation.getMatchTime() <= 20) {
-            if (limitSwitch.get() || targetOpenLoopOutput > 0) {
-                leader.set(targetOpenLoopOutput * 0.5);
-            } else {
+            if (!limitSwitch.get()) {
+
+                if (targetOpenLoopOutput > 0) {
+                    leader.set(targetOpenLoopOutput * 0.5);
+                } else{
+                    leader.set(0);
+                }
+                
+            } else if (encoder.getPosition() >= 38 && targetOpenLoopOutput > 0) {
                 leader.set(0);
+            } else {
+                leader.set(targetOpenLoopOutput * 0.5);
             }
         } else {
             leader.set(0);

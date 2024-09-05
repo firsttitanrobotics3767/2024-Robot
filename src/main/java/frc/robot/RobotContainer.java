@@ -90,7 +90,7 @@ public class RobotContainer {
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveXAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveYAxis), Constants.IO.swerveDeadband),
       () -> MathUtil.applyDeadband(-driver.getRawAxis(IO.driveOmegaAxis), Constants.IO.swerveDeadband),
-      () -> !driver.getRawButton(IO.driveModeButton),
+      () -> true,
       () -> (faceLocation == FaceLocation.Speaker) ? (DriverStation.getAlliance().get() == Alliance.Blue ? Constants.FieldLocations.blueSpeaker : Constants.FieldLocations.redSpeaker) : Constants.FieldLocations.none,
       () -> MathUtil.applyDeadband(driver.getRawAxis(5), 0.5),
       () -> MathUtil.applyDeadband(driver.getRawAxis(2), 0.5)

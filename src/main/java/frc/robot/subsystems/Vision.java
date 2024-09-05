@@ -101,7 +101,7 @@ public class Vision extends SubsystemBase{
             }
 
             for (PhotonTrackedTarget target : targets) {
-                if (!estimate) {
+                if (!estimate || !doEstimation) {
                     SmartDashboard.putBoolean("vision/isEstimating", false);
                     break;
                 } else {
@@ -127,6 +127,8 @@ public class Vision extends SubsystemBase{
                         SmartDashboard.putBoolean("vision/isEstimating", true);
                         lastUpdateTimestamp = Timer.getFPGATimestamp();
                         drivetrain.addVisionMeasurement(averagedPose);
+                    } else {
+                        SmartDashboard.putBoolean("doEstimation", doEstimation);
                     }
                 }
             }

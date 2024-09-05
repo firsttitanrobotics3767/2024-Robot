@@ -76,17 +76,15 @@ public class NoteLight extends SubsystemBase {
       }
 
       
-      noteLight.writeString(colorCode);
+      noteLight.writeString("P");
       
       SmartDashboard.putBoolean("Color/" + color, true);
       SmartDashboard.putBoolean("Color/" + lastColor, false);
       lastColor = color;
-
-      System.out.println(color);
     }
 
     public void setColor(String color) {
-      color = this.color;
+      this.color = color;
       System.out.println("changing Color to " + color);
     }
 }
