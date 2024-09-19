@@ -18,11 +18,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Constants;
+import monologue.Logged;
+import monologue.Annotations.*;
 
 /**
  * Intake class
  */
-public class Intake extends SubsystemBase{
+public class Intake extends SubsystemBase implements Logged{
     public enum ControlState {
         AUTOMATIC,
         MANUAL;
@@ -159,6 +161,7 @@ public class Intake extends SubsystemBase{
         SmartDashboard.putNumber("Intake/positionVolts", positionLeftMotor.getMotorVoltage().getValueAsDouble());
     }
 
+    @Log
     public String goalState() {
         return goalState.toString();
     }
@@ -179,20 +182,24 @@ public class Intake extends SubsystemBase{
         this.controlState = controlState;
     }
 
+    @Log
     public boolean atGoal() {
         // return ((getAbsolutePosition() > (goalState.pos - 0.01)) && (getAbsolutePosition() < (goalState.pos + 0.01)));
         return ((getPosition() > (goalState.pos - 0.01)) && (getPosition() < (goalState.pos + 0.01)));
     }
 
+    @Log
     public double getPosition() {
         return positionLeftMotor.getPosition().getValueAsDouble();
     }
 
+    @Log
     public double getAbsolutePosition() {
         // return absoluteEncoder.getAbsolutePosition() - 0;
         return absoluteEncoder.getAbsolutePosition() - Constants.Intake.absoluteOffset;
     }
 
+    @Log
     public boolean areEncodersSynched() {
         return ((getPosition() > (getAbsolutePosition() - 0.0005)) && (getPosition() < (getAbsolutePosition() + 0.0005)));
     }
@@ -201,6 +208,7 @@ public class Intake extends SubsystemBase{
         positionLeftMotor.setPosition(getAbsolutePosition());
     }
 
+    @Log
     public boolean hasGamePiece() {
         // return  rollerMotor.getTorqueCurrent().getValueAsDouble() > 30.0;
         return ((analogSensor.getValue() < 2700.0) || !digitalSensor.get());

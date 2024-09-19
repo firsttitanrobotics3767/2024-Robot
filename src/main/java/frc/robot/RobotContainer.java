@@ -50,8 +50,11 @@ import frc.robot.subsystems.Vision;
 import frc.robot.utils.Constants;
 import frc.robot.utils.PhotonNoteDetection;
 import frc.robot.utils.Constants.IO;
+import monologue.Logged;
+import monologue.Monologue;
+import monologue.Annotations.Log;
 
-public class RobotContainer {
+public class RobotContainer implements Logged{
   
   public enum FaceLocation {
     None(0),
@@ -64,14 +67,15 @@ public class RobotContainer {
     }
   }
   
-  public final NoteLight lights = new NoteLight();
-  public final Vision vision = new Vision();
-  public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
-  public final Drivetrain drivetrain = Drivetrain.getInstance();
-  private final Intake intake = Intake.getInstance();
-  private final Elevator elevator = Elevator.getInstance();
-  public final Shooter shooter = Shooter.getInstance();
-  private final Climber climber = Climber.getInstance();
+
+  @Log public final NoteLight lights = new NoteLight();
+  @Log public final Vision vision = new Vision();
+  @Log public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
+  @Log public final Drivetrain drivetrain = Drivetrain.getInstance();
+  @Log private final Intake intake = Intake.getInstance();
+  @Log private final Elevator elevator = Elevator.getInstance();
+  @Log public final Shooter shooter = Shooter.getInstance();
+  @Log private final Climber climber = Climber.getInstance();
 
   PS5Controller driver = new PS5Controller(0);
   PS5Controller operator = new PS5Controller(1);
@@ -116,6 +120,8 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
     // PortForwarder.add(1182, null, 0);
+
+    Monologue.setupMonologue(this, "Robot", false, true);
 
   }
 
@@ -165,5 +171,10 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  public void loggingPeriodic() {
+    Monologue.setFileOnly(DriverStation.isDSAttached() ? DriverStation.isFMSAttached() : false);
+    Monologue.updateAll();
   }
 }
