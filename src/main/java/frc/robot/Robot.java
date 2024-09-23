@@ -31,6 +31,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
+    m_robotContainer.loggingPeriodic();
     }
 
   @Override

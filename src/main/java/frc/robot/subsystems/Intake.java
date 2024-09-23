@@ -41,7 +41,7 @@ public class Intake extends SubsystemBase implements Logged{
         }
     }
 
-    private static Intake instance = null;
+    // private static Intake instance = null;
     private ControlState controlState = ControlState.AUTOMATIC;
     private PositionState goalState = PositionState.STOW;
     private PositionState lastState = PositionState.STOW;
@@ -57,13 +57,13 @@ public class Intake extends SubsystemBase implements Logged{
     private double runTime = 1; 
     private int runSpeed = 4;
     
-    public static Intake getInstance() {
-        if (instance == null) {
-            instance = new Intake();
-        }
+    // public static Intake getInstance() {
+    //     if (instance == null) {
+    //         instance = new Intake();
+    //     }
 
-        return instance;
-    }
+    //     return instance;
+    // }
 
     private final TalonFX rollerMotor;
     private final TalonFXConfiguration rollerConfig, positionConfig;

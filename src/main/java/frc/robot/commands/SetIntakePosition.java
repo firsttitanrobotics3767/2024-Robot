@@ -1,10 +1,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Intake;
 
 public class SetIntakePosition extends Command {
-    private final Intake intake = Intake.getInstance();
+    private final Intake intake = RobotContainer.getIntake();
     private Intake.PositionState position;
 
     public SetIntakePosition(Intake.PositionState position) {

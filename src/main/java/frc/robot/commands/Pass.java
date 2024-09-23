@@ -8,11 +8,12 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.Shooter;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Intake;
 
 public class Pass extends SequentialCommandGroup {
     private final Shooter shooter = Shooter.getInstance();
-    private final Intake intake = Intake.getInstance();
+    private final Intake intake = RobotContainer.getIntake();
     private final BooleanSupplier shootButton;
 
     public Pass(BooleanSupplier shootButton) {

@@ -68,14 +68,14 @@ public class RobotContainer implements Logged{
   }
   
 
-  @Log public final NoteLight lights = new NoteLight();
-  @Log public final Vision vision = new Vision();
-  @Log public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
-  @Log public final Drivetrain drivetrain = Drivetrain.getInstance();
-  @Log private final Intake intake = Intake.getInstance();
-  @Log private final Elevator elevator = Elevator.getInstance();
-  @Log public final Shooter shooter = Shooter.getInstance();
-  @Log private final Climber climber = Climber.getInstance();
+  public final NoteLight lights = new NoteLight();
+  public final Vision vision = new Vision();
+  public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
+  public final Drivetrain drivetrain = Drivetrain.getInstance();
+  private final static Intake intake = new Intake();
+  private final Elevator elevator = Elevator.getInstance();
+  public final Shooter shooter = Shooter.getInstance();
+  private final Climber climber = Climber.getInstance();
 
   PS5Controller driver = new PS5Controller(0);
   PS5Controller operator = new PS5Controller(1);
@@ -176,5 +176,9 @@ public class RobotContainer implements Logged{
   public void loggingPeriodic() {
     Monologue.setFileOnly(DriverStation.isDSAttached() ? DriverStation.isFMSAttached() : false);
     Monologue.updateAll();
+  }
+
+  public static Intake getIntake() {
+    return intake;
   }
 }
