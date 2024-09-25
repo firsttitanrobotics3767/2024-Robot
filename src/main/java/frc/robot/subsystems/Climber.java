@@ -14,18 +14,22 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.utils.Constants;
+import monologue.Logged;
+import monologue.Annotations.Log;
 
-public class Climber extends SubsystemBase{
-    private static Climber instance = null;
+public class Climber extends SubsystemBase implements Logged{
+    // private static Climber instance = null;
     private double targetOpenLoopOutput = 0;
 
     public static Climber getInstance() {
-        if (instance == null) {
-            instance = new Climber();
-        }
+        // if (instance == null) {
+        //     instance = new Climber();
+        // }
 
-        return instance;
+        // return instance;
+        return RobotContainer.getClimber();
     }
     
     private final CANSparkMax leader;
@@ -73,7 +77,7 @@ public class Climber extends SubsystemBase{
     public void periodic() {
         if (DriverStation.getMatchTime() <= 20) {
             if (limitSwitch.get() || targetOpenLoopOutput > 0) {
-                leader.set(targetOpenLoopOutput * 0.5);
+                leader.set(targetOpenLoopOutput * 0.75);
             } else {
                 leader.set(0);
             }
@@ -83,8 +87,12 @@ public class Climber extends SubsystemBase{
 
         // leader.set(targetOpenLoopOutput);
 
-        SmartDashboard.putNumber("Absolute Climber", encoder.getPosition());
-        SmartDashboard.putBoolean("Climber limit", limitSwitch.get());
+        log("Climber Limit", limitSwitch.get());
+        log("Climber Target Output", targetOpenLoopOutput);
+        log("Climber Actual Output", leader.getAppliedOutput());
+
+        // SmartDashboard.putNumber("Absolute Climber", encoder.getPosition());
+        // SmartDashboard.putBoolean("Climber limit", limitSwitch.get());
         // SmartDashboard.putNumber("climber output", targetOpenLoopOutput);
         // // climbMotor.set(targetOpenLoopOutput);
     } 
@@ -93,8 +101,9 @@ public class Climber extends SubsystemBase{
         targetOpenLoopOutput = speed;
     }
 
-    // public double getPosition() {
-    //     return absoluteEncoder.getPosition();
-    // }
+    @Log
+    public double getPosition() {
+        return encoder.getPosition();
+    }
 
 }

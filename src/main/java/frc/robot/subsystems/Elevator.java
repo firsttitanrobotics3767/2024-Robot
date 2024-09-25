@@ -9,9 +9,12 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.utils.Constants;
+import monologue.Logged;
+import monologue.Annotations.Log;
 
-public class Elevator extends SubsystemBase{
+public class Elevator extends SubsystemBase implements Logged{
     public enum PositionState {
         STOW(1),
         AMP(33),
@@ -23,7 +26,7 @@ public class Elevator extends SubsystemBase{
         }
     }
 
-    private static Elevator instance = null;
+    // private static Elevator instance = null;
     
     private final TalonFX elevatorMotor;
     private final TalonFXConfiguration elevatorConfig;
@@ -34,11 +37,12 @@ public class Elevator extends SubsystemBase{
     private PositionState goalState = PositionState.STOW;
 
     public static Elevator getInstance() {
-        if (instance == null) {
-            instance = new Elevator();
-        }
+        // if (instance == null) {
+        //     instance = new Elevator();
+        // }
 
-        return instance;
+        // return instance;
+        return RobotContainer.getElevator();
     }
     
     public Elevator() {
@@ -71,11 +75,15 @@ public class Elevator extends SubsystemBase{
         // if (positionControlled) {
         //     elevatorMotor.setControl(new MotionMagicVoltage(goalState.pos));
         // }
-        SmartDashboard.putString("Elevator/goalState", goalState.toString());
-        SmartDashboard.putNumber("Elevator/targetPos", goalState.pos);
-        SmartDashboard.putNumber("Elevator/measuredPos", elevatorMotor.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("Elevator/velocity", elevatorMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putBoolean("Elevator/at goal", atGoal());
+
+        log("Measured Position", elevatorMotor.getPosition().getValueAsDouble());
+        log("Velocity", elevatorMotor.getVelocity().getValueAsDouble());
+
+        // SmartDashboard.putString("Elevator/goalState", goalState.toString());
+        // SmartDashboard.putNumber("Elevator/targetPos", goalState.pos);
+        // SmartDashboard.putNumber("Elevator/measuredPos", elevatorMotor.getPosition().getValueAsDouble());
+        // SmartDashboard.putNumber("Elevator/velocity", elevatorMotor.getVelocity().getValueAsDouble());
+        // SmartDashboard.putBoolean("Elevator/at goal", atGoal());
     }
 
     public void moveTo(PositionState position) {
@@ -91,6 +99,7 @@ public class Elevator extends SubsystemBase{
         elevatorMotor.set(finalSpeed);
     }
 
+    @Log
     public double getPosition() {
         return elevatorMotor.getPosition().getValueAsDouble();
     }

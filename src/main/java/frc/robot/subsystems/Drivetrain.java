@@ -21,15 +21,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.utils.Constants;
+import monologue.LogLevel;
+import monologue.Logged;
+import monologue.Annotations.Log;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-public class Drivetrain extends SubsystemBase {
-    private static Drivetrain instance = null;
+public class Drivetrain extends SubsystemBase implements Logged{
+    //private static Drivetrain instance = null;
     private final SwerveDrive swerveDrive;
     private final AddressableLED leds = new AddressableLED(0);
     private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(48);
@@ -41,11 +45,12 @@ public class Drivetrain extends SubsystemBase {
     
 
     public static Drivetrain getInstance() {
-        if (instance == null) {
-            instance = new Drivetrain();
-        }
+        // if (instance == null) {
+        //     instance = new Drivetrain();
+        // }
 
-        return instance;
+        // return instance;
+        return RobotContainer.getDrivetrain();
     }
 
     public Drivetrain() {
@@ -74,7 +79,8 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("heading", swerveDrive.getOdometryHeading().getDegrees());
+        log("heading", swerveDrive.getOdometryHeading().getDegrees(), LogLevel.OVERRIDE_FILE_ONLY);
+        // SmartDashboard.putNumber("heading", swerveDrive.getOdometryHeading().getDegrees());
     }
 
     public void setupPathPlanner() {
@@ -188,6 +194,7 @@ public class Drivetrain extends SubsystemBase {
      *
      * @return The robot's pose
      */
+    @Log
     public Pose2d getPose() {
         return swerveDrive.getPose();
     }
@@ -204,6 +211,7 @@ public class Drivetrain extends SubsystemBase {
      *
      * @return The yaw angle
      */    
+    @Log
     public Rotation2d getHeading() {
         return swerveDrive.getOdometryHeading();
     }

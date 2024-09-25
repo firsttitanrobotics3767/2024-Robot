@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Constants;
+import monologue.LogLevel;
 import monologue.Logged;
 import monologue.Annotations.*;
 
@@ -147,18 +148,26 @@ public class Intake extends SubsystemBase implements Logged{
             lights.setSpeed(0);
         }
 
-        SmartDashboard.putNumber("Intake/measuredPosition", getPosition());
-        SmartDashboard.putNumber("Intake/Absolute Position", getAbsolutePosition());
-        SmartDashboard.putNumber("Intake/measuredRotationVelocity", positionLeftMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/targetPos", goalState.pos);
-        SmartDashboard.putBoolean("Intake/atGoal", atGoal());
-        SmartDashboard.putString("Intake/lastState", lastState.toString());
-        SmartDashboard.putString("Intake/goalState", goalState.toString());
-        SmartDashboard.putBoolean("Intake/hasGamePiece", hasGamePiece);
-        SmartDashboard.putNumber("Intake/Sensor Distance", analogSensor.getValue());
-        SmartDashboard.putBoolean("Intake/digitalSensor", digitalSensor.get());
-        SmartDashboard.putNumber("Intake/roller torque", rollerMotor.getTorqueCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Intake/positionVolts", positionLeftMotor.getMotorVoltage().getValueAsDouble());
+        log("At Goal", atGoal(), LogLevel.OVERRIDE_FILE_ONLY);
+        log("Has Game Piece", hasGamePiece, LogLevel.OVERRIDE_FILE_ONLY);
+
+        log("Last State", lastState.toString());
+        log("Sensor Distance", analogSensor.getValue());
+        log("Digital Sensor", digitalSensor.get());
+        log("Position Volts", positionLeftMotor.getMotorVoltage().getValueAsDouble());
+        log("Target Position", goalState.pos);
+        // SmartDashboard.putNumber("Intake/measuredPosition", getPosition());
+        // SmartDashboard.putNumber("Intake/Absolute Position", getAbsolutePosition());
+        // SmartDashboard.putNumber("Intake/measuredRotationVelocity", positionLeftMotor.getVelocity().getValueAsDouble());
+        // SmartDashboard.putNumber("Intake/targetPos", goalState.pos);
+        // SmartDashboard.putBoolean("Intake/atGoal", atGoal());
+        // SmartDashboard.putString("Intake/lastState", lastState.toString());
+        // SmartDashboard.putString("Intake/goalState", goalState.toString());
+        // SmartDashboard.putBoolean("Intake/hasGamePiece", hasGamePiece);
+        // SmartDashboard.putNumber("Intake/Sensor Distance", analogSensor.getValue());
+        // SmartDashboard.putBoolean("Intake/digitalSensor", digitalSensor.get());
+        // SmartDashboard.putNumber("Intake/roller torque", rollerMotor.getTorqueCurrent().getValueAsDouble());
+        // SmartDashboard.putNumber("Intake/positionVolts", positionLeftMotor.getMotorVoltage().getValueAsDouble());
     }
 
     @Log
@@ -182,7 +191,6 @@ public class Intake extends SubsystemBase implements Logged{
         this.controlState = controlState;
     }
 
-    @Log
     public boolean atGoal() {
         // return ((getAbsolutePosition() > (goalState.pos - 0.01)) && (getAbsolutePosition() < (goalState.pos + 0.01)));
         return ((getPosition() > (goalState.pos - 0.01)) && (getPosition() < (goalState.pos + 0.01)));

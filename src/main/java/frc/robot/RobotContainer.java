@@ -69,13 +69,13 @@ public class RobotContainer implements Logged{
   
 
   public final NoteLight lights = new NoteLight();
-  public final Vision vision = new Vision();
+  public final static Vision vision = new Vision();
   public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
-  public final Drivetrain drivetrain = Drivetrain.getInstance();
+  public final static Drivetrain drivetrain = new Drivetrain();
   private final static Intake intake = new Intake();
-  private final Elevator elevator = Elevator.getInstance();
-  public final Shooter shooter = Shooter.getInstance();
-  private final Climber climber = Climber.getInstance();
+  private final static Elevator elevator = new Elevator();
+  public final static Shooter shooter = new Shooter();
+  private final static Climber climber = new Climber();
 
   PS5Controller driver = new PS5Controller(0);
   PS5Controller operator = new PS5Controller(1);
@@ -180,5 +180,25 @@ public class RobotContainer implements Logged{
 
   public static Intake getIntake() {
     return intake;
+  }
+
+  public static Drivetrain getDrivetrain(){
+    return drivetrain;
+  }
+  
+  public static Shooter getShooter() {
+    return shooter;
+  }
+
+  public static Elevator getElevator() {
+    return elevator;
+  }
+
+  public static Climber getClimber() {
+    return climber;
+  }
+
+  public static Vision getVision() {
+    return vision;
   }
 }
