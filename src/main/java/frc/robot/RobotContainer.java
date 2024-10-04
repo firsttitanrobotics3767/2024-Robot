@@ -68,19 +68,21 @@ public class RobotContainer implements Logged{
   }
   
 
-  public final NoteLight lights = new NoteLight();
-  public final static Vision vision = new Vision();
+
   public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
   public final static Drivetrain drivetrain = new Drivetrain();
   private final static Intake intake = new Intake();
   private final static Elevator elevator = new Elevator();
   public final static Shooter shooter = new Shooter();
   private final static Climber climber = new Climber();
+  public final NoteLight lights = new NoteLight();
+  public final static Vision vision = new Vision();
 
   PS5Controller driver = new PS5Controller(0);
   PS5Controller operator = new PS5Controller(1);
 
   SendableChooser<Command> autoChooser;
+  SendableChooser<String> testMode;
 
   FaceLocation faceLocation = FaceLocation.None;
 
@@ -122,7 +124,10 @@ public class RobotContainer implements Logged{
     // PortForwarder.add(1182, null, 0);
 
     Monologue.setupMonologue(this, "Robot", false, true);
-
+    testMode = new SendableChooser<String>();
+    testMode.addOption("enabled", "debug");
+    testMode.setDefaultOption("disabled", "normal");
+    SmartDashboard.putData("debug mode", testMode);
   }
 
 
@@ -174,7 +179,7 @@ public class RobotContainer implements Logged{
   }
 
   public void loggingPeriodic() {
-    Monologue.setFileOnly(DriverStation.isDSAttached() ? DriverStation.isFMSAttached() : false);
+    Monologue.setFileOnly(testMode.getSelected() == "normal");
     Monologue.updateAll();
   }
 
