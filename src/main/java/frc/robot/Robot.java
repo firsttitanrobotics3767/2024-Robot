@@ -20,6 +20,8 @@ public class Robot extends TimedRobot {
 
 
   private RobotContainer m_robotContainer;
+
+  private boolean debug = false;
   
 
   @Override
@@ -31,8 +33,8 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
-    m_robotContainer.loggingPeriodic();
-    }
+    m_robotContainer.loggingPeriodic(debug);
+  }
 
   @Override
   public void disabledInit() {}
@@ -49,7 +51,7 @@ public class Robot extends TimedRobot {
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     
-    m_robotContainer.drivetrain.setHeadingCorrection(false);
+    RobotContainer.drivetrain.setHeadingCorrection(false);
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -73,8 +75,8 @@ public class Robot extends TimedRobot {
 
     Vision.getInstance().turnOnAprilTags();
 
-    m_robotContainer.drivetrain.setHeadingCorrection(true);
-    m_robotContainer.shooter.moveTo(Shooter.PositionState.HANDOFF);
+    RobotContainer.drivetrain.setHeadingCorrection(true);
+    RobotContainer.shooter.moveTo(Shooter.PositionState.HANDOFF);
   }
 
   @Override
@@ -88,11 +90,14 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
+    debug = true;
   }
 
   @Override
   public void testPeriodic() {}
 
   @Override
-  public void testExit() {}
+  public void testExit() {
+    debug = false;
+  }
 }

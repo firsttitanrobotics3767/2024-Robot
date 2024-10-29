@@ -123,11 +123,7 @@ public class RobotContainer implements Logged{
 
     // PortForwarder.add(1182, null, 0);
 
-    Monologue.setupMonologue(this, "Robot", false, true);
-    testMode = new SendableChooser<String>();
-    testMode.addOption("enabled", "debug");
-    testMode.setDefaultOption("disabled", "normal");
-    SmartDashboard.putData("debug mode", testMode);
+    Monologue.setupMonologue(this, "Robot", true, true);
   }
 
 
@@ -178,8 +174,8 @@ public class RobotContainer implements Logged{
     return autoChooser.getSelected();
   }
 
-  public void loggingPeriodic() {
-    Monologue.setFileOnly(testMode.getSelected() == "normal");
+  public void loggingPeriodic(boolean debug) {
+    Monologue.setFileOnly(!debug);
     Monologue.updateAll();
   }
 
