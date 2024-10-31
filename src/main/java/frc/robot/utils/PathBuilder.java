@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.Drivetrain;
 
 public class PathBuilder {
+
+    // initializes Sendable Choosers to select notes on dashboard
     private static final SendableChooser<String> StartingQuestion = new SendableChooser<String>();
     private static final SendableChooser<String> question2 = new SendableChooser<String>();
     private static final SendableChooser<String> question1 = new SendableChooser<String>();
@@ -30,6 +32,7 @@ public class PathBuilder {
         ArrayList<String> autoPoses = new ArrayList<String>();
         List<PathPlannerPath> pathList = new ArrayList<PathPlannerPath>();
 
+        // puts all notes in order into the autoPoses list (I dont know why I did this in this way)
         autoPoses.add(StartingQuestion.getSelected());
         autoPoses.add(question1.getSelected());
         autoPoses.add(question2.getSelected());
@@ -38,14 +41,15 @@ public class PathBuilder {
         autoPoses.add(question5.getSelected());
 
         for (int i = 0; i < 5; i++) {
-            String pathName = autoPoses.get(i) + "-" + autoPoses.get(i + 1);
-            System.out.println(pathName);
-            if (pathName.contains("null")) {continue;}
-            pathList.add(PathPlannerPath.fromPathFile(pathName));
+            String pathName = autoPoses.get(i) + "-" + autoPoses.get(i + 1); // compiles path name in the form of "{pose1}-{pose2}" using i and i+1
+            System.out.println(pathName); // debug stuffs
+            if (pathName.contains("null")) {continue;} // skips iteration if compiled path name contains "null" anywhere
+            pathList.add(PathPlannerPath.fromPathFile(pathName)); // adds path to pathPlanner "Super Path"
         }
         return pathList;
     }
 
+    // i donn't know why I did this instead of just building the path with pathplanner
     public static List<Command> getCommandList() {
         List<Command> pathCommandList = new ArrayList<Command>();
         for (PathPlannerPath path : getPathList()) {
@@ -54,6 +58,7 @@ public class PathBuilder {
         return pathCommandList;
     }
 
+    // basically does the same thing as getCommandList() (i once again don't know why i did it this way)
     public static Command getFullPathCommand() {
         SequentialCommandGroup commandGroup = new SequentialCommandGroup();
         if (StartingQuestion.getSelected() == "Front") {
@@ -69,6 +74,9 @@ public class PathBuilder {
         return commandGroup;
     }
 
+    // i actually really like this implementation, it builds the sendable choosers 
+    // with all the notes they need in a fairly simple and expandable way
+    // there are definitely some improvements to be made
     public static void setupQuestions() {
         SmartDashboard.putData("Starting Position", StartingQuestion);
         SmartDashboard.putData("Note 1", question1);
