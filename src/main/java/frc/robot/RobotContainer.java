@@ -84,7 +84,7 @@ public class RobotContainer implements Logged{
   SendableChooser<Command> autoChooser;
   SendableChooser<String> testMode;
 
-  FaceLocation faceLocation = FaceLocation.None;
+  public static FaceLocation faceLocation = FaceLocation.None;
 
   public RobotContainer() {
     configureBindings();
@@ -201,5 +201,9 @@ public class RobotContainer implements Logged{
 
   public static Vision getVision() {
     return vision;
+  }
+
+  public static void setFaceLocation(FaceLocation faceLocation) {
+    RobotContainer.faceLocation = faceLocation;
   }
 }

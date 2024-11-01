@@ -134,4 +134,21 @@ public class GeomUtil {
   public static Translation2d translation3dTo2dXZ(Translation3d translation) {
     return new Translation2d(translation.getX(), translation.getZ());
   }
+
+  /**
+   * compares two translation2d's and returns true if they are within the specified tolerance
+   * 
+   * @param pose1
+   * @param pose2
+   * @param tolerance
+   * @return
+   */
+  public static boolean compareTranslation(Translation2d pose1, Translation2d pose2, double tolerance) {
+    double distance = pose1.getDistance(pose2);
+    if (distance <= tolerance) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
