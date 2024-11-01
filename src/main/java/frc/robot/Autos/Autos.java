@@ -91,6 +91,10 @@ public class Autos extends Command{
             )
             .andThen(
                 new ShootAuton()
+            ).andThen(
+                new InstantCommand(() -> {
+                    RobotContainer.setFaceLocation(FaceLocation.None);
+                })
             ));
 
         return routine;
