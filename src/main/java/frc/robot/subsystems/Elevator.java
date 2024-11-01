@@ -1,49 +1,107 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.Constants;
 
 public class Elevator extends SubsystemBase{
+    public enum PositionState {
+        STOW(1),
+        AMP(33),
+        SAFE_SHOOT(35);
+
+        public double pos;
+        private PositionState(double pos) {
+            this.pos = pos;
+        }
+    }
+
+    private static Elevator instance = null;
     
-    private final CANSparkMax leftMotor, rightMotor;
-    private final RelativeEncoder leftEncoder, rightEncoder;
-    private double targetVolts = 0.0;
+    private final TalonFX elevatorMotor;
+    private final TalonFXConfiguration elevatorConfig;
 
-    private final double maxHeightMeters = 1;
-    private final double minHeightMeters = 0.1;
+    private double finalSpeed;
 
+    private boolean positionControlled = true;
+    private PositionState goalState = PositionState.STOW;
+
+    public static Elevator getInstance() {
+        if (instance == null) {
+            instance = new Elevator();
+        }
+
+        return instance;
+    }
+    
     public Elevator() {
-        // Left motor setup
-        leftMotor = new CANSparkMax(5, MotorType.kBrushless);
-        leftMotor.restoreFactoryDefaults();
-        leftMotor.setIdleMode(com.revrobotics.CANSparkBase.IdleMode.kBrake);
-        leftMotor.setInverted(true);
+        elevatorMotor = new TalonFX(Constants.Elevator.motorID);
+        elevatorConfig = new TalonFXConfiguration();
+        elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 30;
+        elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
+        elevatorMotor.setNeutralMode(NeutralModeValue.Brake);
+        elevatorMotor.setInverted(false);
+        elevatorMotor.setPosition(0);
+        elevatorConfig.Slot0.kP = Constants.Elevator.positionP;
+        elevatorConfig.Slot0.kI = Constants.Elevator.positionI;
+        elevatorConfig.Slot0.kD = Constants.Elevator.positionD;
+        elevatorConfig.Slot0.kG = Constants.Elevator.positionG;
+        elevatorConfig.Slot0.kV = Constants.Elevator.positionV;
+        elevatorConfig.Slot0.kS = Constants.Elevator.positionS;
+        elevatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+        MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
+        motionMagicConfigs.MotionMagicCruiseVelocity = Constants.Elevator.maxVel;
+        motionMagicConfigs.MotionMagicAcceleration = Constants.Elevator.maxAccel;
 
-        // Right motor setup
-        rightMotor = new CANSparkMax(51, MotorType.kBrushless);
-        rightMotor.restoreFactoryDefaults();
-        rightMotor.setIdleMode(IdleMode.kBrake);
-        rightMotor.follow(leftMotor, true);
-        
-
-        // Encoder setup
-        leftEncoder = leftMotor.getEncoder();
-        rightEncoder = rightMotor.getEncoder();
-
+        elevatorMotor.getConfigurator().apply(elevatorConfig);
+        elevatorMotor.getConfigurator().apply(motionMagicConfigs);
     }
 
     @Override
     public void periodic() {
-        leftMotor.set(targetVolts);
+        // if (positionControlled) {
+        //     elevatorMotor.setControl(new MotionMagicVoltage(goalState.pos));
+        // }
+        SmartDashboard.putString("Elevator/goalState", goalState.toString());
+        SmartDashboard.putNumber("Elevator/targetPos", goalState.pos);
+        SmartDashboard.putNumber("Elevator/measuredPos", elevatorMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Elevator/velocity", elevatorMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putBoolean("Elevator/at goal", atGoal());
     }
 
-    public void setVolts(double volts) {
-        targetVolts = volts;
+    public void moveTo(PositionState position) {
+        goalState = position;
+    }
+
+    public void setSpeed(double speed) {
+        if (speed >= 0) {
+            finalSpeed = speed * 0.7;
+        } else if (speed <= 0 && getPosition() <= 10) {
+            finalSpeed = speed * 0.3;
+        } else {
+            finalSpeed = speed * 0.7;
+        }
+        elevatorMotor.set(finalSpeed);
+    }
+
+    public double getPosition() {
+        return elevatorMotor.getPosition().getValueAsDouble();
+    }
+
+    public void resetPosition() {
+        elevatorMotor.setPosition(0);
+    }
+
+    public boolean atGoal() {
+        return ((getPosition() > (goalState.pos - 0.01)) && (getPosition() < (goalState.pos + 0.01)));
     }
 }

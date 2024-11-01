@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import org.photonvision.PhotonCamera;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -9,37 +7,46 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.utils.Constants;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-public class Drivetrain extends SubsystemBase{
-    public final double maxSpeed = Constants.Swerve.maxVelocity;
-
+public class Drivetrain extends SubsystemBase {
+    private static Drivetrain instance = null;
     private final SwerveDrive swerveDrive;
+    private final AddressableLED leds = new AddressableLED(0);
+    private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(48);
 
+    public final double maxSpeed = Constants.Swerve.maxVelocity;
+    // public final double maxSpeed = 1;
     private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
     private final double angleConversionFactor = Constants.Swerve.angleConversionFactor;
+    
 
-    private double kP = SmartDashboard.getNumber("kP", 5);
-    private double kI = SmartDashboard.getNumber("kI", 0);
-    private double kD = SmartDashboard.getNumber("kD", 0);
+    public static Drivetrain getInstance() {
+        if (instance == null) {
+            instance = new Drivetrain();
+        }
 
-
-    // vision
-
-    private final PhotonCamera camera = new PhotonCamera("Arducam_OV9281_USB_Camera");
+        return instance;
+    }
 
     public Drivetrain() {
         System.out.println("\"conversionFactor\": {");
@@ -47,29 +54,29 @@ public class Drivetrain extends SubsystemBase{
         System.out.println("\t\"drive\": " + driveConversionFactor);
         System.out.println("}");
 
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
 
         try {
             swerveDrive = new SwerveParser(Constants.Swerve.directory).createSwerveDrive(maxSpeed, angleConversionFactor, driveConversionFactor);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        swerveDrive.setHeadingCorrection(false);
-        // swerveDrive.invertOdometry = true;
 
         setupPathPlanner();
+
+        leds.setLength(ledBuffer.getLength());
+        for (int i = 0; i < 48; i++) {
+            ledBuffer.setRGB(i, 0, 255, 0);
+        }
+        leds.setData(ledBuffer);
+        leds.start();
     }
 
     @Override
     public void periodic() {
-
         SmartDashboard.putNumber("heading", swerveDrive.getOdometryHeading().getDegrees());
-
     }
 
-    /**
-     * Setup AutoBuilder for PathPlanner
-     */
     public void setupPathPlanner() {
         AutoBuilder.configureHolonomic(
             this::getPose, // Robot pose supplier
@@ -77,10 +84,10 @@ public class Drivetrain extends SubsystemBase{
             this::getRobotVelocity, // ChassisSpeeds supplier (robot relative)
             this::driveRobotOriented, // Method that will drive robot given robot relative speeds
             new HolonomicPathFollowerConfig(
-                new PIDConstants(5, 0, 0), // Translation PID
+                new PIDConstants(6.5, 0, 0.002), // Translation PID
                 new PIDConstants( // Rotation PID
-                    10.0, 
-                    0.0, 
+                    5, 
+                    0.0,
                     0.0), 
                 5.15, // Max module speed in m/s
                 swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(), // Drive base radius in meters
@@ -94,6 +101,23 @@ public class Drivetrain extends SubsystemBase{
                 return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
             },
             this);
+    }
+
+    public Command aimChassis(Translation2d target) {
+        double faceLocationHeading = Math.atan2(
+            target.getX() - getPose().getX(),
+            target.getY() - getPose().getY()
+        );
+        return new RunCommand(() -> driveFieldOriented(getTargetSpeeds(
+            swerveDrive.getFieldVelocity().vxMetersPerSecond,
+            swerveDrive.getFieldVelocity().vyMetersPerSecond,
+            Math.sin(faceLocationHeading),
+            Math.cos(faceLocationHeading)
+        )));
+    }
+
+    public void setHeadingCorrection(boolean headingCorrection) {
+        swerveDrive.setHeadingCorrection(headingCorrection);
     }
 
     public Command driveToPose(Pose2d pose)
@@ -181,7 +205,7 @@ public class Drivetrain extends SubsystemBase{
      * @return The yaw angle
      */    
     public Rotation2d getHeading() {
-        return swerveDrive.getYaw();
+        return swerveDrive.getOdometryHeading();
     }
 
     /**
@@ -196,6 +220,10 @@ public class Drivetrain extends SubsystemBase{
      */
     public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, double headingX, double headingY) {
         return swerveDrive.swerveController.getTargetSpeeds(xInput, yInput, headingX, headingY, getHeading().getRadians(), Constants.Swerve.maxVelocity);
+    }
+
+    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d heading) {
+        return swerveDrive.swerveController.getTargetSpeeds(yInput, xInput, heading.getRadians(), getHeading().getRadians(), Constants.Swerve.maxVelocity);
     }
 
     /**
@@ -223,6 +251,13 @@ public class Drivetrain extends SubsystemBase{
      */
     public SwerveController getSwerveController() {
         return swerveDrive.getSwerveController();
+    }
+
+    public void addVisionMeasurement(Pose3d measurement) {
+        swerveDrive.addVisionMeasurement(measurement.toPose2d(), Timer.getFPGATimestamp());
+        Pose2d newOdometry = new Pose2d(swerveDrive.getPose().getTranslation().getX(), swerveDrive.getPose().getTranslation().getY(), measurement.getRotation().toRotation2d());
+        swerveDrive.setGyroOffset(new Rotation3d(0, 0, measurement.getRotation().toRotation2d().getRadians()));
+        swerveDrive.resetOdometry(newOdometry);
     }
 
     /**

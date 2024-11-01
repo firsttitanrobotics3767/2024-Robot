@@ -1,0 +1,65 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.7026194712684815,
+        "y": 5.800374137672689
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.386467179537313,
+        "y": 3.738198962062563
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.8944214117794003,
+        "y": 5.563259918874311
+      },
+      "prevControl": {
+        "x": 4.48361431909658,
+        "y": 3.5873080955545054
+      },
+      "nextControl": {
+        "x": 3.370524880814644,
+        "y": 7.320229992231724
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.7026194712684815,
+        "y": 7.452988389903799
+      },
+      "prevControl": {
+        "x": 6.438010304343805,
+        "y": 7.22305945046295
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 240.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "C4-Cx",
+  "previewStartingState": null,
+  "useDefaultConstraints": true
+}
