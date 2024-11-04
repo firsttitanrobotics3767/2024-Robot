@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.utils.Constants;
 import monologue.LogLevel;
 import monologue.Logged;
@@ -60,13 +61,9 @@ public class Intake extends SubsystemBase implements Logged{
     private double runTime = 1; 
     private int runSpeed = 4;
     
-    // public static Intake getInstance() {
-    //     if (instance == null) {
-    //         instance = new Intake();
-    //     }
-
-    //     return instance;
-    // }
+    public static Intake getInstance() {
+        return RobotContainer.getIntake();
+    }
 
     private final TalonFX rollerMotor;
     private final TalonFXConfiguration rollerConfig, positionConfig;

@@ -7,6 +7,11 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import choreo.Choreo;
+import choreo.auto.AutoFactory;
+import choreo.auto.AutoFactory.AutoBindings;
+import choreo.trajectory.SwerveSample;
+import choreo.trajectory.TrajectorySample;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -23,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
+import frc.robot.Autos.Autos;
 import frc.robot.commands.Amp;
 import frc.robot.commands.AutoIntake;
 import frc.robot.commands.Pass;
@@ -171,7 +176,12 @@ public class RobotContainer implements Logged{
 
 
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    return Autos.fourPieceAuto(drivetrain.getChoreoAutoFactory()).cmd();
+    // return autoChooser.getSelected();
+  }
+
+  public boolean mirrorAuto() {
+    return DriverStation.getAlliance().orElse(Alliance.Blue) != Alliance.Blue;
   }
 
   public void loggingPeriodic(boolean debug) {

@@ -1,23 +1,18 @@
 package frc.robot.Autos;
 
-import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoLoop;
 import choreo.auto.AutoTrajectory;
-import choreo.auto.AutoChooser.AutoRoutineGenerator;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.FaceLocation;
-import frc.robot.commands.ShootAutoAim;
 import frc.robot.commands.auton.DeployIntake;
 import frc.robot.commands.auton.FirstShot;
 import frc.robot.commands.auton.PrepareShootAutoAim;
@@ -26,19 +21,11 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
-import frc.robot.utils.GeomUtil;
 
-public class Autos extends Command{
+public class Autos {
 
-    private final static Drivetrain drivetrain = Drivetrain.getInstance();
-    private final static Shooter shooter = Shooter.getInstance();
-    private final static Intake intake = RobotContainer.getIntake();
-    private final static Vision vision = RobotContainer.getVision();
-
-    public AutoLoop fourPieceAuto(AutoFactory factory) {
+    public static AutoLoop fourPieceAuto(AutoFactory factory) {
         final AutoLoop routine = factory.newLoop("4-piece");
-
-        final SendableChooser<String> note1 = new SendableChooser<String>();
 
         final AutoTrajectory front_n2 = factory.trajectory("Front-2", routine);
         final AutoTrajectory n2_frontShoot = factory.trajectory("2-FrontShoot", routine);
@@ -52,10 +39,10 @@ public class Autos extends Command{
         routine.enabled()
             .onTrue(new FirstShot()
                         .alongWith(new InstantCommand(() -> {
-                            drivetrain.resetOdometry(front_n2.getInitialPose().get());
+                            Drivetrain.getInstance().resetOdometry(front_n2.getInitialPose().get());
                         }))
                         .andThen(new InstantCommand(() -> {
-                            vision.turnOffAprilTags();
+                            Vision.getInstance().turnOffAprilTags();
                         }))
                         .andThen(
                             new ParallelRaceGroup(
@@ -64,51 +51,99 @@ public class Autos extends Command{
                             ))
             .withName("Four Piece Auto Entry Point"));
 
-        front_n2.done().onTrue(
+        front_n2.done().and(hasGamePiece(routine)).onTrue(
             new ParallelRaceGroup(
                 n2_frontShoot.cmd(),
-                new WaitUntilCommand(() -> (shooter.getEstimatedShotAngle(DriverStation.getAlliance().get()) < 1))
+                new WaitUntilCommand(() -> (Shooter.getInstance().getEstimatedShotAngle(DriverStation.getAlliance().orElse(Alliance.Blue)) < 1))
             ).alongWith(
                 new InstantCommand(() -> {
                     RobotContainer.setFaceLocation(FaceLocation.Speaker);
                 }),
                 new PrepareShootAutoAim()
-            )
-            .andThen(
-                new ShootAuton()
-            )
-        );
-
-        front_n2.done().onTrue(
-            new ParallelRaceGroup(
-                n2_frontShoot.cmd(),
-                new WaitUntilCommand(() -> (shooter.getEstimatedShotAngle(DriverStation.getAlliance().get()) < 1))
-            ).alongWith(
-                new InstantCommand(() -> {
-                    RobotContainer.setFaceLocation(FaceLocation.Speaker);
-                }),
-                new PrepareShootAutoAim()
-            )
-            .andThen(
+            ).andThen(
                 new ShootAuton()
             ).andThen(
                 new InstantCommand(() -> {
                     RobotContainer.setFaceLocation(FaceLocation.None);
                 })
-            ));
+            ).andThen(
+                new ParallelRaceGroup(
+                    frontShoot_n1.cmd(),
+                    deployIntake()
+                )
+            )
+        );
+        
+        front_n2.done().and(hasGamePiece(routine).negate()).onTrue(
+            new ParallelRaceGroup(
+                n2_n1.cmd(),
+                deployIntake()
+            )
+        );
+
+        frontShoot_n1.done().or(n2_n1.done()).and(hasGamePiece(routine)).onTrue(
+            new ParallelRaceGroup(
+                n1_frontShoot.cmd(),
+                new WaitUntilCommand(() -> (Shooter.getInstance().getEstimatedShotAngle(DriverStation.getAlliance().get()) < 1))
+            ).alongWith(
+                new InstantCommand(() -> {
+                    RobotContainer.setFaceLocation(FaceLocation.Speaker);
+                }),
+                new PrepareShootAutoAim()
+            ).andThen(
+                new ShootAuton()
+            ).andThen(
+                new InstantCommand(() -> {
+                    RobotContainer.setFaceLocation(FaceLocation.None);
+                })
+            ).andThen(
+                new ParallelRaceGroup(
+                    frontShoot_n3.cmd(),
+                    deployIntake()
+                )
+            )
+        );
+
+        frontShoot_n1.done().or(n2_n1.done()).and(hasGamePiece(routine).negate()).onTrue(
+            new ParallelRaceGroup(
+                n1_n3.cmd(),
+                deployIntake()
+            )
+        );
+        
+        frontShoot_n3.done().or(n1_n3.done()).onTrue(
+            new ParallelRaceGroup(
+                n3_frontShoot.cmd(),
+                new WaitUntilCommand(() -> (Shooter.getInstance().getEstimatedShotAngle(DriverStation.getAlliance().get()) < 1))
+            ).alongWith(
+                new InstantCommand(() -> {
+                    RobotContainer.setFaceLocation(FaceLocation.Speaker);
+                }),
+                new PrepareShootAutoAim()
+            ).andThen(
+                new ShootAuton()
+            ).andThen(
+                new InstantCommand(() -> {
+                    RobotContainer.setFaceLocation(FaceLocation.None);
+                })
+            )
+        );
 
         return routine;
     }
 
-    private Command deployIntake() {
+    private static Command deployIntake() {
         return new DeployIntake()
             .andThen(new InstantCommand(() -> {
-                intake.setRollerSpeed(0);
-                intake.moveTo(Intake.PositionState.STOW);
+                Intake.getInstance().setRollerSpeed(0);
+                Intake.getInstance().moveTo(Intake.PositionState.STOW);
             })
         );
     }
 
-    private Trigger 
+    private static Trigger hasGamePiece(AutoLoop routine) {
+        Trigger trigger = new Trigger(routine.getLoop(), () -> Intake.getInstance().hasGamePiece() || Shooter.getInstance().hasGamePiece());
+        return trigger;
+    }
     
 }

@@ -17,7 +17,7 @@ public class ShootAuton extends SequentialCommandGroup {
 
     public ShootAuton() {
         addCommands(
-            new InstantCommand(() -> {shooter.setFeederSpeed(0.30); System.out.println("shooot");}),
+            new InstantCommand(() -> {shooter.setFeederSpeed(0.30); System.out.println("shoot");}),
             new WaitCommand(0.2),
             new WaitUntilCommand(() -> !shooter.hasGamePiece()),
             new InstantCommand(() -> {shooter.setShootSpeed(0); shooter.setFeederSpeed(0); shooter.moveTo(Shooter.PositionState.HANDOFF);})

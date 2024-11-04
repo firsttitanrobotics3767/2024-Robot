@@ -1,11 +1,17 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import choreo.Choreo;
+import choreo.auto.AutoFactory;
+import choreo.auto.AutoFactory.AutoBindings;
+import choreo.trajectory.SwerveSample;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +22,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,8 +49,11 @@ public class Drivetrain extends SubsystemBase implements Logged{
     // public final double maxSpeed = 1;
     private final double driveConversionFactor = Constants.Swerve.driveConversionFactor;
     private final double angleConversionFactor = Constants.Swerve.angleConversionFactor;
-    
 
+    private final PIDController pidController;
+
+    private final AutoFactory autoFactory;
+    
     public static Drivetrain getInstance() {
         // if (instance == null) {
         //     instance = new Drivetrain();
@@ -61,6 +71,9 @@ public class Drivetrain extends SubsystemBase implements Logged{
 
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
 
+        pidController = new PIDController(4.3, 0, 0);
+        pidController.enableContinuousInput(-Math.PI, Math.PI);
+
         try {
             swerveDrive = new SwerveParser(Constants.Swerve.directory).createSwerveDrive(maxSpeed, angleConversionFactor, driveConversionFactor);
         } catch (Exception e) {
@@ -68,6 +81,8 @@ public class Drivetrain extends SubsystemBase implements Logged{
         }
 
         setupPathPlanner();
+
+        autoFactory = Choreo.createAutoFactory(this, this::getPose, this::choreoController, () -> DriverStation.getAlliance().orElse(Alliance.Blue) != Alliance.Blue, new AutoBindings());
 
         leds.setLength(ledBuffer.getLength());
         for (int i = 0; i < 48; i++) {
@@ -80,7 +95,37 @@ public class Drivetrain extends SubsystemBase implements Logged{
     @Override
     public void periodic() {
         log("heading", swerveDrive.getOdometryHeading().getDegrees(), LogLevel.OVERRIDE_FILE_ONLY);
+        log("vX", swerveDrive.getRobotVelocity().vxMetersPerSecond);
+        log("vY", swerveDrive.getRobotVelocity().vyMetersPerSecond);
+        log("Omega", swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
         // SmartDashboard.putNumber("heading", swerveDrive.getOdometryHeading().getDegrees());
+    }
+
+    public void choreoController(Pose2d currentPose, SwerveSample sample) {
+
+        log("Choreo/Timestamp", sample.t);
+        log("Choreo/vX", sample.vx);
+        log("Choreo/vY", sample.vy);
+        log("choreo/Omega", sample.omega);
+
+        if (RobotContainer.faceLocation.equals(RobotContainer.FaceLocation.None)) {
+            drive(new Translation2d(sample.vx, sample.vy),
+                                    sample.omega,
+                                    true);
+        } else {
+            Translation2d target = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? Constants.FieldLocations.blueSpeaker : Constants.FieldLocations.redSpeaker;
+            
+            double faceLocationHeading = Math.atan2(getPose().getY() - target.getY(), getPose().getX() - target.getX()) + ((sample.omega > 0.1) ? sample.omega * 0.1 : 0.0);
+            
+            drive(new Translation2d(sample.vx, sample.vy), pidController.calculate(getHeading().getRadians(), faceLocationHeading), true);
+
+            log("Choreo Facing", Units.radiansToDegrees(faceLocationHeading) + " : " + getHeading().getDegrees());
+        }
+
+    }
+
+    public AutoFactory getChoreoAutoFactory() {
+        return autoFactory;
     }
 
     public void setupPathPlanner() {
