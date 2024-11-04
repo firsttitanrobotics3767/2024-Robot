@@ -132,6 +132,18 @@ public class Autos {
         return routine;
     }
 
+    public static AutoLoop test(AutoFactory factory) {
+        final AutoLoop routine = factory.newLoop("test path");
+
+        final AutoTrajectory trajectory = factory.trajectory("test path", routine);
+
+        routine.enabled().onTrue(
+            trajectory.cmd()
+        );
+
+        return routine;
+    }
+
     private static Command deployIntake() {
         return new DeployIntake()
             .andThen(new InstantCommand(() -> {

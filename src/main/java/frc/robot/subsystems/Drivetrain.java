@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.List;
+
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
@@ -11,6 +13,8 @@ import choreo.Choreo;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoFactory.AutoBindings;
 import choreo.trajectory.SwerveSample;
+import choreo.trajectory.Trajectory;
+import choreo.trajectory.TrajectorySample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -126,6 +130,12 @@ public class Drivetrain extends SubsystemBase implements Logged{
 
     public AutoFactory getChoreoAutoFactory() {
         return autoFactory;
+    }
+
+    public void followTrajectory(Trajectory<?> path) {
+        for(TrajectorySample<?> sample : path.sampleArray()) {
+            driveFieldOriented(sample.getChassisSpeeds());
+        }
     }
 
     public void setupPathPlanner() {

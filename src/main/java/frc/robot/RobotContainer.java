@@ -174,9 +174,9 @@ public class RobotContainer implements Logged{
     new Trigger(() -> operator.getRawButton(3)).onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2); shooter.setShootSpeed(-2);}).andThen(new WaitCommand(0.4)).andThen(new WaitUntilCommand(() -> intake.getTorqueCurrent() < 25)).andThen(new InstantCommand(() -> {intake.setRollerSpeed(0.0); shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0); SmartDashboard.putBoolean("Intake Ring", false); SmartDashboard.putBoolean("Ready to Shoot", true);})));
   }
 
-
   public Command getAutonomousCommand() {
-    return Autos.fourPieceAuto(drivetrain.getChoreoAutoFactory()).cmd();
+    // return Autos.fourPieceAuto(drivetrain.getChoreoAutoFactory()).cmd();
+    return Autos.test(drivetrain.getChoreoAutoFactory()).cmd();
     // return autoChooser.getSelected();
   }
 
