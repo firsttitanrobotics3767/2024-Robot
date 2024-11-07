@@ -138,6 +138,11 @@ public class Autos {
         final AutoTrajectory trajectory = factory.trajectory("test path", routine);
 
         routine.enabled().onTrue(
+            new InstantCommand(
+                () -> Drivetrain.getInstance().resetOdometry(trajectory.getInitialPose().get())
+            )
+        )
+        .onTrue(
             trajectory.cmd()
         );
 

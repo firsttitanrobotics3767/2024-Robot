@@ -22,6 +22,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.proto.Kinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -102,6 +105,12 @@ public class Drivetrain extends SubsystemBase implements Logged{
         log("vX", swerveDrive.getRobotVelocity().vxMetersPerSecond);
         log("vY", swerveDrive.getRobotVelocity().vyMetersPerSecond);
         log("Omega", swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
+        log("xPose", getPose().getX());
+        log("yPose", getPose().getY());
+        for (int i = 0; i < 4; i++) {
+            log("/Module/Velocity " + i, swerveDrive.getStates()[i].speedMetersPerSecond);
+            log("/Module/Angle" + i, swerveDrive.getStates()[i].angle);
+        }
         // SmartDashboard.putNumber("heading", swerveDrive.getOdometryHeading().getDegrees());
     }
 
@@ -110,7 +119,7 @@ public class Drivetrain extends SubsystemBase implements Logged{
         log("Choreo/Timestamp", sample.t);
         log("Choreo/vX", sample.vx);
         log("Choreo/vY", sample.vy);
-        log("choreo/Omega", sample.omega);
+        log("Choreo/Omega", sample.omega);
 
         if (RobotContainer.faceLocation.equals(RobotContainer.FaceLocation.None)) {
             drive(new Translation2d(sample.vx, sample.vy),
@@ -212,6 +221,14 @@ public class Drivetrain extends SubsystemBase implements Logged{
      * @param fieldRelative Drive mode.  True for field-relative, false for robot-relative.
      */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
+        if (SmartDashboard.getBoolean("Debug Mode", false)) {    
+            ChassisSpeeds expectedVelocities = ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, swerveDrive.getGyro().getRotation3d().toRotation2d());
+            SwerveModuleState[] expectedStates = swerveDrive.kinematics.toSwerveModuleStates(expectedVelocities);
+            for (int i = 0; i < 4; i++) {
+                log("/Module/Expected Velocity: " + i, expectedStates[i].speedMetersPerSecond);
+                log("/Module/Expected Angle: " + i, expectedStates[i].angle);
+            }
+        }
         swerveDrive.drive(translation, rotation, fieldRelative, false);
     }
 
@@ -249,7 +266,6 @@ public class Drivetrain extends SubsystemBase implements Logged{
      *
      * @return The robot's pose
      */
-    @Log
     public Pose2d getPose() {
         return swerveDrive.getPose();
     }

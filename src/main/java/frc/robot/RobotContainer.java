@@ -71,8 +71,6 @@ public class RobotContainer implements Logged{
       this.faceLocation = faceLocation;
     }
   }
-  
-
 
   public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
   public final static Drivetrain drivetrain = new Drivetrain();
@@ -87,7 +85,7 @@ public class RobotContainer implements Logged{
   PS5Controller operator = new PS5Controller(1);
 
   SendableChooser<Command> autoChooser;
-  SendableChooser<String> testMode;
+  SendableChooser<Boolean> testMode;
 
   public static FaceLocation faceLocation = FaceLocation.None;
 
@@ -126,11 +124,14 @@ public class RobotContainer implements Logged{
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
+    testMode.setDefaultOption("Normal", false);
+    testMode.addOption("Debug", true);
+    SmartDashboard.putData("Debug Mode", testMode);
+
     // PortForwarder.add(1182, null, 0);
 
     Monologue.setupMonologue(this, "Robot", true, true);
   }
-
 
   private void configureBindings() {
     Command intakeCommand = new AutoIntake(operator);
