@@ -42,6 +42,7 @@ import monologue.Logged;
 import monologue.Annotations.Log;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
+import swervelib.SwerveModule;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
@@ -222,7 +223,7 @@ public class Drivetrain extends SubsystemBase implements Logged{
      */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
         if (SmartDashboard.getBoolean("Debug Mode", false)) {    
-            ChassisSpeeds expectedVelocities = ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, swerveDrive.getGyro().getRotation3d().toRotation2d());
+            ChassisSpeeds expectedVelocities = ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, getHeading());
             SwerveModuleState[] expectedStates = swerveDrive.kinematics.toSwerveModuleStates(expectedVelocities);
             for (int i = 0; i < 4; i++) {
                 log("/Module/Expected Velocity: " + i, expectedStates[i].speedMetersPerSecond);
@@ -248,6 +249,10 @@ public class Drivetrain extends SubsystemBase implements Logged{
      */
     public void driveRobotOriented(ChassisSpeeds chassisSpeeds) {
         swerveDrive.drive(chassisSpeeds);
+    }
+
+    public SwerveModule getModule(int id) {
+        return swerveDrive.getModules()[id];
     }
 
     /**

@@ -70,7 +70,8 @@ public class Climber extends SubsystemBase implements Logged{
         limitSwitch = new DigitalInput(4);
         // encoder.setPosition(absoluteEncoder.getPosition());
 
-
+        leader.getBusVoltage();
+        leader.getOutputCurrent();
     }
 
     @Override
