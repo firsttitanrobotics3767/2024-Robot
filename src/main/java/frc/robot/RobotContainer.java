@@ -124,6 +124,8 @@ public class RobotContainer implements Logged{
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
+    testMode = new SendableChooser<Boolean>();
+
     testMode.setDefaultOption("Normal", false);
     testMode.addOption("Debug", true);
     SmartDashboard.putData("Debug Mode", testMode);

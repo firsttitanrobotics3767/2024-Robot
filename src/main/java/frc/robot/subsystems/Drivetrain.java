@@ -222,7 +222,7 @@ public class Drivetrain extends SubsystemBase implements Logged{
      * @param fieldRelative Drive mode.  True for field-relative, false for robot-relative.
      */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
-        if (SmartDashboard.getBoolean("Debug Mode", false)) {    
+        if (true) {
             ChassisSpeeds expectedVelocities = ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, getHeading());
             SwerveModuleState[] expectedStates = swerveDrive.kinematics.toSwerveModuleStates(expectedVelocities);
             for (int i = 0; i < 4; i++) {
