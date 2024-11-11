@@ -1,8 +1,11 @@
 package frc.robot.Autos;
 
+import java.lang.invoke.ClassSpecializer.Factory;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
+import choreo.auto.AutoTrajectory;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,6 +20,8 @@ public class AutoBuilder {
     private static final SendableChooser<String> question5 = new SendableChooser<String>();
 
     private static final Drivetrain drivetrain = Drivetrain.getInstance();
+
+    final AutoTrajectory front_n2 = factory.trajectory("Front-2", routine) + "-" + factory.trajectory("Front-2", routine)
 
     public static void setupQuestions() {
         SmartDashboard.putData("Starting Position", StartingQuestion);
@@ -33,12 +38,12 @@ public class AutoBuilder {
         startingPoses.add("S2");
         startingPoses.add("Front");
 
-        for (int i = 1; i < 4; i++) {
-            notes.add("C" + String.valueOf(i));
-        }
+        // for (int i = 1; i < 4; i++) {
+        //     notes.add("C" + String.valueOf(i));
+        // }
 
-        for (int i = 1; i < 6; i++) {
-            notes.add("C" + String.valueOf(i));
-        }
+        // for (int i = 1; i < 6; i++) {
+        //     notes.add("C" + String.valueOf(i));
+        // }
     }
 }
