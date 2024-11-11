@@ -44,6 +44,7 @@ import frc.robot.commands.auton.PrepareCloseShotAuton;
 import frc.robot.commands.auton.PrepareFarShotAuton;
 import frc.robot.commands.auton.PrepareSideShotAuton;
 import frc.robot.commands.auton.ShootAuton;
+import frc.robot.commands.auton.ShootAutonOld;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
@@ -116,7 +117,7 @@ public class RobotContainer implements Logged{
     NamedCommands.registerCommand("Prepare Close Shot", new PrepareCloseShotAuton());
     NamedCommands.registerCommand("Prepare Side Shot", new PrepareSideShotAuton());
     NamedCommands.registerCommand("Prepare Far Shot", new PrepareFarShotAuton());
-    NamedCommands.registerCommand("Shoot", new ShootAuton());
+    NamedCommands.registerCommand("Shoot", new ShootAutonOld());
     NamedCommands.registerCommand("Intake And Shoot", new IntakeAndShoot());
     NamedCommands.registerCommand("Turn Off Apriltags", new InstantCommand(() -> vision.turnOffAprilTags()));
     NamedCommands.registerCommand("Turn On Apriltags", new InstantCommand(() -> vision.turnOnAprilTags()));
@@ -187,8 +188,8 @@ public class RobotContainer implements Logged{
     return DriverStation.getAlliance().orElse(Alliance.Blue) != Alliance.Blue;
   }
 
-  public void loggingPeriodic(boolean debug) {
-    Monologue.setFileOnly(!debug);
+  public void loggingPeriodic() {
+    Monologue.setFileOnly(testMode.getSelected());
     Monologue.updateAll();
   }
 

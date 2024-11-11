@@ -1,5 +1,7 @@
 package frc.robot.Autos;
 
+import java.util.function.BooleanSupplier;
+
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoLoop;
 import choreo.auto.AutoTrajectory;
@@ -7,8 +9,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
@@ -27,6 +32,10 @@ public class Autos {
     public static AutoLoop fourPieceAuto(AutoFactory factory) {
         final AutoLoop routine = factory.newLoop("4-piece");
 
+        final PrepareShootAutoAim prepareShot = new PrepareShootAutoAim(routine.getLoop());
+        final ShootAuton shoot = new ShootAuton(routine.getLoop(), Shooter.getInstance());
+        final FirstShot firstShot = new FirstShot();
+
         final AutoTrajectory front_n2 = factory.trajectory("Front-2", routine);
         final AutoTrajectory n2_frontShoot = factory.trajectory("2-FrontShoot", routine);
         final AutoTrajectory frontShoot_n3 = factory.trajectory("FrontShoot-3", routine);
@@ -37,7 +46,7 @@ public class Autos {
         final AutoTrajectory n1_n3 = factory.trajectory("1-3", routine);
 
         routine.enabled()
-            .onTrue(new FirstShot()
+            .onTrue(firstShot.cmd()
                         .alongWith(new InstantCommand(() -> {
                             Drivetrain.getInstance().resetOdometry(front_n2.getInitialPose().get());
                         }))
@@ -59,9 +68,9 @@ public class Autos {
                 new InstantCommand(() -> {
                     RobotContainer.setFaceLocation(FaceLocation.Speaker);
                 }),
-                new PrepareShootAutoAim()
+                prepareShot.cmd()
             ).andThen(
-                new ShootAuton()
+                shoot.cmd()
             ).andThen(
                 new InstantCommand(() -> {
                     RobotContainer.setFaceLocation(FaceLocation.None);
@@ -89,9 +98,9 @@ public class Autos {
                 new InstantCommand(() -> {
                     RobotContainer.setFaceLocation(FaceLocation.Speaker);
                 }),
-                new PrepareShootAutoAim()
+                prepareShot.cmd()
             ).andThen(
-                new ShootAuton()
+                shoot.cmd()
             ).andThen(
                 new InstantCommand(() -> {
                     RobotContainer.setFaceLocation(FaceLocation.None);
@@ -119,9 +128,9 @@ public class Autos {
                 new InstantCommand(() -> {
                     RobotContainer.setFaceLocation(FaceLocation.Speaker);
                 }),
-                new PrepareShootAutoAim()
+                prepareShot.cmd()
             ).andThen(
-                new ShootAuton()
+                shoot.cmd()
             ).andThen(
                 new InstantCommand(() -> {
                     RobotContainer.setFaceLocation(FaceLocation.None);
@@ -161,6 +170,20 @@ public class Autos {
     private static Trigger hasGamePiece(AutoLoop routine) {
         Trigger trigger = new Trigger(routine.getLoop(), () -> Intake.getInstance().hasGamePiece() || Shooter.getInstance().hasGamePiece());
         return trigger;
+    }
+
+    private static Trigger subsystemsAvailable(Subsystem... subsystems) {
+        return new Trigger(new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                for (Subsystem subsystem : subsystems) {
+                    if (CommandScheduler.getInstance().requiring(subsystem) != null) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
     }
     
 }

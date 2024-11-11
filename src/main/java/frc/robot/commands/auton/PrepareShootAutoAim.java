@@ -1,5 +1,6 @@
 package frc.robot.commands.auton;
 
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -10,26 +11,41 @@ import frc.robot.commands.SetIntakePosition;
 import frc.robot.commands.SetShooterPosition;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.utils.CommandTrigger;
 
-public class PrepareShootAutoAim extends SequentialCommandGroup{
+public class PrepareShootAutoAim extends CommandTrigger{
 
-    private final Intake intake = RobotContainer.getIntake();
+    private final Intake intake = Intake.getInstance();
     private final Shooter shooter = Shooter.getInstance();
     
-    public PrepareShootAutoAim() {
-        addCommands(
-
-        new InstantCommand(() -> intake.setRollerSpeed(0.1)),
-        new InstantCommand(() -> intake.moveTo(Intake.PositionState.SCORING)),
-        new WaitCommand(0.3),
-        new SetShooterPosition(Shooter.PositionState.AUTO).withTimeout(1),
-
-        new InstantCommand(() -> {shooter.setFeederSpeed(-0.1); shooter.setShootSpeed(-2); intake.setRollerSpeed(0);}),
-        new WaitUntilCommand(() -> !shooter.hasGamePiece()),
-        new InstantCommand(() -> {shooter.setShootSpeed(90); shooter.setFeederSpeed(0);}),
-        new WaitUntilCommand(() -> (shooter.getWheelSpeed() >= 85))
-        );
+    public PrepareShootAutoAim(EventLoop loop) {
+        addLoop(loop);
         addRequirements(intake, shooter);
+    }
+
+    @Override
+    public void initialize() {
+        active(true);
+        new SequentialCommandGroup(
+            new InstantCommand(() -> intake.setRollerSpeed(0.1)),
+            new InstantCommand(() -> intake.moveTo(Intake.PositionState.SCORING)),
+            new WaitCommand(0.3),
+            new SetShooterPosition(Shooter.PositionState.AUTO).withTimeout(1),
+
+            new InstantCommand(() -> {shooter.setFeederSpeed(-0.1); shooter.setShootSpeed(-2); intake.setRollerSpeed(0);}),
+            new WaitUntilCommand(() -> !shooter.hasGamePiece()),
+            new InstantCommand(() -> {shooter.setShootSpeed(90); shooter.setFeederSpeed(0);})
+        );
+    }
+
+    @Override
+    public void execute() {
+
+    }
+
+    @Override
+    public boolean isFinished() {
+        return shooter.getWheelSpeed() >= 85;
     }
 
 }

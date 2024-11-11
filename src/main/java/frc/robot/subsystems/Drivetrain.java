@@ -88,6 +88,8 @@ public class Drivetrain extends SubsystemBase implements Logged{
             throw new RuntimeException(e);
         }
 
+        swerveDrive.setAngularVelocityCompensation(true, true, 0.1);
+
         setupPathPlanner();
 
         autoFactory = Choreo.createAutoFactory(this, this::getPose, this::choreoController, () -> DriverStation.getAlliance().orElse(Alliance.Blue) != Alliance.Blue, new AutoBindings());
