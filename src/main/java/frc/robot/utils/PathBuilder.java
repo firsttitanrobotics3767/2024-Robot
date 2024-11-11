@@ -20,8 +20,8 @@ public class PathBuilder {
 
     // initializes Sendable Choosers to select notes on dashboard
     private static final SendableChooser<String> StartingQuestion = new SendableChooser<String>();
-    private static final SendableChooser<String> question2 = new SendableChooser<String>();
     private static final SendableChooser<String> question1 = new SendableChooser<String>();
+    private static final SendableChooser<String> question2 = new SendableChooser<String>();
     private static final SendableChooser<String> question3 = new SendableChooser<String>();
     private static final SendableChooser<String> question4 = new SendableChooser<String>();
     private static final SendableChooser<String> question5 = new SendableChooser<String>();
