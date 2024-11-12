@@ -21,7 +21,11 @@ public class AutoBuilder {
 
     private static final Drivetrain drivetrain = Drivetrain.getInstance();
 
-    final AutoTrajectory front_n2 = factory.trajectory("Front-2", routine) + "-" + factory.trajectory("Front-2", routine)
+    final AutoTrajectory startTo1 = factory.trajectory(StartingQuestion.getSelected() + "-" + question1.getSelected(), routine);
+    final AutoTrajectory n1_n2 = factory.trajectory(question1.getSelected() + "-" + question2.getSelected(), routine);
+    final AutoTrajectory n2_n3 = factory.trajectory(question2.getSelected() + "-" + question3.getSelected(), routine);
+    final AutoTrajectory n3_n4 = factory.trajectory(question3.getSelected() + "-" + question4.getSelected(), routine);
+    final AutoTrajectory n4_n5 = factory.trajectory(question4.getSelected() + "-" + question5.getSelected(), routine);
 
     public static void setupQuestions() {
         SmartDashboard.putData("Starting Position", StartingQuestion);
