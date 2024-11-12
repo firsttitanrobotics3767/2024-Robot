@@ -88,7 +88,7 @@ public class Drivetrain extends SubsystemBase implements Logged{
             throw new RuntimeException(e);
         }
 
-        swerveDrive.setAngularVelocityCompensation(true, true, 0.1);
+        swerveDrive.setAngularVelocityCompensation(true, true, 0.06);
 
         setupPathPlanner();
 
@@ -125,9 +125,7 @@ public class Drivetrain extends SubsystemBase implements Logged{
         log("Choreo/Omega", sample.omega);
 
         if (RobotContainer.faceLocation.equals(RobotContainer.FaceLocation.None)) {
-            drive(new Translation2d(sample.vx, sample.vy),
-                                    sample.omega,
-                                    true);
+            driveFieldOriented(sample.getChassisSpeeds());
         } else {
             Translation2d target = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? Constants.FieldLocations.blueSpeaker : Constants.FieldLocations.redSpeaker;
             

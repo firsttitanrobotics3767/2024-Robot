@@ -5,34 +5,6 @@
  "variables":{
   "expressions":{},
   "poses":{
-   "n1":{
-    "x":{
-     "exp":"2.58 m",
-     "val":2.58
-    },
-    "y":{
-     "exp":"6.75 m",
-     "val":6.75
-    },
-    "heading":{
-     "exp":"0.75 rad",
-     "val":0.75
-    }
-   },
-   "amp":{
-    "x":{
-     "exp":"0.69 m",
-     "val":0.69
-    },
-    "y":{
-     "exp":"6.7 m",
-     "val":6.7
-    },
-    "heading":{
-     "exp":"1.05 rad",
-     "val":1.05
-    }
-   },
    "frontShoot":{
     "x":{
      "exp":"1.9 m",
@@ -61,18 +33,32 @@
      "val":-1.05
     }
    },
-   "front":{
+   "amp":{
     "x":{
-     "exp":"1.35 m",
-     "val":1.35
+     "exp":"0.69 m",
+     "val":0.69
     },
     "y":{
-     "exp":"5.55 m",
-     "val":5.55
+     "exp":"6.7 m",
+     "val":6.7
     },
     "heading":{
-     "exp":"0 rad",
-     "val":0.0
+     "exp":"1.05 rad",
+     "val":1.05
+    }
+   },
+   "n1":{
+    "x":{
+     "exp":"2.58 m",
+     "val":2.58
+    },
+    "y":{
+     "exp":"6.75 m",
+     "val":6.75
+    },
+    "heading":{
+     "exp":"0.75 rad",
+     "val":0.75
     }
    },
    "n2":{
@@ -82,6 +68,20 @@
     },
     "y":{
      "exp":"front.y()",
+     "val":5.55
+    },
+    "heading":{
+     "exp":"0 rad",
+     "val":0.0
+    }
+   },
+   "front":{
+    "x":{
+     "exp":"1.35 m",
+     "val":1.35
+    },
+    "y":{
+     "exp":"5.55 m",
      "val":5.55
     },
     "heading":{
