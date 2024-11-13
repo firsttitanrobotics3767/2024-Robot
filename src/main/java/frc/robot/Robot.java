@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.BiConsumer;
+
 import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -73,7 +75,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    Vision.getInstance().turnOnAprilTags();
+    Vision.turnOnAprilTags();
 
     RobotContainer.drivetrain.setHeadingCorrection(true);
     RobotContainer.shooter.moveTo(Shooter.PositionState.HANDOFF);

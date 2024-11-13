@@ -9,7 +9,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS5Controller;
@@ -46,6 +50,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.NoteLight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Vision.Type;
 // import frc.robot.subsystems.Vision;
 import frc.robot.utils.Constants;
 import frc.robot.utils.PhotonNoteDetection;
@@ -67,16 +72,12 @@ public class RobotContainer implements Logged{
     }
   }
   
-
-
-  public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
   public final static Drivetrain drivetrain = new Drivetrain();
   private final static Intake intake = new Intake();
   private final static Elevator elevator = new Elevator();
   public final static Shooter shooter = new Shooter();
   private final static Climber climber = new Climber();
   public final NoteLight lights = new NoteLight();
-  public final static Vision vision = new Vision();
 
   PS5Controller driver = new PS5Controller(0);
   PS5Controller operator = new PS5Controller(1);
@@ -98,6 +99,9 @@ public class RobotContainer implements Logged{
       () -> MathUtil.applyDeadband(driver.getRawAxis(5), 0.5),
       () -> MathUtil.applyDeadband(driver.getRawAxis(2), 0.5)
     ));
+
+    new Vision("Arducam_OV9281_USB_Camera", Type.AprilTag,  new Transform3d(new Translation3d(-0.289857, 0.031749, 0.171914), new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(135), Units.degreesToRadians(0))));
+
     // intake.setDefaultCommand(new RunCommand(() -> intake.setLights(operator.getRawAxis(1)), intake));
     // shooter.setDefaultCommand(new RunCommand(() -> shooter.setPositionSpeed(operator.getRawAxis(1)), shooter));
     elevator.setDefaultCommand(new RunCommand(() -> elevator.setSpeed(MathUtil.applyDeadband(-operator.getRawAxis(5), Constants.IO.elevatorDeadband)), elevator));
@@ -115,8 +119,8 @@ public class RobotContainer implements Logged{
     NamedCommands.registerCommand("Prepare Far Shot", new PrepareFarShotAuton());
     NamedCommands.registerCommand("Shoot", new ShootAuton());
     NamedCommands.registerCommand("Intake And Shoot", new IntakeAndShoot());
-    NamedCommands.registerCommand("Turn Off Apriltags", new InstantCommand(() -> vision.turnOffAprilTags()));
-    NamedCommands.registerCommand("Turn On Apriltags", new InstantCommand(() -> vision.turnOnAprilTags()));
+    NamedCommands.registerCommand("Turn Off Apriltags", new InstantCommand(() -> Vision.turnOffAprilTags()));
+    NamedCommands.registerCommand("Turn On Apriltags", new InstantCommand(() -> Vision.turnOnAprilTags()));
     
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -197,9 +201,5 @@ public class RobotContainer implements Logged{
 
   public static Climber getClimber() {
     return climber;
-  }
-
-  public static Vision getVision() {
-    return vision;
   }
 }

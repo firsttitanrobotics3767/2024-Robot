@@ -1,11 +1,15 @@
 package frc.robot.subsystems;
 
+import java.util.function.BiConsumer;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.hal.simulation.PowerDistributionDataJNI;
+import edu.wpi.first.hal.simulation.REVPHDataJNI;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -81,6 +86,16 @@ public class Drivetrain extends SubsystemBase implements Logged{
     public void periodic() {
         log("heading", swerveDrive.getOdometryHeading().getDegrees(), LogLevel.OVERRIDE_FILE_ONLY);
         // SmartDashboard.putNumber("heading", swerveDrive.getOdometryHeading().getDegrees());
+
+        Vision.getCameras().forEach(new BiConsumer<String, Vision>() {
+            public void accept(String t, Vision u) {
+                if (u.poseOutadated()) {
+                    return;
+                } else {
+                    addVisionMeasurement(u.getEstimatedPose());
+                }
+            };
+        });
     }
 
     public void setupPathPlanner() {
