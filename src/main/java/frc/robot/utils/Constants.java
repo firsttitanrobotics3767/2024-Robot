@@ -145,4 +145,11 @@ public class Constants {
     }
 
     public static final boolean defaultControlMode = false;
+
+    public static class StartPoses {
+        // {rounded x in 10ths of meter, rounded y in 10ths of meter, 0 or 90 (backwards)}
+        public static final int[] test = {13, 5, 0};
+
+        // TODO: Fill these out.
+    }
 }

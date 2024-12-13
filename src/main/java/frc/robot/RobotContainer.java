@@ -45,6 +45,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.NoteLight;
+import frc.robot.subsystems.PosLights;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
 // import frc.robot.subsystems.Vision;
@@ -65,7 +66,7 @@ public class RobotContainer {
     }
   }
   
-  public final NoteLight lights = new NoteLight();
+  // public final NoteLight lights = new NoteLight();
   public final Vision vision = new Vision();
   //public final PhotonNoteDetection noteDetection = new PhotonNoteDetection(vision.getRingCam());
   public final Drivetrain drivetrain = Drivetrain.getInstance();
@@ -164,12 +165,12 @@ public class RobotContainer {
     new Trigger(() -> operator.getRawButton(10)).onTrue(new SetIntakePosition(Intake.PositionState.STOW).alongWith(new SetShooterPosition(Shooter.PositionState.AMP)));
     new Trigger(() -> operator.getRawButton(3)).onTrue(new InstantCommand(() -> {intake.setRollerSpeed(0.2); shooter.setFeederSpeed(0.2); shooter.setShootSpeed(-2);}).andThen(new WaitCommand(0.4)).andThen(new WaitUntilCommand(() -> intake.getTorqueCurrent() < 25)).andThen(new InstantCommand(() -> {intake.setRollerSpeed(0.0); shooter.setFeederSpeed(0.0); shooter.setShootSpeed(0); SmartDashboard.putBoolean("Intake Ring", false); SmartDashboard.putBoolean("Ready to Shoot", true);})));
     // guitar controls
-    new Trigger(() -> guitar.getRawButton(3)).whileTrue(new InstantCommand(() -> lights.setColor("Red")));
-    new Trigger(() -> guitar.getRawButton(9)).onTrue(new InstantCommand(() -> lights.setColor("Orange")));
-    new Trigger(() -> guitar.getRawButton(4)).onTrue(new InstantCommand(() -> lights.setColor("Yellow")));
-    new Trigger(() -> guitar.getRawButton(2)).onTrue(new InstantCommand(() -> lights.setColor("Green")));
-    new Trigger(() -> guitar.getRawButton(1)).onTrue(new InstantCommand(() -> lights.setColor("Blue")));
-    new Trigger(() -> guitar.getRawButton(5)).onTrue(new InstantCommand(() -> lights.setColor("Violet")));
+    // new Trigger(() -> guitar.getRawButton(3)).whileTrue(new InstantCommand(() -> lights.setColor("Red")));
+    // new Trigger(() -> guitar.getRawButton(9)).onTrue(new InstantCommand(() -> lights.setColor("Orange")));
+    // new Trigger(() -> guitar.getRawButton(4)).onTrue(new InstantCommand(() -> lights.setColor("Yellow")));
+    // new Trigger(() -> guitar.getRawButton(2)).onTrue(new InstantCommand(() -> lights.setColor("Green")));
+    // new Trigger(() -> guitar.getRawButton(1)).onTrue(new InstantCommand(() -> lights.setColor("Blue")));
+    // new Trigger(() -> guitar.getRawButton(5)).onTrue(new InstantCommand(() -> lights.setColor("Violet")));
   }
 
 

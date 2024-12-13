@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.PosLights;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
 
@@ -20,11 +21,14 @@ public class Robot extends TimedRobot {
 
 
   private RobotContainer m_robotContainer;
+  private PosLights lights;
   
 
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    lights = new PosLights();
+    lights.enable();
   }
 
   @Override
@@ -45,6 +49,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // Vision.getInstance().turnOffAprilTags();
+  
+    lights.disable();
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     
