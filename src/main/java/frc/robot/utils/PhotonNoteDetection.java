@@ -95,14 +95,11 @@ public class PhotonNoteDetection extends SubsystemBase {
       }
     }
 
-    for (Translation2d note : allNotePoses) {
-      for (int i = 0; i < notePoses.length; i++) {
-        if (notePoses[i] == null
-            && note.getDistance(notePositions.get(i)) < Units.inchesToMeters(36.0)) {
-          notePoses[i] = note;
-        }
-      }
+
+    for (int i = 0; i < notePoses.length; i++) {
+      notePoses[i] = notePoses
     }
+
 
     for (int i = 0; i < notePoses.length; i++) {
       SmartDashboard.putString("vision/Note Detections-" + i, notePoses[i] != null ? notePoses[i].toString() : "null");
@@ -225,5 +222,9 @@ public class PhotonNoteDetection extends SubsystemBase {
 
   public Translation2d[] getNotePoses() {
     return notePoses;
+  }
+
+  public Translation2d getClosestNote() {
+    for 
   }
 }
